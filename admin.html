@@ -14,6 +14,10 @@
     [data-theme="arctic"]{--bg:#f2f5f9;--bg2:#e8ecf3;--bg3:#dde2ec;--card:#fff;--t1:#1a2332;--t2:#5a6578;--t3:#8a93a5;--accent:#2856a0;--accent-h:#3468b8;--accent-d:rgba(40,86,160,.08);--border:#d4dae6;--border2:#c0c8d8}
     [data-theme="midnight"]{--bg:#0a1020;--bg2:#0f1628;--bg3:#151d32;--card:#111830;--t1:#d8dce8;--t2:#8890a8;--t3:#5a6280;--accent:#7898d0;--accent-h:#90b0e0;--accent-d:rgba(120,152,208,.1);--border:#1c2540;--border2:#263050}
     [data-theme="rosewood"]{--bg:#120c0a;--bg2:#1a1210;--bg3:#221a16;--card:#1c1410;--t1:#e8e0d8;--t2:#a89888;--t3:#786858;--accent:#c88a70;--accent-h:#d8a088;--accent-d:rgba(200,138,112,.1);--border:#2c2018;--border2:#382a20}
+    [data-theme="sakura"]{--bg:#0f0a10;--bg2:#161018;--bg3:#1e1620;--card:#14101a;--t1:#e8dfe5;--t2:#a898a8;--t3:#786878;--accent:#d4839e;--accent-h:#e09ab2;--accent-d:rgba(212,131,158,.1);--border:#241c28;--border2:#302638}
+    [data-theme="emerald"]{--bg:#060e08;--bg2:#0c160e;--bg3:#121e16;--card:#0e1810;--t1:#dce8df;--t2:#88a890;--t3:#587860;--accent:#3da668;--accent-h:#50c07a;--accent-d:rgba(61,166,104,.1);--border:#1a2c1e;--border2:#243828}
+    [data-theme="sunset"]{--bg:#110e0a;--bg2:#1a1410;--bg3:#221a14;--card:#181210;--t1:#e8e0d4;--t2:#a89878;--t3:#786848;--accent:#d4893c;--accent-h:#e0a050;--accent-d:rgba(212,137,60,.1);--border:#2c2018;--border2:#382a20}
+    [data-theme="neon"]{--bg:#050508;--bg2:#0a0a10;--bg3:#0f0f18;--card:#08081a;--t1:#e0e8f0;--t2:#8098b8;--t3:#506880;--accent:#00d4ff;--accent-h:#40e0ff;--accent-d:rgba(0,212,255,.08);--border:#141428;--border2:#1c1c38}
 
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--t1);line-height:1.6;font-size:14px;transition:background .4s,color .4s}
@@ -138,7 +142,10 @@
 
     <!-- Theme Tab -->
     <div class="tab-panel active" id="tab-theme">
-      <h3 style="font-size:16px;margin-bottom:16px;color:var(--t2)">Select Theme</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="font-size:16px;color:var(--t2)">Select Theme</h3>
+        <button class="btn btn-primary btn-sm" id="saveThemeBtn">Save for all visitors</button>
+      </div>
       <div class="theme-grid" id="themeGrid"></div>
     </div>
 
@@ -361,7 +368,11 @@
       {id:'ivory',name:'Ivory',colors:['#f7f3eb','#ffffff','#8b6914','#2a2318','#e0d8cc']},
       {id:'arctic',name:'Arctic',colors:['#f2f5f9','#ffffff','#2856a0','#1a2332','#d4dae6']},
       {id:'midnight',name:'Midnight',colors:['#0a1020','#111830','#7898d0','#d8dce8','#1c2540']},
-      {id:'rosewood',name:'Rosewood',colors:['#120c0a','#1c1410','#c88a70','#e8e0d8','#2c2018']}
+      {id:'rosewood',name:'Rosewood',colors:['#120c0a','#1c1410','#c88a70','#e8e0d8','#2c2018']},
+      {id:'sakura',name:'Sakura',colors:['#0f0a10','#14101a','#d4839e','#e8dfe5','#241c28']},
+      {id:'emerald',name:'Emerald',colors:['#060e08','#0e1810','#3da668','#dce8df','#1a2c1e']},
+      {id:'sunset',name:'Sunset',colors:['#110e0a','#181210','#d4893c','#e8e0d4','#2c2018']},
+      {id:'neon',name:'Neon',colors:['#050508','#08081a','#00d4ff','#e0e8f0','#141428']}
     ];
 
     function renderThemes() {
@@ -647,6 +658,33 @@
     });
 
     // ═══ Settings ═══
+    // Save theme for all visitors via GitHub API
+    document.getElementById('saveThemeBtn').addEventListener('click', function() {
+      var token = localStorage.getItem(TOKEN_KEY);
+      var theme = config.theme || 'obsidian';
+      if (!token) { toast('Login required'); return; }
+      this.textContent = 'Saving...'; this.disabled = true;
+      var btn = this;
+      // Get current index.html
+      fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
+        headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+      }).then(function(r){return r.json()}).then(function(data) {
+        var content = atob(data.content.replace(/\n/g,''));
+        // Replace data-theme in the html tag
+        var updated = content.replace(/data-theme="[^"]*"/, 'data-theme="'+theme+'"');
+        var encoded = btoa(unescape(encodeURIComponent(updated)));
+        return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+          body:JSON.stringify({message:'Update default theme to '+theme,content:encoded,sha:data.sha})
+        });
+      }).then(function(r){return r.json()}).then(function(res) {
+        if (res.content) { toast('Theme saved for all visitors!'); }
+        else { toast('Error: '+JSON.stringify(res.message||res)); }
+      }).catch(function(e){ toast('Error: '+e.message); })
+      .finally(function(){ btn.textContent='Save for all visitors'; btn.disabled=false; });
+    });
+
     document.getElementById('logoutBtn').addEventListener('click', function() {
       localStorage.removeItem(TOKEN_KEY);
       document.getElementById('adminPanel').style.display = 'none';
