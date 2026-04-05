@@ -249,21 +249,18 @@
     [data-theme="wine"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(184,48,80,.08)}
     /* Monochrome - stark contrast */
     [data-theme="monochrome"] .gradient-text{background:linear-gradient(135deg,#e8e8e8 0%,#fff 40%,#ccc 60%,#e8e8e8 100%);background-size:300% auto;-webkit-background-clip:text;background-clip:text}
+    /* C1: Conic gradient rotating border on card hover */
+    .pub-card-glow{position:absolute;inset:-1px;border-radius:13px;background:conic-gradient(var(--accent),var(--accent-hover),var(--bg-secondary),var(--accent));z-index:-1;opacity:0;transition:opacity .5s}
+    .pub-card:hover .pub-card-glow{opacity:1;animation:conic-spin 4s linear infinite}
+    @keyframes conic-spin{to{transform:rotate(360deg)}}
+
     /* Theme-tuned dynamic effects */
-    [data-theme="ivory"] .hero-mesh span,[data-theme="arctic"] .hero-mesh span,[data-theme="lavender"] .hero-mesh span,[data-theme="sand"] .hero-mesh span,[data-theme="ice"] .hero-mesh span{opacity:.06;filter:blur(100px)}
     [data-theme="ivory"] .pub-card:hover::before,[data-theme="arctic"] .pub-card:hover::before,[data-theme="lavender"] .pub-card:hover::before,[data-theme="sand"] .pub-card:hover::before,[data-theme="ice"] .pub-card:hover::before{opacity:.4 !important}
     [data-theme="ivory"] .hero-link::after,[data-theme="arctic"] .hero-link::after,[data-theme="sand"] .hero-link::after,[data-theme="ice"] .hero-link::after{background:radial-gradient(circle,rgba(0,0,0,.04),transparent)}
-    [data-theme="neon"] .hero-mesh span{opacity:.2;filter:blur(60px)}
     [data-theme="neon"] .pub-card:hover::before{filter:brightness(1.5)}
     [data-theme="neon"] .hero-link::after{background:radial-gradient(circle,rgba(0,212,255,.15),transparent)}
-    [data-theme="monochrome"] .hero-mesh span{opacity:.04;filter:blur(120px)}
     [data-theme="monochrome"] .hero-link::after{background:radial-gradient(circle,rgba(255,255,255,.06),transparent)}
-    [data-theme="aurora"] .hero-mesh span{opacity:.15}
     [data-theme="aurora"] .hero-link::after{background:radial-gradient(circle,rgba(48,200,144,.1),transparent)}
-    [data-theme="wine"] .hero-mesh span{opacity:.1}
-    [data-theme="sakura"] .hero-mesh span{opacity:.1}
-    [data-theme="copper"] .hero-mesh span,[data-theme="sunset"] .hero-mesh span{opacity:.12}
-    [data-theme="ocean"] .hero-mesh span{opacity:.14;filter:blur(70px)}
     [data-theme="ocean"] .hero-link::after{background:radial-gradient(circle,rgba(32,168,176,.1),transparent)}
 
 
@@ -383,7 +380,7 @@
         <a href="mailto:omanma1928@korea.ac.kr">Email</a>
         <a href="https://www.linkedin.com/in/%EC%9D%B4%EC%A0%95%EC%84%AD-%EB%8C%80%ED%95%99%EC%9B%90%EC%84%9D-%EB%B0%95%EC%82%AC%ED%86%B5%ED%95%A9%EA%B3%BC%EC%A0%95%EC%88%98%EB%A3%8C%EC%97%B0%EA%B5%AC-%EC%9E%AC%ED%95%99-%EC%BB%B4%ED%93%A8%ED%84%B0%ED%95%99%EA%B3%BC-%E2%80%8D-1b167a354/" target="_blank" rel="noopener">LinkedIn</a>
       </div>
-      <p class="footer-copy">&copy; 2025 Jungseob Lee. All rights reserved.</p>
+      <p class="footer-copy">&copy; 2025 Jungseob Lee. All rights reserved. (v3)</p>
     </div>
   </footer>
 
