@@ -548,13 +548,13 @@
       editImage = (config.paperImages && config.paperImages[id]) || null;
       renderUploadZone();
 
-      // Links
+      // Links - load from paper's own links + config overrides
       editLinks = [];
-      if (config.paperLinks && config.paperLinks[id]) {
-        Object.entries(config.paperLinks[id]).forEach(function(e) {
-          if (e[1]) editLinks.push({type: e[0], url: e[1]});
-        });
-      }
+      var p = id ? papers.find(function(x){return x.id===id}) : null;
+      var mergedLinks = Object.assign({}, (p && p.links) || {}, (config.paperLinks && config.paperLinks[id]) || {});
+      Object.entries(mergedLinks).forEach(function(e) {
+        if (e[1]) editLinks.push({type: e[0], url: e[1]});
+      });
       if (editLinks.length === 0) editLinks.push({type: 'pdf', url: ''});
       renderEditLinks();
 
