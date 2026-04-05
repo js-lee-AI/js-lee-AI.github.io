@@ -177,6 +177,15 @@
       </div>
 
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        <label>Profile Links (saved to localStorage)</label>
+        <div class="form-row"><label>Google Scholar</label><input type="url" id="link-scholar" placeholder="https://scholar.google.com/..."></div>
+        <div class="form-row"><label>GitHub</label><input type="url" id="link-github" placeholder="https://github.com/..."></div>
+        <div class="form-row"><label>Email</label><input type="text" id="link-email" placeholder="you@example.com"></div>
+        <div class="form-row"><label>LinkedIn</label><input type="url" id="link-linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <button class="btn btn-primary btn-sm" id="saveLinksBtn" style="margin-top:8px">Save Links</button>
+      </div>
+
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
         <label>Data Management</label>
         <div class="btn-group">
           <button class="btn btn-outline" id="exportBtn">Export Config</button>
@@ -708,6 +717,24 @@
       .finally(function(){ btn.textContent='Save for all visitors'; btn.disabled=false; });
     });
 
+    // Profile links management
+    function loadProfileLinks() {
+      var links = config.profileLinks || {};
+      document.getElementById('link-scholar').value = links.scholar || '';
+      document.getElementById('link-github').value = links.github || '';
+      document.getElementById('link-email').value = links.email || '';
+      document.getElementById('link-linkedin').value = links.linkedin || '';
+    }
+    document.getElementById('saveLinksBtn').addEventListener('click', function() {
+      if (!config.profileLinks) config.profileLinks = {};
+      config.profileLinks.scholar = document.getElementById('link-scholar').value.trim();
+      config.profileLinks.github = document.getElementById('link-github').value.trim();
+      config.profileLinks.email = document.getElementById('link-email').value.trim();
+      config.profileLinks.linkedin = document.getElementById('link-linkedin').value.trim();
+      saveConfig(config);
+      toast('Profile links saved!');
+    });
+
     document.getElementById('logoutBtn').addEventListener('click', function() {
       localStorage.removeItem(TOKEN_KEY);
       document.getElementById('adminPanel').style.display = 'none';
@@ -769,6 +796,7 @@
     function initAdmin() {
       renderThemes();
       renderPaperList();
+      loadProfileLinks();
     }
   })();
   </script>
