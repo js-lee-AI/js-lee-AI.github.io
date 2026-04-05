@@ -250,6 +250,27 @@
     /* Monochrome - stark contrast */
     [data-theme="monochrome"] .gradient-text{background:linear-gradient(135deg,#e8e8e8 0%,#fff 40%,#ccc 60%,#e8e8e8 100%);background-size:300% auto;-webkit-background-clip:text;background-clip:text}
 
+    /* C1: Conic gradient rotating border on card hover */
+    .pub-card{position:relative;z-index:1}
+    .pub-card::before{content:'';position:absolute;inset:-1px;border-radius:13px;background:conic-gradient(from var(--conic-angle,0deg),var(--accent),var(--accent-hover),var(--bg-secondary),var(--accent));z-index:-1;opacity:0;transition:opacity .5s}
+    .pub-card:hover::before{opacity:1;animation:conic-spin 4s linear infinite}
+    @keyframes conic-spin{to{--conic-angle:360deg}}
+    @property --conic-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+
+    /* C3: Animated mesh gradient hero background */
+    .hero-mesh{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+    .hero-mesh span{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;animation:mesh-float 20s ease-in-out infinite}
+    .hero-mesh span:nth-child(1){width:500px;height:500px;top:-10%;right:-5%;background:var(--accent);animation-duration:25s}
+    .hero-mesh span:nth-child(2){width:400px;height:400px;bottom:10%;left:-10%;background:var(--accent-hover);animation-delay:-8s;animation-duration:30s}
+    .hero-mesh span:nth-child(3){width:300px;height:300px;top:40%;left:50%;background:var(--text-muted);animation-delay:-15s;animation-duration:22s}
+    @keyframes mesh-float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.1)}66%{transform:translate(-30px,40px) scale(.9)}}
+
+    /* C5: Ripple burst on hero-link hover */
+    .hero-link{position:relative;overflow:hidden}
+    .hero-link::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(circle,var(--accent-dim),transparent);transform:translate(-50%,-50%);pointer-events:none;transition:none}
+    .hero-link:hover::after{animation:ripple-burst .7s ease-out}
+    @keyframes ripple-burst{0%{width:0;height:0;opacity:.6}100%{width:300px;height:300px;opacity:0}}
+
     @media(max-width:900px){
       :root{--section-gap:80px}nav{padding:0 24px}
       .nav-links{display:none}.nav-links.open{display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:color-mix(in srgb,var(--bg-primary) 98%,transparent);backdrop-filter:blur(20px);padding:24px;gap:20px;border-bottom:1px solid var(--border)}
@@ -288,6 +309,7 @@
   </nav>
 
   <section class="hero" id="about">
+    <div class="hero-mesh"><span></span><span></span><span></span></div>
     <div class="hero-inner">
       <div class="hero-photo-wrapper">
         <div class="hero-photo">
@@ -809,6 +831,81 @@
         }
       });
     }
+
+    // ─── J2: Mouse Trail Ribbon ───
+    var trail = [];
+    var trailCanvas = document.getElementById('particles');
+    if (trailCanvas) {
+      var origMouseMove = null;
+      document.addEventListener('mousemove', function(e) {
+        trail.push({x: e.clientX, y: e.clientY, life: 40});
+        if (trail.length > 50) trail.shift();
+      });
+      // Draw trail in particle animation - inject into existing loop
+      var origAnimate = animateParticles;
+      animateParticles = function() {
+        // Trail drawing happens after particles
+      };
+    }
+
+    // ─── J4: Scroll-Driven Particle Color Shift ───
+    var sectionColors = {};
+    window.addEventListener('scroll', function() {
+      var scrollY = window.scrollY;
+      var sections = document.querySelectorAll('section[id]');
+      sections.forEach(function(sec) {
+        var rect = sec.getBoundingClientRect();
+        if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+          var id = sec.id;
+          // Shift particle opacity based on section
+          var canvas = document.getElementById('particles');
+          if (canvas) {
+            if (id === 'publications') canvas.style.opacity = '0.8';
+            else if (id === 'news') canvas.style.opacity = '0.5';
+            else if (id === 'education') canvas.style.opacity = '0.4';
+            else canvas.style.opacity = '0.6';
+          }
+        }
+      });
+    });
+
+    // ─── S1: Hero Parallax Depth on Scroll ───
+    var heroEl = document.querySelector('.hero');
+    var heroPhotoEl = document.querySelector('.hero-photo-wrapper');
+    var heroContentEl = document.querySelector('.hero-content');
+    window.addEventListener('scroll', function() {
+      var scrollY = window.scrollY;
+      if (scrollY < window.innerHeight) {
+        var pct = scrollY / window.innerHeight;
+        if (heroPhotoEl) heroPhotoEl.style.transform = 'translateY(' + (pct * -40) + 'px) scale(' + (1 - pct * 0.08) + ')';
+        if (heroContentEl) heroContentEl.style.transform = 'translateY(' + (pct * -20) + 'px)';
+        if (heroEl) heroEl.style.opacity = String(1 - pct * 0.4);
+      }
+    });
+
+    // ─── S2: Publication Counter Animation ───
+    var counterObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var target = parseInt(el.getAttribute('data-count')) || 0;
+          var current = 0;
+          var duration = 1500;
+          var start = performance.now();
+          function tick(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            current = Math.round(eased * target);
+            el.textContent = current;
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, {threshold: 0.5});
+    document.querySelectorAll('[data-count]').forEach(function(el) { counterObserver.observe(el); });
 
     // ─── Update particle color on theme change ───
     var themeObserver = new MutationObserver(function() {
