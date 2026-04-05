@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="obsidian">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Jungseob Lee CV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>try{const c=JSON.parse(localStorage.getItem('jl-cv-config')||'{}');if(c.theme)document.documentElement.setAttribute('data-theme',c.theme);}catch(e){}</script>
+  <style>
+    :root,[data-theme="obsidian"]{--bg:#0b0b10;--bg2:#111118;--bg3:#181822;--card:#14141c;--t1:#e8e5df;--t2:#9a97a8;--t3:#6b6878;--accent:#c8a45c;--accent-h:#ddb96f;--accent-d:rgba(200,164,92,.12);--border:#1f1f2c;--border2:#2a2a38;--danger:#d04040;--success:#40a060}
+    [data-theme="ivory"]{--bg:#f7f3eb;--bg2:#efebdf;--bg3:#e6e0d4;--card:#fff;--t1:#2a2318;--t2:#6b6050;--t3:#9a9080;--accent:#8b6914;--accent-h:#a67d1a;--accent-d:rgba(139,105,20,.08);--border:#e0d8cc;--border2:#d0c8bb}
+    [data-theme="arctic"]{--bg:#f2f5f9;--bg2:#e8ecf3;--bg3:#dde2ec;--card:#fff;--t1:#1a2332;--t2:#5a6578;--t3:#8a93a5;--accent:#2856a0;--accent-h:#3468b8;--accent-d:rgba(40,86,160,.08);--border:#d4dae6;--border2:#c0c8d8}
+    [data-theme="midnight"]{--bg:#0a1020;--bg2:#0f1628;--bg3:#151d32;--card:#111830;--t1:#d8dce8;--t2:#8890a8;--t3:#5a6280;--accent:#7898d0;--accent-h:#90b0e0;--accent-d:rgba(120,152,208,.1);--border:#1c2540;--border2:#263050}
+    [data-theme="rosewood"]{--bg:#120c0a;--bg2:#1a1210;--bg3:#221a16;--card:#1c1410;--t1:#e8e0d8;--t2:#a89888;--t3:#786858;--accent:#c88a70;--accent-h:#d8a088;--accent-d:rgba(200,138,112,.1);--border:#2c2018;--border2:#382a20}
+
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--t1);line-height:1.6;font-size:14px;transition:background .4s,color .4s}
+    a{color:var(--accent);text-decoration:none}
+
+    /* Layout */
+    .admin-wrap{max-width:900px;margin:0 auto;padding:24px}
+    .admin-header{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:32px}
+    .admin-header h1{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--t1)}
+    .admin-header h1 span{color:var(--accent)}
+    .back-link{font-size:13px;color:var(--t3);border:1px solid var(--border2);padding:6px 14px;border-radius:6px;transition:all .2s}
+    .back-link:hover{color:var(--accent);border-color:var(--accent)}
+
+    /* Tabs */
+    .tabs{display:flex;gap:4px;margin-bottom:32px;border-bottom:1px solid var(--border);padding-bottom:0}
+    .tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--t3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+    .tab:hover{color:var(--t2)}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+
+    /* Forms */
+    label{display:block;font-size:12px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    input[type="text"],input[type="url"],input[type="number"],input[type="password"],select,textarea{
+      width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--t1);font-size:14px;font-family:inherit;transition:border-color .2s;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+    textarea{min-height:80px;resize:vertical}
+    .form-row{margin-bottom:16px}
+    .form-row-inline{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+    /* Buttons */
+    .btn{padding:10px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-h)}
+    .btn-outline{background:none;border:1px solid var(--border2);color:var(--t2)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-danger{background:none;border:1px solid var(--danger);color:var(--danger)}.btn-danger:hover{background:var(--danger);color:#fff}
+    .btn-sm{padding:6px 12px;font-size:12px}
+    .btn-group{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+    /* Theme cards */
+    .theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+    .theme-card{padding:20px;border:2px solid var(--border);border-radius:10px;cursor:pointer;text-align:center;transition:all .3s;position:relative}
+    .theme-card:hover{border-color:var(--border2)}.theme-card.selected{border-color:var(--accent);box-shadow:0 0 20px var(--accent-d)}
+    .theme-card .check{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;color:#fff;font-size:12px}
+    .theme-card.selected .check{display:flex}
+    .theme-preview{width:100%;height:60px;border-radius:6px;margin-bottom:10px;display:flex;overflow:hidden}
+    .theme-preview span{flex:1}
+    .theme-name{font-size:13px;font-weight:600;color:var(--t1)}
+
+    /* Paper list */
+    .paper-item{padding:16px 20px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;background:var(--card);transition:all .2s}
+    .paper-item:hover{border-color:var(--border2)}
+    .paper-item-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .paper-item-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--t1);line-height:1.4;flex:1}
+    .paper-item-meta{font-size:12px;color:var(--t3);margin-top:4px}
+    .paper-item-actions{display:flex;gap:6px;flex-shrink:0}
+
+    /* Image upload */
+    .upload-zone{border:2px dashed var(--border2);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+    .upload-zone:hover{border-color:var(--accent);background:var(--accent-d)}
+    .upload-zone.has-image{border-style:solid}
+    .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .upload-zone img{max-width:100%;max-height:200px;border-radius:4px;margin-top:8px}
+    .upload-text{font-size:13px;color:var(--t3)}
+    .upload-text strong{color:var(--t2)}
+
+    /* Links editor */
+    .links-grid{display:grid;grid-template-columns:100px 1fr 40px;gap:8px;align-items:center}
+    .links-grid label{margin:0;text-transform:none;font-size:13px}
+    .link-remove{background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:4px}
+
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;position:relative}
+    .modal h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:24px;color:var(--t1)}
+    .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;padding:12px 24px;border-radius:8px;background:var(--success);color:#fff;font-size:13px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    /* Password gate */
+    .gate{min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .gate-box{text-align:center;max-width:360px;width:100%;padding:40px}
+    .gate-box h2{font-family:'Cormorant Garamond',serif;font-size:28px;margin-bottom:8px}
+    .gate-box p{font-size:13px;color:var(--t3);margin-bottom:24px}
+    .gate-box input{margin-bottom:16px}
+
+    /* Responsive */
+    @media(max-width:600px){
+      .admin-wrap{padding:16px}.form-row-inline,.form-row-3{grid-template-columns:1fr}
+      .theme-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Gate -->
+  <div class="gate" id="gate">
+    <div class="gate-box">
+      <h2>Admin Panel</h2>
+      <p>Enter password to continue</p>
+      <div class="form-row">
+        <input type="password" id="gatePw" placeholder="Password" autofocus>
+      </div>
+      <button class="btn btn-primary" id="gateBtn" style="width:100%">Enter</button>
+      <p style="margin-top:12px;font-size:11px;color:var(--t3)">Default password: <code>admin</code></p>
+    </div>
+  </div>
+
+  <!-- Admin Panel (hidden until auth) -->
+  <div class="admin-wrap" id="adminPanel" style="display:none">
+    <div class="admin-header">
+      <h1>Admin <span>Panel</span></h1>
+      <a href="index.html" class="back-link">View Site</a>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="theme">Theme</button>
+      <button class="tab" data-tab="papers">Publications</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- Theme Tab -->
+    <div class="tab-panel active" id="tab-theme">
+      <h3 style="font-size:16px;margin-bottom:16px;color:var(--t2)">Select Theme</h3>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+
+    <!-- Publications Tab -->
+    <div class="tab-panel" id="tab-papers">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h3 style="font-size:16px;color:var(--t2)">Manage Publications</h3>
+        <button class="btn btn-primary btn-sm" id="addPaperBtn">+ Add Paper</button>
+      </div>
+      <div id="paperList"></div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-panel" id="tab-settings">
+      <h3 style="font-size:16px;margin-bottom:20px;color:var(--t2)">Settings</h3>
+
+      <div class="form-row">
+        <label>Change Admin Password</label>
+        <div class="form-row-inline">
+          <input type="password" id="newPw" placeholder="New password">
+          <button class="btn btn-outline" id="changePwBtn">Change</button>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        <label>Data Management</label>
+        <div class="btn-group">
+          <button class="btn btn-outline" id="exportBtn">Export Config</button>
+          <button class="btn btn-outline" id="importBtn">Import Config</button>
+          <button class="btn btn-danger" id="resetBtn">Reset All</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" style="display:none">
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Paper Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h2 id="modalTitle">Edit Publication</h2>
+
+      <div class="form-row">
+        <label>Title</label>
+        <input type="text" id="ed-title">
+      </div>
+      <div class="form-row">
+        <label>Authors (use **Name** to highlight your name)</label>
+        <input type="text" id="ed-authors">
+      </div>
+      <div class="form-row-inline">
+        <div class="form-row">
+          <label>Venue Short (e.g. ACL 2025)</label>
+          <input type="text" id="ed-venue">
+        </div>
+        <div class="form-row">
+          <label>Venue Type</label>
+          <select id="ed-venueType">
+            <option value="acl">ACL</option>
+            <option value="journal">Journal</option>
+            <option value="conf">Conference</option>
+            <option value="preprint">Preprint</option>
+            <option value="workshop">Workshop</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Venue Full Name</label>
+        <input type="text" id="ed-venueFull">
+      </div>
+      <div class="form-row-inline">
+        <div class="form-row">
+          <label>Year</label>
+          <input type="number" id="ed-year" min="2000" max="2030">
+        </div>
+        <div class="form-row">
+          <label>Citations</label>
+          <input type="number" id="ed-citations" min="0">
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <label>Framework / Architecture Image</label>
+        <div class="upload-zone" id="ed-upload">
+          <div class="upload-text"><strong>Click or drag</strong> to upload an image</div>
+          <input type="file" accept="image/*" id="ed-imageInput">
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-danger btn-sm" id="ed-removeImg" style="display:none">Remove Image</button>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top:16px">
+        <label>Links</label>
+        <div id="ed-links"></div>
+        <button class="btn btn-outline btn-sm" id="ed-addLink" style="margin-top:8px">+ Add Link</button>
+      </div>
+
+      <div class="btn-group" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-primary" id="ed-save">Save</button>
+        <button class="btn btn-outline" id="ed-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (function() {
+    'use strict';
+    var CONFIG_KEY = 'jl-cv-config';
+    var PAPERS_KEY = 'jl-cv-papers';
+    var PW_KEY = 'jl-cv-pw';
+
+    // ═══ Helpers ═══
+    function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}'); } catch(e) { return {}; } }
+    function saveConfig(c) { localStorage.setItem(CONFIG_KEY, JSON.stringify(c)); }
+    function getPapers() { try { var s=localStorage.getItem(PAPERS_KEY); if(s) return JSON.parse(s); } catch(e){} return null; }
+    function savePapers(p) { localStorage.setItem(PAPERS_KEY, JSON.stringify(p)); }
+
+    function toast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    }
+
+    // Default papers (same as index.html)
+    var DEFAULT_PAPERS = [
+      {id:1,title:"Cross-lingual Optimization for Language Transfer in Large Language Models",authors:"**J. Lee**, S. Hong, H. Moon, H.S. Lim",venue:"ACL 2025",venueType:"acl",venueFull:"Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics",year:2025,citations:3},
+      {id:2,title:"VAETKI Technical Report",authors:"NCAI Consortium",venue:"Report",venueType:"preprint",venueFull:"",year:2025,citations:0},
+      {id:3,title:"An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, J. Lim, H. Lim",venue:"ESWA",venueType:"journal",venueFull:"Expert Systems With Applications, 267, 125841",year:2025,citations:1},
+      {id:4,title:"Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation",authors:"**J. Lee**, H. Moon, S. Lee, C. Park, S. Eo, H. Ko, J. Seo, S. Lee, H.S. Lim",venue:"Findings of ACL 2024",venueType:"acl",venueFull:"Findings of the Association for Computational Linguistics: ACL 2024, pp. 2287\u20132303",year:2024,citations:10},
+      {id:5,title:"Analysis of the Effectiveness of Model, Data, and User-Centric Approaches for Chat Application: A Case Study of BlenderBot 2.0",authors:"C. Park, **J. Lee**, S. Son, K. Park, J. Jang, H. Lim",venue:"Applied Sciences",venueType:"journal",venueFull:"Applied Sciences 14(11), 4821",year:2024,citations:2},
+      {id:6,title:"A Survey on Evaluation Metrics for Machine Translation",authors:"S. Lee, **J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Koo, H. Lim",venue:"Mathematics",venueType:"journal",venueFull:"Mathematics 11(4), 1006",year:2023,citations:142},
+      {id:7,title:"PEEP-Talk: A Situational Dialogue-based Chatbot for English Education",authors:"S. Lee, Y. Jang, C. Park, **J. Lee**, J. Seo, H. Moon, S. Eo, S. Lee, B. Yahya, et al.",venue:"ACL 2023 Demo",venueType:"acl",venueFull:"Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (System Demonstrations)",year:2023,citations:16},
+      {id:8,title:"Doubts on the Reliability of Parallel Corpus Filtering",authors:"H. Moon, C. Park, S. Koo, **J. Lee**, S. Lee, J. Seo, S. Eo, Y. Jang, H. Kim, H. Lee, et al.",venue:"ESWA",venueType:"journal",venueFull:"Expert Systems with Applications 233, 120962",year:2023,citations:3},
+      {id:9,title:"KoCheckGPT: Korean LLM Written Document Detector",authors:"M. Kang, **J. Lee**, S. Lee, S. Hong, J. Park, H. Lim",venue:"HCLT 2023",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 432\u2013436",year:2023,citations:0},
+      {id:10,title:"K-NCT: Korean Neural Grammatical Error Correction Gold-standard Test Set Using Novel Error Type Classification Criteria",authors:"S. Koo, C. Park, J. Seo, S. Lee, H. Moon, **J. Lee**, H. Lim",venue:"IEEE Access",venueType:"journal",venueFull:"IEEE Access 10, pp. 118167\u2013118175",year:2022,citations:13},
+      {id:11,title:"Korean and Multilingual Language Models Study for Cross-lingual Post-training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, K. Park, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 77\u201389",year:2022,citations:4},
+      {id:12,title:"Empirical Study on BlenderBot 2.0 Errors Analysis in Terms of Model, Data and User-Centric Approach",authors:"**J. Lee**, M. Shim, S. Son, Y. Kim, C. Park, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2201.03239",year:2022,citations:3},
+      {id:13,title:"QUAK: A Synthetic Quality Estimation Dataset for Korean-English Neural Machine Translation",authors:"S. Eo, C. Park, H. Moon, J. Seo, G. Kim, **J. Lee**, H.S. Lim",venue:"COLING 2022",venueType:"conf",venueFull:"Proceedings of the 29th International Conference on Computational Linguistics",year:2022,citations:2},
+      {id:14,title:"There is No Rose Without a Thorn: Finding Weaknesses on BlenderBot 2.0",authors:"**J. Lee**, M. Shim, S. Son, C. Park, Y. Kim, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2201.03239",year:2022,citations:2},
+      {id:15,title:"Focus on FoCus: Is FoCus Focused on Context, Knowledge and Persona?",authors:"S.Y. Lee, **J. Lee**, C. Park, S. Eo, H. Moon, J. Seo, J. Park, H.S. Lim",venue:"Workshop",venueType:"workshop",venueFull:"Proceedings of the 1st Workshop on Customized Chat Grounding Persona and Knowledge",year:2022,citations:1},
+      {id:16,title:"Language Chameleon: Transformation Analysis between Languages Using Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2209.06422",year:2022,citations:0},
+      {id:17,title:"Empirical Analysis of Noising Scheme based Synthetic Data Generation for Automatic Post-editing",authors:"H. Moon, C. Park, S. Lee, J. Seo, **J. Lee**, S. Eo, H.S. Lim",venue:"LREC 2022",venueType:"conf",venueFull:"Proceedings of the Thirteenth Language Resources and Evaluation Conference",year:2022,citations:0},
+      {id:18,title:"SaJuTeller: Conditional Generation Deep-Learning based Fortune Telling Model",authors:"H. Moon, **J. Lee**, J. Seo, S. Eo, C. Park, W. Kim, J. Park, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 277\u2013283",year:2022,citations:0},
+      {id:19,title:"Korean Language Model Construction and Comparative Analysis with Cross-lingual Post-Training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, S. Lee, J.W. Lee, A. So, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 295\u2013299",year:2022,citations:0},
+      {id:20,title:"DART: Data Augmentation using Retrieval Technique",authors:"S. Lee, J. Seo, **J. Lee**, M. Kang, H. Moon, C. Park, D. Jung, J. Lee, K. Park, et al.",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 313\u2013319",year:2022,citations:0},
+      {id:21,title:"Policy-based Performance Comparison Study of Real-time Simultaneous Translation",authors:"**J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Lee, S. Koo, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 43\u201354",year:2022,citations:0},
+      {id:22,title:"Empirical Study on BlenderBot 2.0's Errors Analysis in Terms of Model, Data and Dialogue",authors:"**J. Lee**, S. Son, M. Shim, Y. Kim, C. Park, A. So, J. Park, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 12(12), pp. 93\u2013106",year:2021,citations:1}
+    ];
+
+    var papers = getPapers() || DEFAULT_PAPERS.slice();
+    var config = getConfig();
+    var editingId = null;
+    var editImage = null;
+    var editLinks = [];
+
+    // ═══ Password ═══
+    function hashPw(pw) {
+      // Simple hash for client-side only (not cryptographic security)
+      var h = 0;
+      for (var i = 0; i < pw.length; i++) { h = ((h << 5) - h) + pw.charCodeAt(i); h |= 0; }
+      return String(h);
+    }
+
+    var storedPwHash = localStorage.getItem(PW_KEY) || hashPw('admin');
+
+    document.getElementById('gateBtn').addEventListener('click', doLogin);
+    document.getElementById('gatePw').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+    function doLogin() {
+      var pw = document.getElementById('gatePw').value;
+      if (hashPw(pw) === storedPwHash) {
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        initAdmin();
+      } else {
+        document.getElementById('gatePw').style.borderColor = 'var(--danger)';
+        document.getElementById('gatePw').value = '';
+        document.getElementById('gatePw').placeholder = 'Wrong password';
+      }
+    }
+
+    // ═══ Tabs ═══
+    document.querySelectorAll('.tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ═══ Theme ═══
+    var THEMES = [
+      {id:'obsidian',name:'Obsidian',colors:['#0b0b10','#14141c','#c8a45c','#e8e5df','#1f1f2c']},
+      {id:'ivory',name:'Ivory',colors:['#f7f3eb','#ffffff','#8b6914','#2a2318','#e0d8cc']},
+      {id:'arctic',name:'Arctic',colors:['#f2f5f9','#ffffff','#2856a0','#1a2332','#d4dae6']},
+      {id:'midnight',name:'Midnight',colors:['#0a1020','#111830','#7898d0','#d8dce8','#1c2540']},
+      {id:'rosewood',name:'Rosewood',colors:['#120c0a','#1c1410','#c88a70','#e8e0d8','#2c2018']}
+    ];
+
+    function renderThemes() {
+      var grid = document.getElementById('themeGrid');
+      grid.textContent = '';
+      var current = config.theme || 'obsidian';
+      THEMES.forEach(function(th) {
+        var card = document.createElement('div');
+        card.className = 'theme-card' + (th.id === current ? ' selected' : '');
+        var check = document.createElement('div');
+        check.className = 'check';
+        check.textContent = '\u2713';
+        card.appendChild(check);
+        var preview = document.createElement('div');
+        preview.className = 'theme-preview';
+        th.colors.forEach(function(c) {
+          var s = document.createElement('span');
+          s.style.background = c;
+          preview.appendChild(s);
+        });
+        card.appendChild(preview);
+        var name = document.createElement('div');
+        name.className = 'theme-name';
+        name.textContent = th.name;
+        card.appendChild(name);
+
+        card.addEventListener('click', function() {
+          config.theme = th.id;
+          saveConfig(config);
+          document.documentElement.setAttribute('data-theme', th.id);
+          renderThemes();
+          toast('Theme: ' + th.name);
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    // ═══ Papers List ═══
+    function renderPaperList() {
+      var list = document.getElementById('paperList');
+      list.textContent = '';
+      var sorted = papers.slice().sort(function(a,b) { return b.year - a.year || (b.citations||0) - (a.citations||0); });
+      sorted.forEach(function(p) {
+        var item = document.createElement('div');
+        item.className = 'paper-item';
+        var header = document.createElement('div');
+        header.className = 'paper-item-header';
+        var title = document.createElement('div');
+        title.className = 'paper-item-title';
+        title.textContent = p.title;
+        var actions = document.createElement('div');
+        actions.className = 'paper-item-actions';
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-outline btn-sm';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', function() { openEditModal(p.id); });
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-danger btn-sm';
+        delBtn.textContent = 'Del';
+        delBtn.addEventListener('click', function() {
+          if (confirm('Delete "' + p.title + '"?')) {
+            papers = papers.filter(function(x) { return x.id !== p.id; });
+            // Also remove image and links
+            if (config.paperImages) delete config.paperImages[p.id];
+            if (config.paperLinks) delete config.paperLinks[p.id];
+            savePapers(papers);
+            saveConfig(config);
+            renderPaperList();
+            toast('Deleted');
+          }
+        });
+        actions.appendChild(editBtn);
+        actions.appendChild(delBtn);
+        header.appendChild(title);
+        header.appendChild(actions);
+        item.appendChild(header);
+        var meta = document.createElement('div');
+        meta.className = 'paper-item-meta';
+        meta.textContent = p.venue + ' \u00B7 ' + p.year + (p.citations > 0 ? ' \u00B7 ' + p.citations + ' citations' : '');
+        var hasImg = config.paperImages && config.paperImages[p.id];
+        var hasLinks = config.paperLinks && config.paperLinks[p.id] && Object.values(config.paperLinks[p.id]).some(function(v){return v;});
+        if (hasImg) meta.textContent += ' \u00B7 \uD83D\uDDBC\uFE0F Image';
+        if (hasLinks) meta.textContent += ' \u00B7 \uD83D\uDD17 Links';
+        item.appendChild(meta);
+        list.appendChild(item);
+      });
+    }
+
+    // ═══ Edit Modal ═══
+    function openEditModal(id) {
+      editingId = id;
+      var p = id ? papers.find(function(x) { return x.id === id; }) : null;
+      document.getElementById('modalTitle').textContent = p ? 'Edit Publication' : 'Add Publication';
+      document.getElementById('ed-title').value = p ? p.title : '';
+      document.getElementById('ed-authors').value = p ? p.authors : '**J. Lee**';
+      document.getElementById('ed-venue').value = p ? p.venue : '';
+      document.getElementById('ed-venueType').value = p ? (p.venueType || 'conf') : 'conf';
+      document.getElementById('ed-venueFull').value = p ? (p.venueFull || '') : '';
+      document.getElementById('ed-year').value = p ? p.year : new Date().getFullYear();
+      document.getElementById('ed-citations').value = p ? (p.citations || 0) : 0;
+
+      // Image
+      editImage = (config.paperImages && config.paperImages[id]) || null;
+      renderUploadZone();
+
+      // Links
+      editLinks = [];
+      if (config.paperLinks && config.paperLinks[id]) {
+        Object.entries(config.paperLinks[id]).forEach(function(e) {
+          if (e[1]) editLinks.push({type: e[0], url: e[1]});
+        });
+      }
+      if (editLinks.length === 0) editLinks.push({type: 'pdf', url: ''});
+      renderEditLinks();
+
+      document.getElementById('editModal').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('open');
+      editingId = null;
+      editImage = null;
+      editLinks = [];
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeEditModal);
+    document.getElementById('ed-cancel').addEventListener('click', closeEditModal);
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditModal();
+    });
+
+    // Upload zone
+    function renderUploadZone() {
+      var zone = document.getElementById('ed-upload');
+      var removeBtn = document.getElementById('ed-removeImg');
+      zone.textContent = '';
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.addEventListener('change', handleImageUpload);
+      zone.appendChild(input);
+
+      if (editImage) {
+        zone.classList.add('has-image');
+        var img = document.createElement('img');
+        img.src = editImage;
+        img.alt = 'Framework';
+        zone.appendChild(img);
+        removeBtn.style.display = 'inline-block';
+      } else {
+        zone.classList.remove('has-image');
+        var text = document.createElement('div');
+        text.className = 'upload-text';
+        var strong = document.createElement('strong');
+        strong.textContent = 'Click or drag';
+        text.appendChild(strong);
+        text.appendChild(document.createTextNode(' to upload an image'));
+        zone.appendChild(text);
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    document.getElementById('ed-removeImg').addEventListener('click', function() {
+      editImage = null;
+      renderUploadZone();
+    });
+
+    function handleImageUpload(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        // Compress via canvas
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var MAX = 800;
+          var w = img.width, h = img.height;
+          if (w > MAX) { h = h * MAX / w; w = MAX; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          editImage = canvas.toDataURL('image/jpeg', 0.75);
+          renderUploadZone();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Links editor
+    function renderEditLinks() {
+      var container = document.getElementById('ed-links');
+      container.textContent = '';
+      editLinks.forEach(function(link, idx) {
+        var row = document.createElement('div');
+        row.className = 'links-grid';
+        row.style.marginBottom = '6px';
+        var sel = document.createElement('select');
+        ['pdf','arxiv','code','slides','video','demo','doi'].forEach(function(t) {
+          var opt = document.createElement('option');
+          opt.value = t; opt.textContent = t.toUpperCase();
+          if (t === link.type) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', function() { editLinks[idx].type = this.value; });
+        var input = document.createElement('input');
+        input.type = 'url';
+        input.value = link.url;
+        input.placeholder = 'https://...';
+        input.addEventListener('input', function() { editLinks[idx].url = this.value; });
+        var rm = document.createElement('button');
+        rm.className = 'link-remove';
+        rm.textContent = '\u00D7';
+        rm.addEventListener('click', function() { editLinks.splice(idx, 1); renderEditLinks(); });
+        row.appendChild(sel);
+        row.appendChild(input);
+        row.appendChild(rm);
+        container.appendChild(row);
+      });
+    }
+
+    document.getElementById('ed-addLink').addEventListener('click', function() {
+      editLinks.push({type: 'pdf', url: ''});
+      renderEditLinks();
+    });
+
+    // Save paper
+    document.getElementById('ed-save').addEventListener('click', function() {
+      var title = document.getElementById('ed-title').value.trim();
+      if (!title) { toast('Title is required'); return; }
+
+      var data = {
+        title: title,
+        authors: document.getElementById('ed-authors').value.trim(),
+        venue: document.getElementById('ed-venue').value.trim(),
+        venueType: document.getElementById('ed-venueType').value,
+        venueFull: document.getElementById('ed-venueFull').value.trim(),
+        year: parseInt(document.getElementById('ed-year').value) || 2025,
+        citations: parseInt(document.getElementById('ed-citations').value) || 0
+      };
+
+      if (editingId) {
+        // Update existing
+        var idx = papers.findIndex(function(x) { return x.id === editingId; });
+        if (idx >= 0) { data.id = editingId; papers[idx] = data; }
+      } else {
+        // Add new
+        var maxId = papers.reduce(function(m, p) { return Math.max(m, p.id); }, 0);
+        data.id = maxId + 1;
+        editingId = data.id;
+        papers.push(data);
+      }
+
+      // Save image
+      if (!config.paperImages) config.paperImages = {};
+      if (editImage) {
+        config.paperImages[editingId] = editImage;
+      } else {
+        delete config.paperImages[editingId];
+      }
+
+      // Save links
+      if (!config.paperLinks) config.paperLinks = {};
+      var linkObj = {};
+      editLinks.forEach(function(l) { if (l.url) linkObj[l.type] = l.url; });
+      if (Object.keys(linkObj).length > 0) {
+        config.paperLinks[editingId] = linkObj;
+      } else {
+        delete config.paperLinks[editingId];
+      }
+
+      savePapers(papers);
+      saveConfig(config);
+      renderPaperList();
+      closeEditModal();
+      toast('Saved!');
+    });
+
+    // Add paper button
+    document.getElementById('addPaperBtn').addEventListener('click', function() {
+      editingId = null;
+      openEditModal(null);
+    });
+
+    // ═══ Settings ═══
+    document.getElementById('changePwBtn').addEventListener('click', function() {
+      var pw = document.getElementById('newPw').value;
+      if (!pw) return;
+      localStorage.setItem(PW_KEY, hashPw(pw));
+      storedPwHash = hashPw(pw);
+      document.getElementById('newPw').value = '';
+      toast('Password changed');
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      var data = { config: config, papers: papers };
+      var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'cv-config.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast('Config exported');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', function() {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var data = JSON.parse(ev.target.result);
+          if (data.config) { config = data.config; saveConfig(config); }
+          if (data.papers) { papers = data.papers; savePapers(papers); }
+          if (config.theme) document.documentElement.setAttribute('data-theme', config.theme);
+          renderThemes();
+          renderPaperList();
+          toast('Config imported');
+        } catch(err) {
+          toast('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+      this.value = '';
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      if (confirm('Reset all data to defaults? This cannot be undone.')) {
+        localStorage.removeItem(CONFIG_KEY);
+        localStorage.removeItem(PAPERS_KEY);
+        config = {};
+        papers = DEFAULT_PAPERS.slice();
+        document.documentElement.setAttribute('data-theme', 'obsidian');
+        renderThemes();
+        renderPaperList();
+        toast('Reset complete');
+      }
+    });
+
+    // ═══ Init ═══
+    function initAdmin() {
+      renderThemes();
+      renderPaperList();
+    }
+  })();
+  </script>
+</body>
+</html>
