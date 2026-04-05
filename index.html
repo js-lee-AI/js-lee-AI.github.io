@@ -558,8 +558,8 @@
       fw.dataset.pidImg = p.id;
       card.appendChild(fw);
 
-      // Image from config
-      const imgData = (config.paperImages || {})[p.id];
+      // Image from config or data.json
+      const imgData = (siteData && siteData.paperImages && siteData.paperImages[p.id]) || (config.paperImages || {})[p.id];
       if (imgData) {
         const img = document.createElement('img');
         img.src = imgData;
