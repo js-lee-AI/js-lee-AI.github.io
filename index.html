@@ -50,8 +50,11 @@
     .hero-photo-wrapper{position:relative;justify-self:center}
     .hero-photo{width:280px;height:360px;border-radius:20px;overflow:hidden;background:var(--bg-secondary);position:relative;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 80px var(--accent-glow)}
     .hero-photo::after{content:'';position:absolute;inset:0;border-radius:20px;border:1px solid rgba(255,255,255,.08);pointer-events:none}
-    .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 6s ease}
-    .hero-photo:hover img{transform:scale(1.05)}
+    .hero-photo img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;transition:opacity .6s ease,transform 6s ease}
+    .hero-photo .photo-default{opacity:1;z-index:1}
+    .hero-photo .photo-hover{opacity:0;z-index:2}
+    .hero-photo:hover .photo-default{opacity:0}
+    .hero-photo:hover .photo-hover{opacity:1;transform:scale(1.03)}
     .hero-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:64px;font-weight:300;color:var(--accent);background:linear-gradient(135deg,var(--bg-secondary),var(--bg-tertiary))}
     .hero-photo-ring{position:absolute;inset:-12px;border-radius:24px;border:1px solid var(--accent-dim);opacity:.6}
     .hero-photo-ring::before{content:'';position:absolute;top:-3px;left:30%;width:40%;height:6px;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:3px;animation:ring-sweep 4s ease-in-out infinite}
@@ -227,7 +230,8 @@
     <div class="hero-inner">
       <div class="hero-photo-wrapper">
         <div class="hero-photo">
-          <img src="assets/profile.jpg" alt="Jungseob Lee">
+          <img src="assets/profile.jpg" alt="Jungseob Lee" class="photo-default">
+          <img src="assets/profile-hover.jpg" alt="Jungseob Lee at ACL" class="photo-hover">
         </div>
         <div class="hero-photo-ring"></div>
         <div class="hero-photo-decor hero-photo-decor-1"></div>
