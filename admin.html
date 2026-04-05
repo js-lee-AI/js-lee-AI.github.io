@@ -684,10 +684,18 @@
       fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
         headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
       }).then(function(r){return r.json()}).then(function(data) {
-        var content = atob(data.content.replace(/\n/g,''));
+        // UTF-8 safe decode
+        var raw = atob(data.content.replace(/\n/g,''));
+        var bytes = new Uint8Array(raw.length);
+        for(var i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+        var content = new TextDecoder().decode(bytes);
         // Replace data-theme in the html tag
         var updated = content.replace(/data-theme="[^"]*"/, 'data-theme="'+theme+'"');
-        var encoded = btoa(unescape(encodeURIComponent(updated)));
+        // UTF-8 safe encode
+        var utf8bytes = new TextEncoder().encode(updated);
+        var binary = '';
+        for(var i=0;i<utf8bytes.length;i++) binary+=String.fromCharCode(utf8bytes[i]);
+        var encoded = btoa(binary);
         return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
           method:'PUT',
           headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
