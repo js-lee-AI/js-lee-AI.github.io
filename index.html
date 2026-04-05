@@ -146,6 +146,17 @@
     .reveal.visible{opacity:1;transform:translateY(0)}
 
     /* Responsive */
+    /* Mascot */
+    .mascot{position:fixed;bottom:28px;right:28px;z-index:9998;width:90px;height:auto;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));transition:transform .3s cubic-bezier(.16,1,.3,1)}
+    .mascot:hover{transform:scale(1.1)}
+    .mascot:active{transform:scale(.92)}
+    .mascot img{width:100%;display:block;transition:opacity .15s}
+    .mascot .mascot-normal{opacity:1;position:relative}.mascot .mascot-ouch{opacity:0;position:absolute;top:0;left:0;width:100%}
+    .mascot.ouch .mascot-normal{opacity:0}.mascot.ouch .mascot-ouch{opacity:1}
+    .mascot.ouch{animation:mascot-shake .4s ease}
+    @keyframes mascot-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
+    @media(max-width:600px){.mascot{width:64px;bottom:16px;right:16px}}
+
     /* Neural particles canvas */
     #particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.6}
     /* Scroll progress */
@@ -211,6 +222,10 @@
 <body>
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
+  <div class="mascot" id="mascot">
+    <img src="assets/emoji-normal.png" alt="" class="mascot-normal">
+    <img src="assets/emoji-ouch.png" alt="" class="mascot-ouch">
+  </div>
   <canvas id="particles"></canvas>
   <div class="scroll-progress" id="scrollProgress"></div>
   <div class="orb orb-1"></div>
@@ -636,6 +651,16 @@
         card.style.transform = 'perspective(800px) rotateY(' + (x*4) + 'deg) rotateX(' + (-y*3) + 'deg) translateX(6px)';
       });
     });
+
+    // ─── Mascot Interaction ───
+    var mascot = document.getElementById('mascot');
+    if (mascot) {
+      mascot.addEventListener('mousedown', function() { mascot.classList.add('ouch'); });
+      mascot.addEventListener('mouseup', function() { setTimeout(function(){ mascot.classList.remove('ouch'); }, 400); });
+      mascot.addEventListener('mouseleave', function() { mascot.classList.remove('ouch'); });
+      mascot.addEventListener('touchstart', function(e) { e.preventDefault(); mascot.classList.add('ouch'); });
+      mascot.addEventListener('touchend', function() { setTimeout(function(){ mascot.classList.remove('ouch'); }, 400); });
+    }
 
     // ─── Custom Cursor ───
     var dot = document.getElementById('cursorDot');
