@@ -19,6 +19,15 @@
     [data-theme="midnight"]{--bg-primary:#0a1020;--bg-secondary:#0f1628;--bg-tertiary:#151d32;--bg-card:#111830;--text-primary:#d8dce8;--text-secondary:#8890a8;--text-muted:#5a6280;--accent:#7898d0;--accent-hover:#90b0e0;--accent-dim:rgba(120,152,208,.1);--accent-glow:rgba(120,152,208,.05);--border:#1c2540;--border-light:#263050;--grain-opacity:.02}
     [data-theme="rosewood"]{--bg-primary:#120c0a;--bg-secondary:#1a1210;--bg-tertiary:#221a16;--bg-card:#1c1410;--text-primary:#e8e0d8;--text-secondary:#a89888;--text-muted:#786858;--accent:#c88a70;--accent-hover:#d8a088;--accent-dim:rgba(200,138,112,.1);--accent-glow:rgba(200,138,112,.05);--border:#2c2018;--border-light:#382a20;--grain-opacity:.025}
 
+    /* ═══ Theme: Sakura (Cherry Blossom + Dark) ═══ */
+    [data-theme="sakura"]{--bg-primary:#0f0a10;--bg-secondary:#161018;--bg-tertiary:#1e1620;--bg-card:#14101a;--text-primary:#e8dfe5;--text-secondary:#a898a8;--text-muted:#786878;--accent:#d4839e;--accent-hover:#e09ab2;--accent-dim:rgba(212,131,158,.1);--accent-glow:rgba(212,131,158,.05);--border:#241c28;--border-light:#302638;--grain-opacity:.02}
+    /* ═══ Theme: Emerald (Forest Jewel + Dark) ═══ */
+    [data-theme="emerald"]{--bg-primary:#060e08;--bg-secondary:#0c160e;--bg-tertiary:#121e16;--bg-card:#0e1810;--text-primary:#dce8df;--text-secondary:#88a890;--text-muted:#587860;--accent:#3da668;--accent-hover:#50c07a;--accent-dim:rgba(61,166,104,.1);--accent-glow:rgba(61,166,104,.05);--border:#1a2c1e;--border-light:#243828;--grain-opacity:.02}
+    /* ═══ Theme: Sunset (Golden Hour + Deep) ═══ */
+    [data-theme="sunset"]{--bg-primary:#110e0a;--bg-secondary:#1a1410;--bg-tertiary:#221a14;--bg-card:#181210;--text-primary:#e8e0d4;--text-secondary:#a89878;--text-muted:#786848;--accent:#d4893c;--accent-hover:#e0a050;--accent-dim:rgba(212,137,60,.1);--accent-glow:rgba(212,137,60,.05);--border:#2c2018;--border-light:#382a20;--grain-opacity:.025}
+    /* ═══ Theme: Neon (Cyberpunk + Pitch Black) ═══ */
+    [data-theme="neon"]{--bg-primary:#050508;--bg-secondary:#0a0a10;--bg-tertiary:#0f0f18;--bg-card:#08081a;--text-primary:#e0e8f0;--text-secondary:#8098b8;--text-muted:#506880;--accent:#00d4ff;--accent-hover:#40e0ff;--accent-dim:rgba(0,212,255,.08);--accent-glow:rgba(0,212,255,.06);--border:#141428;--border-light:#1c1c38;--grain-opacity:.015}
+
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--border-light) var(--bg-primary)}
     body{font-family:var(--font-body);font-weight:400;color:var(--text-primary);background:var(--bg-primary);line-height:1.7;font-size:15px;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .5s,color .5s}
@@ -205,6 +214,20 @@
     /* Rosewood theme: warmer glow */
     [data-theme="rosewood"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(200,138,112,.08)}
     [data-theme="rosewood"] .pub-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 20px rgba(200,138,112,.05)}
+    /* Sakura */
+    [data-theme="sakura"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(212,131,158,.08)}
+    [data-theme="sakura"] .pub-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 20px rgba(212,131,158,.05)}
+    /* Emerald */
+    [data-theme="emerald"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(61,166,104,.08)}
+    [data-theme="emerald"] .pub-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 20px rgba(61,166,104,.05)}
+    /* Sunset */
+    [data-theme="sunset"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(212,137,60,.08)}
+    [data-theme="sunset"] .pub-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 20px rgba(212,137,60,.05)}
+    /* Neon - extra glow */
+    [data-theme="neon"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 100px rgba(0,212,255,.1),inset 0 0 30px rgba(0,212,255,.03)}
+    [data-theme="neon"] .pub-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 24px rgba(0,212,255,.08)}
+    [data-theme="neon"] .hero-photo-ring{border-color:rgba(0,212,255,.2)}
+    [data-theme="neon"] .gradient-text{background:linear-gradient(135deg,#e0e8f0 0%,#00d4ff 40%,#40e0ff 60%,#e0e8f0 100%);background-size:300% auto;-webkit-background-clip:text;background-clip:text}
 
     @media(max-width:900px){
       :root{--section-gap:80px}nav{padding:0 24px}
@@ -264,7 +287,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/></svg>Scholar</a>
           <a href="https://github.com/js-lee-AI" class="hero-link" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
-          <a href="mailto:your.email@korea.ac.kr" class="hero-link">
+          <a href="mailto:omanma1928@korea.ac.kr" class="hero-link">
             <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</a>
         </div>
         <div class="hero-keywords">
@@ -301,7 +324,7 @@
         <div>
           <h3 class="edu-degree">M.S. / Ph.D. in Computer Science</h3>
           <p class="edu-school">Korea University</p>
-          <p class="edu-desc">NLP Lab — Advisor: Prof. Heuiseok Lim<br>Research: Machine Translation, Cross-lingual Transfer Learning, Large Language Models</p>
+          <p class="edu-desc">NLP Lab — Advisor: Prof. Heuiseok Lim<br>Research: Large Language Models, Natural Language Processing, Agentic LLM, Machine Translation</p>
         </div>
       </div>
     </div>
@@ -313,7 +336,7 @@
       <div class="footer-links">
         <a href="https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
         <a href="https://github.com/js-lee-AI" target="_blank" rel="noopener">GitHub</a>
-        <a href="mailto:your.email@korea.ac.kr">Email</a>
+        <a href="mailto:omanma1928@korea.ac.kr">Email</a>
       </div>
       <p class="footer-copy">&copy; 2025 Jungseob Lee. All rights reserved.</p>
     </div>
@@ -512,6 +535,16 @@
       navLinks.forEach(function(l) { l.classList.toggle('active', l.getAttribute('href') === '#' + current); });
     });
 
+    // Theme cycling on logo click
+    var ALL_THEMES = ['obsidian','ivory','arctic','midnight','rosewood','sakura','emerald','sunset','neon'];
+    document.querySelector('.nav-logo').addEventListener('click', function(e) {
+      e.preventDefault();
+      var cur = document.documentElement.getAttribute('data-theme') || 'obsidian';
+      var idx = ALL_THEMES.indexOf(cur);
+      var next = ALL_THEMES[(idx + 1) % ALL_THEMES.length];
+      document.documentElement.setAttribute('data-theme', next);
+    });
+
     // Mobile nav
     document.getElementById('navToggle').addEventListener('click', function() {
       document.getElementById('navLinks').classList.toggle('open');
@@ -596,7 +629,7 @@
                 vy: Math.sin(angle) * speed,
                 r: Math.random() * 1.5 + 0.5,
                 boss: false,
-                life: 120 + Math.random() * 60
+                burst: 80
               });
             }
             (function(idx){ setTimeout(function(){ delete bossCooldowns[idx]; }, 3000); })(i);
@@ -606,10 +639,8 @@
 
       function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Remove dead burst particles
-        particles = particles.filter(function(p) { return !p.life || p.life > 0; });
         particles.forEach(function(p) {
-          if (p.life > 0) { p.life--; p.vx *= 0.98; p.vy *= 0.98; }
+          if (p.burst > 0) { p.burst--; p.vx *= 0.97; p.vy *= 0.97; }
           p.x += p.vx; p.y += p.vy;
           if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
           if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
@@ -617,7 +648,7 @@
           var dist = Math.sqrt(dx*dx + dy*dy);
           var repel = p.boss ? 0.5 : 1.5;
           if (dist < 120) { p.x += dx / dist * repel; p.y += dy / dist * repel; }
-          var alpha = p.life > 0 ? (p.life / 180) * 0.7 : (p.boss ? 0.6 : 0.4);
+          var alpha = p.boss ? 0.6 : 0.4;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(' + rgb + ',' + alpha + ')';
