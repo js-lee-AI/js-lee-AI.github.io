@@ -951,12 +951,12 @@
         if (clickCount >= 10) {
           setMascotState('rage');
           setTimeout(function(){ setMascotState(''); clickCount = 0; }, 1500);
-        } else if (clickCount >= 5) {
+        } else if (clickCount === 5) {
           setMascotState('angry');
-          setTimeout(function(){ if (clickCount < 10) setMascotState(''); }, 600);
+          setTimeout(function(){ setMascotState(''); }, 800);
         } else {
           setMascotState('ouch');
-          setTimeout(function(){ if (clickCount < 5) setMascotState(''); }, 400);
+          setTimeout(function(){ setMascotState(''); }, 400);
         }
       }
       mascot.addEventListener('mousedown', handleMascotClick);
