@@ -249,6 +249,29 @@
     [data-theme="wine"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(184,48,80,.08)}
     /* Monochrome - stark contrast */
     [data-theme="monochrome"] .gradient-text{background:linear-gradient(135deg,#e8e8e8 0%,#fff 40%,#ccc 60%,#e8e8e8 100%);background-size:300% auto;-webkit-background-clip:text;background-clip:text}
+    /* C3: Animated mesh gradient hero background */
+    .hero-mesh{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+    .hero-mesh span{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;animation:mesh-float 20s ease-in-out infinite}
+    .hero-mesh span:nth-child(1){width:500px;height:500px;top:-10%;right:-5%;background:var(--accent);animation-duration:25s}
+    .hero-mesh span:nth-child(2){width:400px;height:400px;bottom:10%;left:-10%;background:var(--accent-hover);animation-delay:-8s;animation-duration:30s}
+    .hero-mesh span:nth-child(3){width:300px;height:300px;top:40%;left:50%;background:var(--text-muted);animation-delay:-15s;animation-duration:22s}
+    @keyframes mesh-float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.1)}66%{transform:translate(-30px,40px) scale(.9)}}
+
+    /* C5: Ripple burst on hero-link hover */
+    .hero-link{position:relative;overflow:hidden}
+    .hero-link-ripple{display:none}
+    .hero-link::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:radial-gradient(circle,var(--accent-dim),transparent);transform:translate(-50%,-50%);pointer-events:none}
+    .hero-link:hover::after{animation:ripple-burst .7s ease-out}
+    @keyframes ripple-burst{0%{width:0;height:0;opacity:.6}100%{width:300px;height:300px;opacity:0}}
+
+    [data-theme="ivory"] .hero-mesh span,[data-theme="arctic"] .hero-mesh span,[data-theme="lavender"] .hero-mesh span,[data-theme="sand"] .hero-mesh span,[data-theme="ice"] .hero-mesh span{opacity:.06;filter:blur(100px)}
+    [data-theme="neon"] .hero-mesh span{opacity:.2;filter:blur(60px)}
+    [data-theme="monochrome"] .hero-mesh span{opacity:.04;filter:blur(120px)}
+    [data-theme="aurora"] .hero-mesh span{opacity:.15}
+    [data-theme="wine"] .hero-mesh span{opacity:.1}
+    [data-theme="sakura"] .hero-mesh span{opacity:.1}
+    [data-theme="copper"] .hero-mesh span,[data-theme="sunset"] .hero-mesh span{opacity:.12}
+    [data-theme="ocean"] .hero-mesh span{opacity:.14;filter:blur(70px)}
     /* C1: Conic gradient rotating border on card hover */
     .pub-card-glow{position:absolute;inset:-1px;border-radius:13px;background:conic-gradient(var(--accent),var(--accent-hover),var(--bg-secondary),var(--accent));z-index:-1;opacity:0;transition:opacity .5s}
     .pub-card:hover .pub-card-glow{opacity:1;animation:conic-spin 4s linear infinite}
@@ -304,6 +327,7 @@
   </nav>
 
   <section class="hero" id="about">
+    <div class="hero-mesh"><span></span><span></span><span></span></div>
     <div class="hero-inner">
       <div class="hero-photo-wrapper">
         <div class="hero-photo">
@@ -380,7 +404,7 @@
         <a href="mailto:omanma1928@korea.ac.kr">Email</a>
         <a href="https://www.linkedin.com/in/%EC%9D%B4%EC%A0%95%EC%84%AD-%EB%8C%80%ED%95%99%EC%9B%90%EC%84%9D-%EB%B0%95%EC%82%AC%ED%86%B5%ED%95%A9%EA%B3%BC%EC%A0%95%EC%88%98%EB%A3%8C%EC%97%B0%EA%B5%AC-%EC%9E%AC%ED%95%99-%EC%BB%B4%ED%93%A8%ED%84%B0%ED%95%99%EA%B3%BC-%E2%80%8D-1b167a354/" target="_blank" rel="noopener">LinkedIn</a>
       </div>
-      <p class="footer-copy">&copy; 2025 Jungseob Lee. All rights reserved. (v3)</p>
+      <p class="footer-copy">&copy; 2025 Jungseob Lee. All rights reserved.</p>
     </div>
   </footer>
 
@@ -639,6 +663,7 @@
   // === Dynamic Visual Effects ===
   (function() {
     'use strict';
+    var trail = [];
 
     // ─── Neural Network Particle System ───
     var canvas = document.getElementById('particles');
@@ -741,6 +766,16 @@
           }
         }
         checkBossBurst();
+        // J2: Mouse trail ribbon
+        if (trail.length > 1) {
+          trail = trail.filter(function(t){ return --t.life > 0; });
+          ctx.beginPath();
+          ctx.moveTo(trail[0].x, trail[0].y);
+          for(var ti=1;ti<trail.length;ti++) ctx.lineTo(trail[ti].x, trail[ti].y);
+          ctx.strokeStyle='rgba('+rgb+',0.15)';
+          ctx.lineWidth=2;
+          ctx.stroke();
+        }
         requestAnimationFrame(animateParticles);
       }
       animateParticles();
@@ -826,6 +861,43 @@
         }
       });
     }
+
+
+    // ─── J2: Mouse Trail ───
+    document.addEventListener('mousemove', function(e) {
+      trail.push({x:e.clientX, y:e.clientY, life:40});
+      if (trail.length > 50) trail.shift();
+    });
+
+    // ─── J4: Scroll-Driven Particle Opacity ───
+    window.addEventListener('scroll', function() {
+      var secs = document.querySelectorAll('section[id]');
+      secs.forEach(function(sec) {
+        var rect = sec.getBoundingClientRect();
+        if (rect.top < window.innerHeight/2 && rect.bottom > window.innerHeight/2) {
+          var c = document.getElementById('particles');
+          if (!c) return;
+          var id = sec.id;
+          if (id==='publications') c.style.opacity='0.8';
+          else if (id==='news') c.style.opacity='0.5';
+          else if (id==='education') c.style.opacity='0.4';
+          else c.style.opacity='0.6';
+        }
+      });
+    });
+
+    // ─── S1: Hero Parallax on Scroll ───
+    var hEl = document.querySelector('.hero');
+    var hPhoto = document.querySelector('.hero-photo-wrapper');
+    var hContent = document.querySelector('.hero-content');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY < window.innerHeight) {
+        var p = window.scrollY / window.innerHeight;
+        if (hPhoto) hPhoto.style.transform='translateY('+(p*-40)+'px) scale('+(1-p*0.08)+')';
+        if (hContent) hContent.style.transform='translateY('+(p*-20)+'px)';
+        if (hEl) hEl.style.opacity=String(1-p*0.4);
+      }
+    });
 
     // ─── Update particle color on theme change ───
     var themeObserver = new MutationObserver(function() {
