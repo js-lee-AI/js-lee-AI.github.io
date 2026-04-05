@@ -288,8 +288,48 @@
     // ═══ Helpers ═══
     function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}'); } catch(e) { return {}; } }
     function saveConfig(c) { localStorage.setItem(CONFIG_KEY, JSON.stringify(c)); }
-    function getPapers() { try { var s=localStorage.getItem(PAPERS_KEY); if(s) return JSON.parse(s); } catch(e){} return null; }
-    function savePapers(p) { localStorage.setItem(PAPERS_KEY, JSON.stringify(p)); }
+
+    // Save data.json to GitHub repo (replaces localStorage for shared data)
+    function saveDataJson(callback) {
+      var token = localStorage.getItem(TOKEN_KEY);
+      if (!token) { toast('Login required to save'); if(callback) callback(false); return; }
+      var dataObj = {
+        papers: papers,
+        paperImages: config.paperImages || {},
+        paperLinks: config.paperLinks || {},
+        profileLinks: config.profileLinks || {}
+      };
+      var jsonStr = JSON.stringify(dataObj, null, 2);
+      var utf8 = new TextEncoder().encode(jsonStr);
+      var bin=''; for(var i=0;i<utf8.length;i++) bin+=String.fromCharCode(utf8[i]);
+      var encoded = btoa(bin);
+      // Get current file SHA
+      fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/data.json', {
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+      }).then(function(r){return r.json()}).then(function(existing) {
+        var body = {message:'Update site data', content:encoded};
+        if (existing.sha) body.sha = existing.sha;
+        return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/data.json', {
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+          body:JSON.stringify(body)
+        });
+      }).then(function(r){return r.json()}).then(function(res) {
+        if (res.content) { toast('Saved to GitHub!'); if(callback) callback(true); }
+        else { toast('Save error: '+(res.message||'unknown')); if(callback) callback(false); }
+      }).catch(function(e){ toast('Save error: '+e.message); if(callback) callback(false); });
+    }
+
+    // Load data.json from GitHub
+    function loadDataJson(callback) {
+      fetch('data.json?v='+Date.now()).then(function(r){return r.json()}).then(function(d) {
+        if (d.papers && d.papers.length) papers = d.papers;
+        if (d.paperImages) config.paperImages = d.paperImages;
+        if (d.paperLinks) config.paperLinks = d.paperLinks;
+        if (d.profileLinks) config.profileLinks = d.profileLinks;
+        if (callback) callback();
+      }).catch(function(){ if(callback) callback(); });
+    }
 
     function toast(msg) {
       var t = document.getElementById('toast');
@@ -470,10 +510,8 @@
             // Also remove image and links
             if (config.paperImages) delete config.paperImages[p.id];
             if (config.paperLinks) delete config.paperLinks[p.id];
-            savePapers(papers);
-            saveConfig(config);
             renderPaperList();
-            toast('Deleted');
+            saveDataJson();
           }
         });
         actions.appendChild(editBtn);
@@ -658,37 +696,30 @@
         papers.push(data);
       }
 
-      // Save image - commit to GitHub repo for all visitors
+      // Save image
       if (!config.paperImages) config.paperImages = {};
       var token = localStorage.getItem(TOKEN_KEY);
       if (editImage && token) {
-        // Upload image to repo as assets/papers/{id}.jpg
         var imgPath = 'assets/papers/' + editingId + '.jpg';
-        var base64Data = editImage.split(',')[1]; // remove data:image/...;base64, prefix
+        var base64Data = editImage.split(',')[1];
+        config.paperImages[editingId] = imgPath;
+        // Commit image file to repo
         (function(path, b64, pid) {
-          // Check if file exists (get SHA for update)
           fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/' + path, {
             headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
           }).then(function(r){return r.json()}).then(function(existing) {
-            var body = {message:'Add framework image for paper '+pid, content:b64};
-            if (existing.sha) body.sha = existing.sha; // update existing
+            var body = {message:'Add image for paper '+pid, content:b64};
+            if (existing.sha) body.sha = existing.sha;
             return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/' + path, {
               method:'PUT',
               headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
               body:JSON.stringify(body)
             });
           }).then(function(r){return r.json()}).then(function(res) {
-            if (res.content) {
-              toast('Image committed to repo!');
-              // Store path reference (not base64) in config
-              config.paperImages[pid] = 'assets/papers/' + pid + '.jpg?v=' + Date.now();
-              saveConfig(config);
-            }
-          }).catch(function(e){ toast('Image upload error: '+e.message); });
+            if (!res.content) toast('Image upload error');
+          }).catch(function(e){ toast('Image error: '+e.message); });
         })(imgPath, base64Data, editingId);
-      } else if (editImage) {
-        config.paperImages[editingId] = editImage; // fallback to localStorage if no token
-      } else {
+      } else if (!editImage) {
         delete config.paperImages[editingId];
       }
 
@@ -702,11 +733,10 @@
         delete config.paperLinks[editingId];
       }
 
-      savePapers(papers);
-      saveConfig(config);
       renderPaperList();
       closeEditModal();
-      toast('Saved!');
+      // Save everything to data.json on GitHub
+      saveDataJson();
     });
 
     // Add paper button
@@ -765,8 +795,7 @@
       config.profileLinks.github = document.getElementById('link-github').value.trim();
       config.profileLinks.email = document.getElementById('link-email').value.trim();
       config.profileLinks.linkedin = document.getElementById('link-linkedin').value.trim();
-      saveConfig(config);
-      toast('Profile links saved!');
+      saveDataJson();
     });
 
     document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -954,10 +983,12 @@
     });
 
     function initAdmin() {
-      renderThemes();
-      renderPaperList();
-      loadProfileLinks();
-      renderThemeOrder();
+      loadDataJson(function() {
+        renderThemes();
+        renderPaperList();
+        loadProfileLinks();
+        renderThemeOrder();
+      });
     }
   })();
   </script>
