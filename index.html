@@ -249,6 +249,22 @@
     [data-theme="wine"] .hero-photo{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 80px rgba(184,48,80,.08)}
     /* Monochrome - stark contrast */
     [data-theme="monochrome"] .gradient-text{background:linear-gradient(135deg,#e8e8e8 0%,#fff 40%,#ccc 60%,#e8e8e8 100%);background-size:300% auto;-webkit-background-clip:text;background-clip:text}
+    /* Theme-tuned dynamic effects */
+    [data-theme="ivory"] .hero-mesh span,[data-theme="arctic"] .hero-mesh span,[data-theme="lavender"] .hero-mesh span,[data-theme="sand"] .hero-mesh span,[data-theme="ice"] .hero-mesh span{opacity:.06;filter:blur(100px)}
+    [data-theme="ivory"] .pub-card:hover::before,[data-theme="arctic"] .pub-card:hover::before,[data-theme="lavender"] .pub-card:hover::before,[data-theme="sand"] .pub-card:hover::before,[data-theme="ice"] .pub-card:hover::before{opacity:.4 !important}
+    [data-theme="ivory"] .hero-link::after,[data-theme="arctic"] .hero-link::after,[data-theme="sand"] .hero-link::after,[data-theme="ice"] .hero-link::after{background:radial-gradient(circle,rgba(0,0,0,.04),transparent)}
+    [data-theme="neon"] .hero-mesh span{opacity:.2;filter:blur(60px)}
+    [data-theme="neon"] .pub-card:hover::before{filter:brightness(1.5)}
+    [data-theme="neon"] .hero-link::after{background:radial-gradient(circle,rgba(0,212,255,.15),transparent)}
+    [data-theme="monochrome"] .hero-mesh span{opacity:.04;filter:blur(120px)}
+    [data-theme="monochrome"] .hero-link::after{background:radial-gradient(circle,rgba(255,255,255,.06),transparent)}
+    [data-theme="aurora"] .hero-mesh span{opacity:.15}
+    [data-theme="aurora"] .hero-link::after{background:radial-gradient(circle,rgba(48,200,144,.1),transparent)}
+    [data-theme="wine"] .hero-mesh span{opacity:.1}
+    [data-theme="sakura"] .hero-mesh span{opacity:.1}
+    [data-theme="copper"] .hero-mesh span,[data-theme="sunset"] .hero-mesh span{opacity:.12}
+    [data-theme="ocean"] .hero-mesh span{opacity:.14;filter:blur(70px)}
+    [data-theme="ocean"] .hero-link::after{background:radial-gradient(circle,rgba(32,168,176,.1),transparent)}
 
     /* C1: Conic gradient rotating border on card hover */
     .pub-card{position:relative;z-index:1}
