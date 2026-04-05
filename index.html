@@ -762,6 +762,18 @@
           }
         }
         checkBossBurst();
+        // J2: Draw mouse trail ribbon
+        trail = trail.filter(function(t){ return --t.life > 0; });
+        if (trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(trail[0].x, trail[0].y);
+          for (var ti=1;ti<trail.length;ti++){
+            ctx.lineTo(trail[ti].x, trail[ti].y);
+          }
+          ctx.strokeStyle = 'rgba('+rgb+',0.15)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
         requestAnimationFrame(animateParticles);
       }
       animateParticles();
@@ -850,19 +862,10 @@
 
     // ─── J2: Mouse Trail Ribbon ───
     var trail = [];
-    var trailCanvas = document.getElementById('particles');
-    if (trailCanvas) {
-      var origMouseMove = null;
-      document.addEventListener('mousemove', function(e) {
-        trail.push({x: e.clientX, y: e.clientY, life: 40});
-        if (trail.length > 50) trail.shift();
-      });
-      // Draw trail in particle animation - inject into existing loop
-      var origAnimate = animateParticles;
-      animateParticles = function() {
-        // Trail drawing happens after particles
-      };
-    }
+    document.addEventListener('mousemove', function(e) {
+      trail.push({x: e.clientX, y: e.clientY, life: 40});
+      if (trail.length > 50) trail.shift();
+    });
 
     // ─── J4: Scroll-Driven Particle Color Shift ───
     var sectionColors = {};
