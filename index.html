@@ -130,7 +130,7 @@
     .pub-authors{font-size:13.5px;color:var(--text-secondary);margin-bottom:6px;line-height:1.6}.pub-authors .me{color:var(--accent);font-weight:600}
     .pub-venue-text{font-size:13px;font-style:italic;color:var(--text-muted);margin-bottom:8px}
     .pub-framework{display:none;margin:16px 0 8px;padding:16px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);text-align:center;animation:imgf .4s ease}
-    .pub-framework.visible{display:block}.pub-framework img{max-width:100%;max-height:400px;border-radius:4px}
+    .pub-framework.visible{display:block}.pub-framework img{max-width:100%;max-height:240px;border-radius:4px;object-fit:contain}
     @keyframes imgf{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .pub-img-toggle{background:none;border:1px solid var(--border-light);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:var(--font-body)}
     .pub-img-toggle:hover{color:var(--accent);border-color:var(--accent)}
@@ -469,10 +469,40 @@
     ];
 
     function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}'); } catch(e) { return {}; } }
-    function getPapers() {
-      try { const s = localStorage.getItem(PAPERS_KEY); if (s) return JSON.parse(s); } catch(e) {}
-      return DEFAULT_PAPERS;
-    }
+    function getPapers() { return DEFAULT_PAPERS; }
+
+    // Fetch data.json for live data (overrides DEFAULT_PAPERS)
+    var siteData = null;
+    fetch('data.json?v='+Date.now()).then(function(r){return r.json()}).then(function(d) {
+      siteData = d;
+      if (d.papers && d.papers.length) DEFAULT_PAPERS.length = 0;
+      if (d.papers) d.papers.forEach(function(p){ DEFAULT_PAPERS.push(p); });
+      renderPublications();
+      // Apply profile links from data.json
+      if (d.profileLinks) {
+        document.querySelectorAll('a[href*="scholar.google"]').forEach(function(a){ if(d.profileLinks.scholar) a.href=d.profileLinks.scholar; });
+        document.querySelectorAll('a[href*="github.com/js-lee"]').forEach(function(a){ if(d.profileLinks.github) a.href=d.profileLinks.github; });
+        document.querySelectorAll('a[href*="mailto:"]').forEach(function(a){ if(d.profileLinks.email) a.href='mailto:'+d.profileLinks.email; });
+        document.querySelectorAll('a[href*="linkedin.com"]').forEach(function(a){ if(d.profileLinks.linkedin) a.href=d.profileLinks.linkedin; });
+      }
+      // Apply paper images from data.json
+      if (d.paperImages) {
+        Object.entries(d.paperImages).forEach(function(e) {
+          var fw = document.querySelector('[data-pid-img="'+e[0]+'"]');
+          if (fw && e[1]) {
+            var img = document.createElement('img'); img.src = e[1]; img.alt = 'Framework';
+            fw.appendChild(img);
+            var card = fw.closest('.pub-card');
+            if (card) {
+              var meta = card.querySelector('.pub-meta');
+              var btn = document.createElement('button'); btn.className='pub-img-toggle'; btn.textContent='Figure';
+              btn.addEventListener('click', function(){fw.classList.toggle('visible');});
+              meta.insertBefore(btn, meta.firstChild);
+            }
+          }
+        });
+      }
+    }).catch(function(){});
 
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
@@ -684,21 +714,8 @@
       l.addEventListener('click', function() { document.getElementById('navLinks').classList.remove('open'); });
     });
 
-    // Apply profile links from admin config
-    function applyProfileLinks() {
-      var cfg = getConfig();
-      var links = cfg.profileLinks;
-      if (!links) return;
-      document.querySelectorAll('a[href*="scholar.google"]').forEach(function(a){ if(links.scholar) a.href=links.scholar; });
-      document.querySelectorAll('a[href*="github.com/js-lee"]').forEach(function(a){ if(links.github) a.href=links.github; });
-      document.querySelectorAll('a[href*="mailto:"]').forEach(function(a){ if(links.email) a.href='mailto:'+links.email; });
-      document.querySelectorAll('a[href*="linkedin.com"]').forEach(function(a){ if(links.linkedin) a.href=links.linkedin; });
-    }
-    applyProfileLinks();
-
-    // Listen for config changes from admin page (same origin)
+    // Listen for config changes (theme only from localStorage)
     window.addEventListener('storage', function(e) {
-      if (e.key === CONFIG_KEY || e.key === PAPERS_KEY) renderPublications();
       if (e.key === CONFIG_KEY) {
         var c = getConfig();
         if (c.theme) document.documentElement.setAttribute('data-theme', c.theme);
