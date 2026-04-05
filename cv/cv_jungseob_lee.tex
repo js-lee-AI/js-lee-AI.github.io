@@ -10,6 +10,8 @@
 \usepackage{fancyhdr}
 \usepackage{tabularx}
 \usepackage{fontawesome5}
+\usepackage{graphicx}
+\usepackage{wrapfig}
 
 % ═══ Colors ═══
 \definecolor{accent}{HTML}{2856A0}
@@ -52,18 +54,25 @@
 % ═══════════════════════════════════════════
 %  Header
 % ═══════════════════════════════════════════
-\begin{center}
-  {\LARGE\bfseries Jungseob Lee (이정섭)} \\[6pt]
-  {\color{lighttext} NLP Researcher $\cdot$ Graduate Student, Korea University} \\[10pt]
-  \begin{tabular}{ccccc}
-    \faIcon{birthday-cake}~1995.10.11 &
-    \faIcon{envelope}~\href{mailto:omanma1928@korea.ac.kr}{omanma1928@korea.ac.kr} &
-    \faIcon{globe}~\href{https://js-lee-ai.github.io}{js-lee-ai.github.io} \\[3pt]
-    \faIcon{github}~\href{https://github.com/js-lee-AI}{js-lee-AI} &
-    \faIcon{linkedin}~\href{https://www.linkedin.com/in/\%EC\%9D\%B4\%EC\%A0\%95\%EC\%84\%AD-1b167a354/}{LinkedIn} &
-    \faIcon{graduation-cap}~\href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{Google Scholar}
-  \end{tabular}
-\end{center}
+\begin{minipage}[c]{0.22\textwidth}
+  \centering
+  \includegraphics[width=3.2cm]{photo.jpg}
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.75\textwidth}
+  \begin{center}
+    {\LARGE\bfseries Jungseob Lee (이정섭)} \\[6pt]
+    {\color{lighttext} NLP Researcher $\cdot$ Graduate Student, Korea University} \\[10pt]
+    \begin{tabular}{ccc}
+      \faIcon{birthday-cake}~1995.10.11 &
+      \faIcon{envelope}~\href{mailto:omanma1928@korea.ac.kr}{omanma1928@korea.ac.kr} &
+      \faIcon{globe}~\href{https://js-lee-ai.github.io}{js-lee-ai.github.io} \\[3pt]
+      \faIcon{github}~\href{https://github.com/js-lee-AI}{js-lee-AI} &
+      \faIcon{linkedin}~\href{https://www.linkedin.com/in/\%EC\%9D\%B4\%EC\%A0\%95\%EC\%84\%AD-1b167a354/}{LinkedIn} &
+      \faIcon{graduation-cap}~\href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{Google Scholar}
+    \end{tabular}
+  \end{center}
+\end{minipage}
 
 \vspace{4pt}
 
