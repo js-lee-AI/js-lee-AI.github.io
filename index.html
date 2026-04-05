@@ -763,8 +763,8 @@
         }
         checkBossBurst();
         // J2: Draw mouse trail ribbon
-        trail = trail.filter(function(t){ return --t.life > 0; });
-        if (trail.length > 1) {
+        if (typeof trail !== 'undefined' && trail) trail = trail.filter(function(t){ return --t.life > 0; });
+        if (typeof trail !== 'undefined' && trail && trail.length > 1) {
           ctx.beginPath();
           ctx.moveTo(trail[0].x, trail[0].y);
           for (var ti=1;ti<trail.length;ti++){
