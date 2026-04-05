@@ -601,7 +601,9 @@
     });
 
     // Theme cycling on logo click
-    var ALL_THEMES = ['obsidian','ivory','arctic','midnight','rosewood','sakura','emerald','sunset','neon','ocean','lavender','monochrome','copper','aurora','sand','wine','ice'];
+    var DEFAULT_THEME_ORDER = ['obsidian','ivory','arctic','midnight','rosewood','sakura','emerald','sunset','neon','ocean','lavender','monochrome','copper','aurora','sand','wine','ice'];
+    var cfgOrder = getConfig().themeOrder;
+    var ALL_THEMES = (cfgOrder && cfgOrder.length > 1) ? cfgOrder : DEFAULT_THEME_ORDER;
     document.querySelector('.nav-logo').addEventListener('click', function(e) {
       e.preventDefault();
       var cur = document.documentElement.getAttribute('data-theme') || 'obsidian';
