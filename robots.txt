@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://js-lee-ai.github.io/sitemap.xml
+
+# Block admin page from indexing
+Disallow: /admin.html
