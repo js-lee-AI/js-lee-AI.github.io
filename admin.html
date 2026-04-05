@@ -110,16 +110,21 @@
 </head>
 <body>
 
-  <!-- Password Gate -->
+  <!-- GitHub Auth Gate -->
   <div class="gate" id="gate">
     <div class="gate-box">
       <h2>Admin Panel</h2>
-      <p>Enter password to continue</p>
+      <p>GitHub 계정 인증이 필요합니다</p>
       <div class="form-row">
-        <input type="password" id="gatePw" placeholder="Password" autofocus>
+        <input type="password" id="gatePw" placeholder="GitHub Personal Access Token" autofocus>
       </div>
-      <button class="btn btn-primary" id="gateBtn" style="width:100%">Enter</button>
-      <p style="margin-top:12px;font-size:11px;color:var(--t3)">Default password: <code>admin</code></p>
+      <button class="btn btn-primary" id="gateBtn" style="width:100%">Verify with GitHub</button>
+      <p style="margin-top:16px;font-size:11px;color:var(--t3);line-height:1.6">
+        GitHub &rarr; Settings &rarr; Developer settings &rarr;<br>
+        Personal access tokens &rarr; Fine-grained tokens<br>
+        (권한 없이 생성해도 됩니다 — read:user만 필요)
+      </p>
+      <p id="gateError" style="margin-top:12px;font-size:12px;color:var(--danger);display:none"></p>
     </div>
   </div>
 
@@ -156,11 +161,9 @@
       <h3 style="font-size:16px;margin-bottom:20px;color:var(--t2)">Settings</h3>
 
       <div class="form-row">
-        <label>Change Admin Password</label>
-        <div class="form-row-inline">
-          <input type="password" id="newPw" placeholder="New password">
-          <button class="btn btn-outline" id="changePwBtn">Change</button>
-        </div>
+        <label>GitHub Account</label>
+        <p style="font-size:13px;color:var(--t2);margin-bottom:8px" id="settingsUser"></p>
+        <button class="btn btn-outline" id="logoutBtn">Logout</button>
       </div>
 
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
@@ -252,7 +255,8 @@
     'use strict';
     var CONFIG_KEY = 'jl-cv-config';
     var PAPERS_KEY = 'jl-cv-papers';
-    var PW_KEY = 'jl-cv-pw';
+    var TOKEN_KEY = 'jl-cv-gh-token';
+    var ALLOWED_USER = 'js-lee-AI';
 
     // ═══ Helpers ═══
     function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}'); } catch(e) { return {}; } }
@@ -301,29 +305,49 @@
     var editLinks = [];
 
     // ═══ Password ═══
-    function hashPw(pw) {
-      // Simple hash for client-side only (not cryptographic security)
-      var h = 0;
-      for (var i = 0; i < pw.length; i++) { h = ((h << 5) - h) + pw.charCodeAt(i); h |= 0; }
-      return String(h);
-    }
+    // Check saved token on load
+    var savedToken = localStorage.getItem(TOKEN_KEY);
+    if (savedToken) { verifyToken(savedToken, true); }
 
-    var storedPwHash = localStorage.getItem(PW_KEY) || hashPw('admin');
-
-    document.getElementById('gateBtn').addEventListener('click', doLogin);
+    document.getElementById('gateBtn').addEventListener('click', function() { doLogin(); });
     document.getElementById('gatePw').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
 
     function doLogin() {
-      var pw = document.getElementById('gatePw').value;
-      if (hashPw(pw) === storedPwHash) {
-        document.getElementById('gate').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        initAdmin();
-      } else {
-        document.getElementById('gatePw').style.borderColor = 'var(--danger)';
-        document.getElementById('gatePw').value = '';
-        document.getElementById('gatePw').placeholder = 'Wrong password';
-      }
+      var token = document.getElementById('gatePw').value.trim();
+      if (!token) return;
+      document.getElementById('gateBtn').textContent = 'Verifying...';
+      document.getElementById('gateBtn').disabled = true;
+      verifyToken(token, false);
+    }
+
+    function verifyToken(token, silent) {
+      fetch('https://api.github.com/user', {
+        headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (data.login && data.login.toLowerCase() === ALLOWED_USER.toLowerCase()) {
+          localStorage.setItem(TOKEN_KEY, token);
+          document.getElementById('gate').style.display = 'none';
+          document.getElementById('adminPanel').style.display = 'block';
+          var userEl = document.getElementById('settingsUser');
+          if (userEl) userEl.textContent = 'Logged in as @' + data.login;
+          initAdmin();
+        } else {
+          if (silent) { localStorage.removeItem(TOKEN_KEY); return; }
+          showGateError('Access denied. Only @' + ALLOWED_USER + ' can access this page.');
+        }
+      }).catch(function() {
+        if (silent) { localStorage.removeItem(TOKEN_KEY); return; }
+        showGateError('Invalid token or network error.');
+      }).finally(function() {
+        var btn = document.getElementById('gateBtn');
+        if (btn) { btn.textContent = 'Verify with GitHub'; btn.disabled = false; }
+      });
+    }
+
+    function showGateError(msg) {
+      var el = document.getElementById('gateError');
+      el.textContent = msg; el.style.display = 'block';
+      document.getElementById('gatePw').value = '';
     }
 
     // ═══ Tabs ═══
@@ -628,13 +652,12 @@
     });
 
     // ═══ Settings ═══
-    document.getElementById('changePwBtn').addEventListener('click', function() {
-      var pw = document.getElementById('newPw').value;
-      if (!pw) return;
-      localStorage.setItem(PW_KEY, hashPw(pw));
-      storedPwHash = hashPw(pw);
-      document.getElementById('newPw').value = '';
-      toast('Password changed');
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem(TOKEN_KEY);
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('gate').style.display = 'flex';
+      document.getElementById('gatePw').value = '';
+      toast('Logged out');
     });
 
     document.getElementById('exportBtn').addEventListener('click', function() {
