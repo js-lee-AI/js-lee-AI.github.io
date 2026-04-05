@@ -108,7 +108,8 @@
     .venue-conf{background:rgba(140,200,160,.08);color:#7db89a;border:1px solid rgba(140,200,160,.12)}
     .venue-preprint{background:rgba(180,150,200,.08);color:#a890b8;border:1px solid rgba(180,150,200,.12)}
     .venue-workshop{background:rgba(200,170,140,.08);color:#b8a080;border:1px solid rgba(200,170,140,.12)}
-    .pub-title-text{font-family:var(--font-display);font-size:19px;font-weight:600;color:var(--text-primary);line-height:1.4;flex:1}
+    .pub-title-text{font-family:var(--font-display);font-size:19px;font-weight:600;color:var(--text-primary);line-height:1.4;flex:1;transition:color .3s}
+    a.pub-title-text:hover{color:var(--accent)}
     .pub-authors{font-size:13.5px;color:var(--text-secondary);margin-bottom:6px;line-height:1.6}.pub-authors .me{color:var(--accent);font-weight:600}
     .pub-venue-text{font-size:13px;font-style:italic;color:var(--text-muted);margin-bottom:8px}
     .pub-framework{display:none;margin:16px 0 8px;padding:16px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);text-align:center;animation:imgf .4s ease}
@@ -147,7 +148,7 @@
 
     /* Responsive */
     /* Mascot */
-    .mascot{position:fixed;bottom:28px;right:28px;z-index:9998;width:90px;height:auto;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));transition:transform .3s cubic-bezier(.16,1,.3,1)}
+    .mascot{position:fixed;bottom:28px;right:28px;z-index:9998;width:64px;height:auto;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));transition:transform .3s cubic-bezier(.16,1,.3,1)}
     .mascot:hover{transform:scale(1.1)}
     .mascot:active{transform:scale(.92)}
     .mascot img{width:100%;display:block;transition:opacity .15s}
@@ -280,12 +281,7 @@
     <div class="section-inner">
       <div class="section-header reveal"><h2 class="section-title">News</h2></div>
       <div class="news-list">
-        <div class="news-item reveal"><div class="news-date">2026.01</div><div class="news-content"><span class="news-badge badge-acl">ICLR 2026</span> Our paper <strong>"Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment"</strong> has been accepted at <strong>ICLR 2026</strong> (Poster).</div></div>
-        <div class="news-item reveal"><div class="news-date">2025.04</div><div class="news-content"><span class="news-badge badge-acl">ACL 2025</span> Our paper <strong>"Cross-lingual Optimization for Language Transfer in Large Language Models"</strong> has been accepted at <strong>ACL 2025</strong> Main Conference as an <strong>Oral</strong> presentation.</div></div>
-        <div class="news-item reveal"><div class="news-date">2025.01</div><div class="news-content"><span class="news-badge badge-new">Publication</span> Paper <strong>"An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training"</strong> published in <strong>Expert Systems With Applications</strong>.</div></div>
-        <div class="news-item reveal"><div class="news-date">2024.05</div><div class="news-content"><span class="news-badge badge-acl">ACL 2024</span> Our paper <strong>"Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation"</strong> has been accepted at <strong>Findings of ACL 2024</strong>.</div></div>
-        <div class="news-item reveal"><div class="news-date">2023.05</div><div class="news-content"><span class="news-badge badge-acl">ACL 2023</span> Our paper <strong>"PEEP-Talk"</strong> has been accepted at <strong>ACL 2023</strong> (System Demonstrations).</div></div>
-        <div class="news-item reveal"><div class="news-date">2023.01</div><div class="news-content"><span class="news-badge badge-new">Survey</span> Our survey <strong>"A Survey on Evaluation Metrics for Machine Translation"</strong> published in <strong>Mathematics</strong>.</div></div>
+        <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">ICLR 2026</span> Our paper <strong>"Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment"</strong> has been accepted at <strong>ICLR 2026</strong> (Poster).</div></div>
       </div>
     </div>
   </section>
@@ -333,27 +329,27 @@
 
     const DEFAULT_PAPERS = [
       {id:23,title:"Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment",authors:"S. Hong, Y. Jang, **J. Lee**, H. Moon, H. Lim",venue:"ICLR 2026 Poster",venueType:"acl",venueFull:"The Fourteenth International Conference on Learning Representations",year:2026,citations:0,links:{pdf:"https://openreview.net/pdf?id=NvKvW5k6Kk"}},
-      {id:1,title:"Cross-lingual Optimization for Language Transfer in Large Language Models",authors:"**J. Lee**, S. Hong, H. Moon, H.S. Lim",venue:"ACL 2025 Oral",venueType:"acl",venueFull:"Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Oral)",year:2025,citations:3,links:{}},
-      {id:2,title:"VAETKI Technical Report",authors:"NCAI Consortium",venue:"Report",venueType:"preprint",venueFull:"",year:2025,citations:0,links:{}},
+      {id:1,title:"Cross-lingual Optimization for Language Transfer in Large Language Models",authors:"**J. Lee**, S. Hong, H. Moon, H.S. Lim",venue:"ACL 2025 Oral",venueType:"acl",venueFull:"Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Oral)",year:2025,citations:3,links:{pdf:"https://aclanthology.org/2025.acl-long.734.pdf"}},
+      {id:2,title:"VAETKI Technical Report",authors:"NCAI Consortium",venue:"Report",venueType:"preprint",venueFull:"",year:2025,citations:0,links:{pdf:"https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf"}},
       {id:3,title:"An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, J. Lim, H. Lim",venue:"ESWA",venueType:"journal",venueFull:"Expert Systems With Applications, 267, 125841",year:2025,citations:1,links:{doi:"https://doi.org/10.1016/j.eswa.2024.125841"}},
-      {id:4,title:"Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation",authors:"**J. Lee**, H. Moon, S. Lee, C. Park, S. Eo, H. Ko, J. Seo, S. Lee, H.S. Lim",venue:"Findings of ACL 2024",venueType:"acl",venueFull:"Findings of the Association for Computational Linguistics: ACL 2024, pp. 2287\u20132303",year:2024,citations:10,links:{pdf:"https://aclanthology.org/2024.findings-acl.136.pdf"}},
+      {id:4,title:"Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation",authors:"**J. Lee**, H. Moon, S. Lee, C. Park, S. Eo, H. Ko, J. Seo, S. Lee, H.S. Lim",venue:"Findings of ACL 2024",venueType:"acl",venueFull:"Findings of the Association for Computational Linguistics: ACL 2024, pp. 2287\u20132303",year:2024,citations:10,links:{pdf:"https://aclanthology.org/2024.findings-acl.135.pdf"}},
       {id:5,title:"Analysis of the Effectiveness of Model, Data, and User-Centric Approaches for Chat Application: A Case Study of BlenderBot 2.0",authors:"C. Park, **J. Lee**, S. Son, K. Park, J. Jang, H. Lim",venue:"Applied Sciences",venueType:"journal",venueFull:"Applied Sciences 14(11), 4821",year:2024,citations:2,links:{doi:"https://doi.org/10.3390/app14114821"}},
-      {id:6,title:"A Survey on Evaluation Metrics for Machine Translation",authors:"S. Lee, **J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Koo, H. Lim",venue:"Mathematics",venueType:"journal",venueFull:"Mathematics 11(4), 1006",year:2023,citations:142,links:{pdf:"https://www.mdpi.com/2227-7390/11/4/1006/pdf"}},
+      {id:6,title:"A Survey on Evaluation Metrics for Machine Translation",authors:"S. Lee, **J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Koo, H. Lim",venue:"Mathematics",venueType:"journal",venueFull:"Mathematics 11(4), 1006",year:2023,citations:142,links:{pdf:"https://www.mdpi.com/2227-7390/11/4/1006"}},
       {id:7,title:"PEEP-Talk: A Situational Dialogue-based Chatbot for English Education",authors:"S. Lee, Y. Jang, C. Park, **J. Lee**, J. Seo, H. Moon, S. Eo, S. Lee, B. Yahya, et al.",venue:"ACL 2023 Demo",venueType:"acl",venueFull:"Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (System Demonstrations)",year:2023,citations:16,links:{pdf:"https://aclanthology.org/2023.acl-demo.18.pdf"}},
       {id:8,title:"Doubts on the Reliability of Parallel Corpus Filtering",authors:"H. Moon, C. Park, S. Koo, **J. Lee**, S. Lee, J. Seo, S. Eo, Y. Jang, H. Kim, H. Lee, et al.",venue:"ESWA",venueType:"journal",venueFull:"Expert Systems with Applications 233, 120962",year:2023,citations:3,links:{doi:"https://doi.org/10.1016/j.eswa.2023.120962"}},
-      {id:9,title:"KoCheckGPT: Korean LLM Written Document Detector",authors:"M. Kang, **J. Lee**, S. Lee, S. Hong, J. Park, H. Lim",venue:"HCLT 2023",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 432\u2013436",year:2023,citations:0,links:{}},
-      {id:10,title:"K-NCT: Korean Neural Grammatical Error Correction Gold-standard Test Set Using Novel Error Type Classification Criteria",authors:"S. Koo, C. Park, J. Seo, S. Lee, H. Moon, **J. Lee**, H. Lim",venue:"IEEE Access",venueType:"journal",venueFull:"IEEE Access 10, pp. 118167\u2013118175",year:2022,citations:13,links:{doi:"https://ieeexplore.ieee.org/document/9931928"}},
-      {id:11,title:"Korean and Multilingual Language Models Study for Cross-lingual Post-training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, K. Park, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 77\u201389",year:2022,citations:4,links:{}},
-      {id:12,title:"Empirical Study on BlenderBot 2.0 Errors Analysis in Terms of Model, Data and User-Centric Approach",authors:"**J. Lee**, M. Shim, S. Son, Y. Kim, C. Park, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2201.03239",year:2022,citations:3,links:{pdf:"https://arxiv.org/pdf/2201.03239"}},
-      {id:13,title:"QUAK: A Synthetic Quality Estimation Dataset for Korean-English Neural Machine Translation",authors:"S. Eo, C. Park, H. Moon, J. Seo, G. Kim, **J. Lee**, H.S. Lim",venue:"COLING 2022",venueType:"conf",venueFull:"Proceedings of the 29th International Conference on Computational Linguistics",year:2022,citations:2,links:{pdf:"https://aclanthology.org/2022.coling-1.578.pdf"}},
+      {id:9,title:"KoCheckGPT: Korean LLM Written Document Detector",authors:"M. Kang, **J. Lee**, S. Lee, S. Hong, J. Park, H. Lim",venue:"HCLT 2023",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 432\u2013436",year:2023,citations:0,links:{pdf:"https://koreascience.kr/article/CFKO202306643317050.page"}},
+      {id:10,title:"K-NCT: Korean Neural Grammatical Error Correction Gold-standard Test Set Using Novel Error Type Classification Criteria",authors:"S. Koo, C. Park, J. Seo, S. Lee, H. Moon, **J. Lee**, H. Lim",venue:"IEEE Access",venueType:"journal",venueFull:"IEEE Access 10, pp. 118167\u2013118175",year:2022,citations:13,links:{pdf:"https://ieeexplore.ieee.org/document/9938990"}},
+      {id:11,title:"Korean and Multilingual Language Models Study for Cross-lingual Post-training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, K. Park, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 77\u201389",year:2022,citations:4,links:{pdf:"https://koreascience.kr/article/JAKO202210459401088.page"}},
+      {id:12,title:"Empirical Study on BlenderBot 2.0 Errors Analysis in Terms of Model, Data and User-Centric Approach",authors:"**J. Lee**, M. Shim, S. Son, Y. Kim, C. Park, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2201.03239",year:2022,citations:3,links:{pdf:"https://www.koreascience.or.kr/article/JAKO202106361939222.page"}},
+      {id:13,title:"QUAK: A Synthetic Quality Estimation Dataset for Korean-English Neural Machine Translation",authors:"S. Eo, C. Park, H. Moon, J. Seo, G. Kim, **J. Lee**, H.S. Lim",venue:"COLING 2022",venueType:"conf",venueFull:"Proceedings of the 29th International Conference on Computational Linguistics",year:2022,citations:2,links:{pdf:"https://aclanthology.org/2022.coling-1.460.pdf"}},
       {id:14,title:"There is No Rose Without a Thorn: Finding Weaknesses on BlenderBot 2.0",authors:"**J. Lee**, M. Shim, S. Son, C. Park, Y. Kim, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2201.03239",year:2022,citations:2,links:{pdf:"https://arxiv.org/pdf/2201.03239"}},
-      {id:15,title:"Focus on FoCus: Is FoCus Focused on Context, Knowledge and Persona?",authors:"S.Y. Lee, **J. Lee**, C. Park, S. Eo, H. Moon, J. Seo, J. Park, H.S. Lim",venue:"Workshop",venueType:"workshop",venueFull:"Proceedings of the 1st Workshop on Customized Chat Grounding Persona and Knowledge",year:2022,citations:1,links:{pdf:"https://aclanthology.org/2022.ccgpk-1.2.pdf"}},
-      {id:16,title:"Language Chameleon: Transformation Analysis between Languages Using Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2209.06422",year:2022,citations:0,links:{pdf:"https://arxiv.org/pdf/2209.06422"}},
-      {id:17,title:"Empirical Analysis of Noising Scheme based Synthetic Data Generation for Automatic Post-editing",authors:"H. Moon, C. Park, S. Lee, J. Seo, **J. Lee**, S. Eo, H.S. Lim",venue:"LREC 2022",venueType:"conf",venueFull:"Proceedings of the Thirteenth Language Resources and Evaluation Conference",year:2022,citations:0,links:{pdf:"https://aclanthology.org/2022.lrec-1.469.pdf"}},
-      {id:18,title:"SaJuTeller: Conditional Generation Deep-Learning based Fortune Telling Model",authors:"H. Moon, **J. Lee**, J. Seo, S. Eo, C. Park, W. Kim, J. Park, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 277\u2013283",year:2022,citations:0,links:{}},
-      {id:19,title:"Korean Language Model Construction and Comparative Analysis with Cross-lingual Post-Training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, S. Lee, J.W. Lee, A. So, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 295\u2013299",year:2022,citations:0,links:{}},
-      {id:20,title:"DART: Data Augmentation using Retrieval Technique",authors:"S. Lee, J. Seo, **J. Lee**, M. Kang, H. Moon, C. Park, D. Jung, J. Lee, K. Park, et al.",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 313\u2013319",year:2022,citations:0,links:{}},
-      {id:21,title:"Policy-based Performance Comparison Study of Real-time Simultaneous Translation",authors:"**J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Lee, S. Koo, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 43\u201354",year:2022,citations:0,links:{}},
+      {id:15,title:"Focus on FoCus: Is FoCus Focused on Context, Knowledge and Persona?",authors:"S.Y. Lee, **J. Lee**, C. Park, S. Eo, H. Moon, J. Seo, J. Park, H.S. Lim",venue:"Workshop",venueType:"workshop",venueFull:"Proceedings of the 1st Workshop on Customized Chat Grounding Persona and Knowledge",year:2022,citations:1,links:{pdf:"https://aclanthology.org/2022.ccgpk-1.1.pdf"}},
+      {id:16,title:"Language Chameleon: Transformation Analysis between Languages Using Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, H. Lim",venue:"arXiv",venueType:"preprint",venueFull:"arXiv preprint arXiv:2209.06422",year:2022,citations:0,links:{pdf:"https://arxiv.org/abs/2209.06422"}},
+      {id:17,title:"Empirical Analysis of Noising Scheme based Synthetic Data Generation for Automatic Post-editing",authors:"H. Moon, C. Park, S. Lee, J. Seo, **J. Lee**, S. Eo, H.S. Lim",venue:"LREC 2022",venueType:"conf",venueFull:"Proceedings of the Thirteenth Language Resources and Evaluation Conference",year:2022,citations:0,links:{pdf:"https://aclanthology.org/2022.lrec-1.93.pdf"}},
+      {id:18,title:"SaJuTeller: Conditional Generation Deep-Learning based Fortune Telling Model",authors:"H. Moon, **J. Lee**, J. Seo, S. Eo, C. Park, W. Kim, J. Park, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 277\u2013283",year:2022,citations:0,links:{pdf:"https://koreascience.kr/article/CFKO202226455345621.view"}},
+      {id:19,title:"Korean Language Model Construction and Comparative Analysis with Cross-lingual Post-Training (XPT)",authors:"S. Son, C. Park, **J. Lee**, M. Shim, S. Lee, J.W. Lee, A. So, H. Lim",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 295\u2013299",year:2022,citations:0,links:{pdf:"https://koreascience.kr/article/CFKO202226455345799.page"}},
+      {id:20,title:"DART: Data Augmentation using Retrieval Technique",authors:"S. Lee, J. Seo, **J. Lee**, M. Kang, H. Moon, C. Park, D. Jung, J. Lee, K. Park, et al.",venue:"HCLT 2022",venueType:"conf",venueFull:"Annual Conference on Human and Language Technology, pp. 313\u2013319",year:2022,citations:0,links:{pdf:"https://www.koreascience.kr/article/CFKO202226455346012.page"}},
+      {id:21,title:"Policy-based Performance Comparison Study of Real-time Simultaneous Translation",authors:"**J. Lee**, H. Moon, C. Park, J. Seo, S. Eo, S. Lee, S. Koo, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 13(3), pp. 43\u201354",year:2022,citations:0,links:{pdf:"https://www.koreascience.kr/article/JAKO202210459432095.page"}},
       {id:22,title:"Empirical Study on BlenderBot 2.0's Errors Analysis in Terms of Model, Data and Dialogue",authors:"**J. Lee**, S. Son, M. Shim, Y. Kim, C. Park, A. So, J. Park, H. Lim",venue:"JKCS",venueType:"journal",venueFull:"Journal of the Korea Convergence Society 12(12), pp. 93\u2013106",year:2021,citations:1,links:{}}
     ];
 
@@ -377,7 +373,17 @@
       // Header
       const header = document.createElement('div');
       header.className = 'pub-card-header';
-      const title = document.createElement('h3');
+      const allLinks = Object.assign({}, p.links || {}, (config.paperLinks || {})[p.id] || {});
+      const mainUrl = allLinks.pdf || allLinks.doi || allLinks.arxiv || Object.values(allLinks)[0] || '';
+      var title;
+      if (mainUrl) {
+        title = document.createElement('a');
+        title.href = mainUrl;
+        title.target = '_blank';
+        title.rel = 'noopener';
+      } else {
+        title = document.createElement('h3');
+      }
       title.className = 'pub-title-text';
       title.textContent = p.title;
       const tag = document.createElement('span');
@@ -555,35 +561,66 @@
       resize();
       window.addEventListener('resize', resize);
 
+      var BOSS_COUNT = 4;
       for (var i = 0; i < PARTICLE_COUNT; i++) {
+        var isBoss = i < BOSS_COUNT;
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 2 + 1
+          vx: (Math.random() - 0.5) * (isBoss ? 0.7 : 0.4),
+          vy: (Math.random() - 0.5) * (isBoss ? 0.7 : 0.4),
+          r: isBoss ? (Math.random() * 2 + 3.5) : (Math.random() * 2 + 1),
+          boss: isBoss,
+          life: 0
         });
       }
 
       document.addEventListener('mousemove', function(e) { mouse.x = e.clientX; mouse.y = e.clientY; });
 
+      // Click on boss particle → burst
+      canvas.style.pointerEvents = 'auto';
+      canvas.addEventListener('click', function(e) {
+        var cx = e.clientX, cy = e.clientY;
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          if (!p.boss) continue;
+          var dx = p.x - cx, dy = p.y - cy;
+          if (Math.sqrt(dx*dx + dy*dy) < p.r + 20) {
+            for (var j = 0; j < 12; j++) {
+              var angle = (Math.PI * 2 / 12) * j + Math.random() * 0.3;
+              var speed = 1.5 + Math.random() * 2;
+              particles.push({
+                x: p.x, y: p.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                r: Math.random() * 1.5 + 0.5,
+                boss: false,
+                life: 120 + Math.random() * 60
+              });
+            }
+            break;
+          }
+        }
+      });
+
       function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Remove dead burst particles
+        particles = particles.filter(function(p) { return !p.life || p.life > 0; });
         particles.forEach(function(p) {
+          if (p.life > 0) { p.life--; p.vx *= 0.98; p.vy *= 0.98; }
           p.x += p.vx; p.y += p.vy;
           if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
           if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-          // Mouse repulsion
           var dx = p.x - mouse.x, dy = p.y - mouse.y;
           var dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < 120) {
-            p.x += dx / dist * 1.5;
-            p.y += dy / dist * 1.5;
-          }
+          if (dist < 120) { p.x += dx / dist * 1.5; p.y += dy / dist * 1.5; }
+          var alpha = p.life > 0 ? (p.life / 180) * 0.7 : (p.boss ? 0.6 : 0.4);
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(' + rgb + ',0.4)';
+          ctx.fillStyle = 'rgba(' + rgb + ',' + alpha + ')';
           ctx.fill();
+          if (p.boss) { ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 3, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(' + rgb + ',0.15)'; ctx.lineWidth = 1; ctx.stroke(); }
         });
         // Connections
         for (var a = 0; a < particles.length; a++) {
