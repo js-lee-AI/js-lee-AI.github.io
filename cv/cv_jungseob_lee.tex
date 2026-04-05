@@ -1,0 +1,223 @@
+\documentclass[11pt,a4paper]{article}
+
+% ═══ Packages ═══
+\usepackage[margin=2cm]{geometry}
+\usepackage{kotex}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+
+% ═══ Colors ═══
+\definecolor{accent}{HTML}{2856A0}
+\definecolor{darktext}{HTML}{1a2332}
+\definecolor{lighttext}{HTML}{5a6578}
+
+% ═══ Hyperref ═══
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accent,
+  urlcolor=accent,
+  pdfauthor={Jungseob Lee},
+  pdftitle={CV - Jungseob Lee},
+}
+
+% ═══ Formatting ═══
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize\color{lighttext} Jungseob Lee --- Curriculum Vitae --- \thepage}
+
+\titleformat{\section}{\large\bfseries\color{accent}}{}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{16pt}{8pt}
+
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.5em, itemsep=2pt, parsep=0pt}
+
+% ═══ Commands ═══
+\newcommand{\cventry}[4]{%
+  \textbf{#1} \hfill \textit{#2} \\
+  \textit{#3} \hfill #4 \vspace{4pt}\\
+}
+\newcommand{\me}[1]{\textbf{\underline{#1}}}
+\newcommand{\papertitle}[1]{\textit{``#1''}}
+\newcommand{\paperlink}[1]{\href{#1}{[\textcolor{accent}{PDF}]}}
+\newcommand{\doilink}[1]{\href{#1}{[\textcolor{accent}{DOI}]}}
+
+\begin{document}
+
+% ═══════════════════════════════════════════
+%  Header
+% ═══════════════════════════════════════════
+\begin{center}
+  {\LARGE\bfseries Jungseob Lee (이정섭)} \\[6pt]
+  {\color{lighttext} NLP Researcher $\cdot$ Graduate Student, Korea University} \\[10pt]
+  \begin{tabular}{ccccc}
+    \faIcon{birthday-cake}~1995.10.11 &
+    \faIcon{envelope}~\href{mailto:omanma1928@korea.ac.kr}{omanma1928@korea.ac.kr} &
+    \faIcon{globe}~\href{https://js-lee-ai.github.io}{js-lee-ai.github.io} \\[3pt]
+    \faIcon{github}~\href{https://github.com/js-lee-AI}{js-lee-AI} &
+    \faIcon{linkedin}~\href{https://www.linkedin.com/in/\%EC\%9D\%B4\%EC\%A0\%95\%EC\%84\%AD-1b167a354/}{LinkedIn} &
+    \faIcon{graduation-cap}~\href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{Google Scholar}
+  \end{tabular}
+\end{center}
+
+\vspace{4pt}
+
+% ═══════════════════════════════════════════
+%  Research Interests
+% ═══════════════════════════════════════════
+\section{Research Interests}
+Large Language Models, Natural Language Processing, Agentic LLM, Machine Translation, Information Retrieval, Model Merging
+
+% ═══════════════════════════════════════════
+%  Education
+% ═══════════════════════════════════════════
+\section{Education}
+\cventry{M.S./Ph.D. in Computer Science}{2021 -- Present}{Korea University, Seoul, Korea}{Advisor: Prof. Heuiseok Lim}
+\begin{itemize}
+  \item NLP Lab --- Research on machine translation, cross-lingual transfer learning, and large language models
+\end{itemize}
+
+% ═══════════════════════════════════════════
+%  Publications
+% ═══════════════════════════════════════════
+\section{Publications}
+
+\subsection*{2026}
+\begin{itemize}
+  \item \papertitle{Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment} \\
+    S.~Hong, Y.~Jang, \me{J.~Lee}, H.~Moon, H.~Lim \\
+    \textbf{ICLR 2026} (Poster), The Fourteenth International Conference on Learning Representations \\
+    \paperlink{https://openreview.net/pdf?id=NvKvW5k6Kk}
+\end{itemize}
+
+\subsection*{2025}
+\begin{itemize}
+  \item \papertitle{Cross-lingual Optimization for Language Transfer in Large Language Models} \\
+    \me{J.~Lee}, S.~Hong, H.~Moon, H.S.~Lim \\
+    \textbf{ACL 2025} (Oral), Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics \\
+    \paperlink{https://aclanthology.org/2025.acl-long.734.pdf}
+
+  \item \papertitle{VAETKI Technical Report} \\
+    NCAI Consortium \\
+    Technical Report, 2025 \\
+    \paperlink{https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf}
+
+  \item \papertitle{An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training} \\
+    S.~Son, C.~Park, \me{J.~Lee}, M.~Shim, C.~Lee, Y.~Jang, J.~Seo, J.~Lim, H.~Lim \\
+    \textbf{Expert Systems With Applications}, 267, 125841 \\
+    \doilink{https://doi.org/10.1016/j.eswa.2024.125841}
+\end{itemize}
+
+\subsection*{2024}
+\begin{itemize}
+  \item \papertitle{Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation} \\
+    \me{J.~Lee}, H.~Moon, S.~Lee, C.~Park, S.~Eo, H.~Ko, J.~Seo, S.~Lee, H.S.~Lim \\
+    \textbf{Findings of ACL 2024}, pp.~2287--2303 \\
+    \paperlink{https://aclanthology.org/2024.findings-acl.135.pdf}
+
+  \item \papertitle{Analysis of the Effectiveness of Model, Data, and User-Centric Approaches for Chat Application: A Case Study of BlenderBot 2.0} \\
+    C.~Park, \me{J.~Lee}, S.~Son, K.~Park, J.~Jang, H.~Lim \\
+    \textbf{Applied Sciences} 14(11), 4821 \\
+    \doilink{https://doi.org/10.3390/app14114821}
+\end{itemize}
+
+\subsection*{2023}
+\begin{itemize}
+  \item \papertitle{A Survey on Evaluation Metrics for Machine Translation} \\
+    S.~Lee, \me{J.~Lee}, H.~Moon, C.~Park, J.~Seo, S.~Eo, S.~Koo, H.~Lim \\
+    \textbf{Mathematics} 11(4), 1006 \\
+    \paperlink{https://www.mdpi.com/2227-7390/11/4/1006}
+
+  \item \papertitle{PEEP-Talk: A Situational Dialogue-based Chatbot for English Education} \\
+    S.~Lee, Y.~Jang, C.~Park, \me{J.~Lee}, J.~Seo, H.~Moon, S.~Eo, S.~Lee, B.~Yahya, et~al. \\
+    \textbf{ACL 2023} (System Demonstrations) \\
+    \paperlink{https://aclanthology.org/2023.acl-demo.18.pdf}
+
+  \item \papertitle{Doubts on the Reliability of Parallel Corpus Filtering} \\
+    H.~Moon, C.~Park, S.~Koo, \me{J.~Lee}, S.~Lee, J.~Seo, S.~Eo, Y.~Jang, H.~Kim, H.~Lee, et~al. \\
+    \textbf{Expert Systems with Applications} 233, 120962 \\
+    \doilink{https://doi.org/10.1016/j.eswa.2023.120962}
+
+  \item \papertitle{KoCheckGPT: Korean LLM Written Document Detector} \\
+    M.~Kang, \me{J.~Lee}, S.~Lee, S.~Hong, J.~Park, H.~Lim \\
+    Annual Conference on Human and Language Technology (HCLT), pp.~432--436 \\
+    \paperlink{https://koreascience.kr/article/CFKO202306643317050.page}
+\end{itemize}
+
+\subsection*{2022}
+\begin{itemize}
+  \item \papertitle{K-NCT: Korean Neural Grammatical Error Correction Gold-standard Test Set Using Novel Error Type Classification Criteria} \\
+    S.~Koo, C.~Park, J.~Seo, S.~Lee, H.~Moon, \me{J.~Lee}, H.~Lim \\
+    \textbf{IEEE Access} 10, pp.~118167--118175 \\
+    \paperlink{https://ieeexplore.ieee.org/document/9938990}
+
+  \item \papertitle{Korean and Multilingual Language Models Study for Cross-lingual Post-training (XPT)} \\
+    S.~Son, C.~Park, \me{J.~Lee}, M.~Shim, C.~Lee, K.~Park, H.~Lim \\
+    Journal of the Korea Convergence Society 13(3), pp.~77--89 \\
+    \paperlink{https://koreascience.kr/article/JAKO202210459401088.page}
+
+  \item \papertitle{QUAK: A Synthetic Quality Estimation Dataset for Korean-English Neural Machine Translation} \\
+    S.~Eo, C.~Park, H.~Moon, J.~Seo, G.~Kim, \me{J.~Lee}, H.S.~Lim \\
+    \textbf{COLING 2022}, Proceedings of the 29th International Conference on Computational Linguistics \\
+    \paperlink{https://aclanthology.org/2022.coling-1.460.pdf}
+
+  \item \papertitle{There is No Rose Without a Thorn: Finding Weaknesses on BlenderBot 2.0} \\
+    \me{J.~Lee}, M.~Shim, S.~Son, C.~Park, Y.~Kim, H.~Lim \\
+    arXiv preprint arXiv:2201.03239 \\
+    \paperlink{https://arxiv.org/pdf/2201.03239}
+
+  \item \papertitle{Focus on FoCus: Is FoCus Focused on Context, Knowledge and Persona?} \\
+    S.Y.~Lee, \me{J.~Lee}, C.~Park, S.~Eo, H.~Moon, J.~Seo, J.~Park, H.S.~Lim \\
+    Proceedings of the 1st Workshop on Customized Chat Grounding Persona and Knowledge \\
+    \paperlink{https://aclanthology.org/2022.ccgpk-1.1.pdf}
+
+  \item \papertitle{Language Chameleon: Transformation Analysis between Languages Using Cross-lingual Post-training} \\
+    S.~Son, C.~Park, \me{J.~Lee}, M.~Shim, C.~Lee, Y.~Jang, J.~Seo, H.~Lim \\
+    arXiv preprint arXiv:2209.06422 \\
+    \paperlink{https://arxiv.org/abs/2209.06422}
+
+  \item \papertitle{Empirical Analysis of Noising Scheme based Synthetic Data Generation for Automatic Post-editing} \\
+    H.~Moon, C.~Park, S.~Lee, J.~Seo, \me{J.~Lee}, S.~Eo, H.S.~Lim \\
+    \textbf{LREC 2022}, Proceedings of the Thirteenth Language Resources and Evaluation Conference \\
+    \paperlink{https://aclanthology.org/2022.lrec-1.93.pdf}
+
+  \item \papertitle{SaJuTeller: Conditional Generation Deep-Learning based Fortune Telling Model} \\
+    H.~Moon, \me{J.~Lee}, J.~Seo, S.~Eo, C.~Park, W.~Kim, J.~Park, H.~Lim \\
+    Annual Conference on Human and Language Technology (HCLT), pp.~277--283 \\
+    \paperlink{https://koreascience.kr/article/CFKO202226455345621.view}
+
+  \item \papertitle{Korean Language Model Construction and Comparative Analysis with Cross-lingual Post-Training (XPT)} \\
+    S.~Son, C.~Park, \me{J.~Lee}, M.~Shim, S.~Lee, J.W.~Lee, A.~So, H.~Lim \\
+    Annual Conference on Human and Language Technology (HCLT), pp.~295--299 \\
+    \paperlink{https://koreascience.kr/article/CFKO202226455345799.page}
+
+  \item \papertitle{DART: Data Augmentation using Retrieval Technique} \\
+    S.~Lee, J.~Seo, \me{J.~Lee}, M.~Kang, H.~Moon, C.~Park, D.~Jung, J.~Lee, K.~Park, et~al. \\
+    Annual Conference on Human and Language Technology (HCLT), pp.~313--319 \\
+    \paperlink{https://www.koreascience.kr/article/CFKO202226455346012.page}
+
+  \item \papertitle{Policy-based Performance Comparison Study of Real-time Simultaneous Translation} \\
+    \me{J.~Lee}, H.~Moon, C.~Park, J.~Seo, S.~Eo, S.~Lee, S.~Koo, H.~Lim \\
+    Journal of the Korea Convergence Society 13(3), pp.~43--54 \\
+    \paperlink{https://www.koreascience.kr/article/JAKO202210459432095.page}
+\end{itemize}
+
+\subsection*{2021}
+\begin{itemize}
+  \item \papertitle{Empirical Study on BlenderBot 2.0's Errors Analysis in Terms of Model, Data and Dialogue} \\
+    \me{J.~Lee}, S.~Son, M.~Shim, Y.~Kim, C.~Park, A.~So, J.~Park, H.~Lim \\
+    Journal of the Korea Convergence Society 12(12), pp.~93--106 \\
+    \paperlink{https://www.koreascience.or.kr/article/JAKO202106361939222.page}
+\end{itemize}
+
+\vfill
+\begin{center}
+  \color{lighttext}\footnotesize Last updated: \today
+\end{center}
+
+\end{document}
