@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  6 APR 2026 06:29
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  6 APR 2026 06:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -363,35 +363,61 @@ nput line 69.
 LaTeX Font Info:    Trying to load font information for TU+fontawesomebrands on
  input line 70.
 (/usr/share/texlive/texmf-dist/tex/latex/fontawesome5/tufontawesomebrands.fd)))
-Package hyperref Info: Option `colorlinks' set `true' on input line 26.
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: xetex.def on input line 107.
+)
+\Gin@req@height=\dimen168
+\Gin@req@width=\dimen169
+)
+(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen170
+\WF@size=\dimen171
+\c@WF@wrappedlines=\count292
+\WF@box=\box58
+\WF@everypar=\toks24
+Package: wrapfig 2003/01/31  v 3.6
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 28.
+
 (./cv_jungseob_lee.aux)
 \openout1 = `cv_jungseob_lee.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 50.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 52.
 LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 5
-0.
+2.
  (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 50.
-LaTeX Font Info:    ... okay on input line 50.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 52.
+LaTeX Font Info:    ... okay on input line 52.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -433,57 +459,57 @@ Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 
 \symlegacymaths=\mathgroup4
 LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
-(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 50.
-LaTeX Font Info:    Redeclaring math accent \acute on input line 50.
-LaTeX Font Info:    Redeclaring math accent \grave on input line 50.
-LaTeX Font Info:    Redeclaring math accent \ddot on input line 50.
-LaTeX Font Info:    Redeclaring math accent \tilde on input line 50.
-LaTeX Font Info:    Redeclaring math accent \bar on input line 50.
-LaTeX Font Info:    Redeclaring math accent \breve on input line 50.
-LaTeX Font Info:    Redeclaring math accent \check on input line 50.
-LaTeX Font Info:    Redeclaring math accent \hat on input line 50.
-LaTeX Font Info:    Redeclaring math accent \dot on input line 50.
-LaTeX Font Info:    Redeclaring math accent \mathring on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \colon on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Delta on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Theta on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Xi on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Pi on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Phi on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Psi on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \Omega on input line 50.
-LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 50.
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 50.
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 52.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 52.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 52.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 52.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 52.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 52.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 52.
+LaTeX Font Info:    Redeclaring math accent \check on input line 52.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 52.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 52.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \colon on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 52.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 52.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 50.
+(Font)              `operators' in the math version `normal' on input line 52.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 50.
+(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 52.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 50.
+(Font)              `operators' in the math version `bold' on input line 52.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 50.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 52.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 50.
+(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 50.
+(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 50.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 50.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 50.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 52.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 50.
+(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 50.
+(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 50.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 52.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 50.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 52.
 
 Package fontspec Info: Font family 'UnBatang.ttf(0)' created for font
 (fontspec)             'UnBatang.ttf' with options
@@ -548,7 +574,7 @@ e=dflt;extend=1.03;"
 (fontspec)             3\font =0\fontdimen 3\font \fontdimen 4\font
 (fontspec)             =0\fontdimen 4\font 
 
-Package hyperref Info: Link coloring ON on input line 50.
+Package hyperref Info: Link coloring ON on input line 52.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
 
@@ -558,52 +584,51 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 (/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count292
+\c@section@level=\count293
 )
-LaTeX Info: Redefining \ref on input line 50.
-LaTeX Info: Redefining \pageref on input line 50.
-LaTeX Info: Redefining \nameref on input line 50.
+LaTeX Info: Redefining \ref on input line 52.
+LaTeX Info: Redefining \pageref on input line 52.
+LaTeX Info: Redefining \nameref on input line 52.
 
 (./cv_jungseob_lee.out) (./cv_jungseob_lee.out)
 \@outlinefile=\write3
 \openout3 = `cv_jungseob_lee.out'.
 
-
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
-
+File: photo.jpg Graphic file (type bmp)
+<photo.jpg>
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <10.95> on input line 60.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 60.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 60.
 LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <17.28> not av
 ailable
 (Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
-line 56.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <10.95> on input line 57.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 57.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 57.
+line 64.
+
 
 LaTeX Font Warning: Font shape `TU/UnBatang.ttf(0)/solid/n' undefined
-(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 59.
+(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 67.
 
 
 LaTeX Font Warning: Font shape `TU/UnBatang.ttf(0)/regular/n' undefined
-(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 62.
+(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 70.
 
 LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <12> not avail
 able
 (Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
-line 73.
+line 82.
 LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <10.95> not av
 ailable
 (Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
-line 80.
+line 89.
 
 LaTeX Font Warning: Font shape `TU/UnBatang.ttf(0)/m/it' undefined
-(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 80.
+(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 89.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--82
+Underfull \hbox (badness 10000) in paragraph at lines 89--91
 
  []
 
@@ -617,10 +642,10 @@ Package rerunfilecheck Info: File `cv_jungseob_lee.out' has not changed.
 (rerunfilecheck)             Checksum: 7E9E08E278501C617A3F48D9C9897D75;327.
  ) 
 Here is how much of TeX's memory you used:
- 16882 strings out of 478190
- 291649 string characters out of 5854814
- 645249 words of memory out of 5000000
- 37288 multiletter control sequences out of 15000+600000
+ 17232 strings out of 478190
+ 297286 string characters out of 5854814
+ 649287 words of memory out of 5000000
+ 37620 multiletter control sequences out of 15000+600000
  472606 words of font info for 69 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  102i,11n,105p,302b,2709s stack positions out of 5000i,500n,10000p,200000b,80000s
