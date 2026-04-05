@@ -165,7 +165,7 @@
 
     /* Responsive */
     /* Mascot */
-    .mascot{position:fixed;bottom:28px;right:28px;z-index:9998;width:64px;height:auto;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));transition:transform .3s cubic-bezier(.16,1,.3,1),filter .5s}
+    .mascot{position:fixed;bottom:28px;right:28px;z-index:9998;width:80px;height:auto;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));transition:transform .3s cubic-bezier(.16,1,.3,1),filter .5s}
     /* Mascot theme tinting */
     [data-theme="obsidian"] .mascot{filter:drop-shadow(0 4px 12px rgba(0,0,0,.2)) sepia(.4) hue-rotate(10deg) saturate(1.8) brightness(1.1)}
     [data-theme="ivory"] .mascot{filter:drop-shadow(0 4px 8px rgba(0,0,0,.1)) sepia(.5) saturate(1.3) brightness(1.1)}
@@ -187,9 +187,14 @@
     .mascot:hover{transform:scale(1.1)}
     .mascot:active{transform:scale(.92)}
     .mascot img{width:100%;display:block;transition:opacity .15s}
-    .mascot .mascot-normal{opacity:1;position:relative}.mascot .mascot-ouch{opacity:0;position:absolute;top:0;left:0;width:100%}
+    .mascot .mascot-normal{opacity:1;position:relative}.mascot .mascot-ouch,.mascot .mascot-angry,.mascot .mascot-rage{opacity:0;position:absolute;top:0;left:0;width:100%}
     .mascot.ouch .mascot-normal{opacity:0}.mascot.ouch .mascot-ouch{opacity:1}
+    .mascot.angry .mascot-normal{opacity:0}.mascot.angry .mascot-angry{opacity:1}
+    .mascot.rage .mascot-normal{opacity:0}.mascot.rage .mascot-rage{opacity:1}
     .mascot.ouch{animation:mascot-shake .4s ease}
+    .mascot.angry{animation:mascot-shake .5s ease}
+    .mascot.rage{animation:mascot-rage-shake .6s ease}
+    @keyframes mascot-rage-shake{0%,100%{transform:rotate(0)}10%{transform:rotate(-12deg)}20%{transform:rotate(12deg)}30%{transform:rotate(-10deg)}40%{transform:rotate(10deg)}50%{transform:rotate(-8deg)}60%{transform:rotate(8deg)}70%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}90%{transform:rotate(-2deg)}}
     @keyframes mascot-shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
     @media(max-width:600px){.mascot{width:64px;bottom:16px;right:16px}}
 
@@ -327,6 +332,8 @@
   <div class="mascot" id="mascot">
     <img src="assets/emoji-normal.png" alt="" class="mascot-normal">
     <img src="assets/emoji-ouch.png" alt="" class="mascot-ouch">
+    <img src="assets/emoji-angry.png" alt="" class="mascot-angry">
+    <img src="assets/emoji-rage.png" alt="" class="mascot-rage">
   </div>
   <canvas id="particles"></canvas>
   <div class="scroll-progress" id="scrollProgress"></div>
@@ -931,14 +938,29 @@
       });
     });
 
-    // ─── Mascot Interaction ───
+    // ─── Mascot Interaction (click counter) ───
     var mascot = document.getElementById('mascot');
     if (mascot) {
-      mascot.addEventListener('mousedown', function() { mascot.classList.add('ouch'); });
-      mascot.addEventListener('mouseup', function() { setTimeout(function(){ mascot.classList.remove('ouch'); }, 400); });
-      mascot.addEventListener('mouseleave', function() { mascot.classList.remove('ouch'); });
-      mascot.addEventListener('touchstart', function(e) { e.preventDefault(); mascot.classList.add('ouch'); });
-      mascot.addEventListener('touchend', function() { setTimeout(function(){ mascot.classList.remove('ouch'); }, 400); });
+      var clickCount = 0;
+      function setMascotState(state) {
+        mascot.classList.remove('ouch','angry','rage');
+        if (state) mascot.classList.add(state);
+      }
+      function handleMascotClick() {
+        clickCount++;
+        if (clickCount >= 10) {
+          setMascotState('rage');
+          setTimeout(function(){ setMascotState(''); clickCount = 0; }, 1500);
+        } else if (clickCount >= 5) {
+          setMascotState('angry');
+          setTimeout(function(){ if (clickCount < 10) setMascotState(''); }, 600);
+        } else {
+          setMascotState('ouch');
+          setTimeout(function(){ if (clickCount < 5) setMascotState(''); }, 400);
+        }
+      }
+      mascot.addEventListener('mousedown', handleMascotClick);
+      mascot.addEventListener('touchstart', function(e) { e.preventDefault(); handleMascotClick(); });
     }
 
     // ─── Custom Cursor ───
