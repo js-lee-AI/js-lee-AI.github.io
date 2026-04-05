@@ -742,45 +742,95 @@
           var dist = Math.sqrt(dx*dx + dy*dy);
           var repel = p.boss ? 0.5 : 1.5;
           if (dist < 120) { p.x += dx / dist * repel; p.y += dy / dist * repel; }
-          var alpha = p.boss ? 0.5 : 0.35;
-          var sz = p.boss ? p.r * 4 : p.r * 3;
+          var alpha = p.boss ? 0.55 : 0.35;
           var drift = Date.now() * 0.0005 + p.x * 0.02;
           ctx.save();
           ctx.translate(p.x, p.y);
-          ctx.rotate(Math.sin(drift) * 0.15);
-          // Thin stem
-          ctx.beginPath();
-          ctx.moveTo(0, sz * 1.2);
-          ctx.quadraticCurveTo(Math.sin(drift*2)*2, sz*0.5, 0, 0);
-          ctx.strokeStyle='rgba('+rgb+','+alpha*0.3+')';
-          ctx.lineWidth=0.4;
-          ctx.stroke();
-          // Pappus - fluffy umbrella of fine filaments
-          var n = p.boss ? 24 : 16;
-          for(var fi=0;fi<n;fi++){
-            var a = (Math.PI*2/n)*fi;
-            var fLen = sz*(0.6+Math.sin(fi*2.7+drift)*0.25);
-            var tipX = Math.cos(a)*fLen;
-            var tipY = Math.sin(a)*fLen - sz*0.3;
-            var cpX = Math.cos(a)*fLen*0.4 + Math.sin(drift+fi)*1.5;
-            var cpY = Math.sin(a)*fLen*0.4 - sz*0.15;
+          if (p.boss) {
+            // ── Full dandelion puff ball (seeds still attached) ──
+            var bsz = p.r * 5;
+            ctx.rotate(Math.sin(drift * 0.3) * 0.05);
+            // Long green stem
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(cpX, cpY, tipX, tipY);
-            ctx.strokeStyle='rgba('+rgb+','+alpha*0.25+')';
-            ctx.lineWidth=0.3;
+            ctx.moveTo(0, bsz * 2.2);
+            ctx.quadraticCurveTo(Math.sin(drift) * 3, bsz * 1.2, 0, bsz * 0.2);
+            ctx.strokeStyle = 'rgba(' + rgb + ',0.25)';
+            ctx.lineWidth = 1.5;
             ctx.stroke();
-            // Wispy tip
+            // Dense puff ball - many seeds in sphere
+            var seeds = 36;
+            for (var fi = 0; fi < seeds; fi++) {
+              var a = (Math.PI * 2 / seeds) * fi;
+              var ring = (fi % 3) * 0.2 + 0.6;
+              var fLen = bsz * ring;
+              var tipX = Math.cos(a) * fLen;
+              var tipY = Math.sin(a) * fLen;
+              // Seed filament
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              var cpX = Math.cos(a) * fLen * 0.5 + Math.sin(drift + fi) * 1;
+              var cpY = Math.sin(a) * fLen * 0.5;
+              ctx.quadraticCurveTo(cpX, cpY, tipX, tipY);
+              ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.2 + ')';
+              ctx.lineWidth = 0.3;
+              ctx.stroke();
+              // Fluffy tip
+              ctx.beginPath();
+              ctx.arc(tipX, tipY, 0.8, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.7 + ')';
+              ctx.fill();
+              // Sub-filaments at tip (extra fluff)
+              for (var si = 0; si < 3; si++) {
+                var sa = a + (si - 1) * 0.4;
+                var sLen = bsz * 0.15;
+                ctx.beginPath();
+                ctx.moveTo(tipX, tipY);
+                ctx.lineTo(tipX + Math.cos(sa) * sLen, tipY + Math.sin(sa) * sLen);
+                ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.12 + ')';
+                ctx.lineWidth = 0.2;
+                ctx.stroke();
+              }
+            }
+            // Center puff glow
             ctx.beginPath();
-            ctx.arc(tipX, tipY, 0.5, 0, Math.PI*2);
-            ctx.fillStyle='rgba('+rgb+','+alpha*0.6+')';
+            ctx.arc(0, 0, bsz * 0.15, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.4 + ')';
+            ctx.fill();
+          } else {
+            // ── Individual floating seed ──
+            var sz = p.r * 3;
+            ctx.rotate(Math.sin(drift) * 0.2);
+            // Thin stem
+            ctx.beginPath();
+            ctx.moveTo(0, sz * 1.0);
+            ctx.quadraticCurveTo(Math.sin(drift * 2) * 1.5, sz * 0.4, 0, 0);
+            ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.3 + ')';
+            ctx.lineWidth = 0.3;
+            ctx.stroke();
+            // Pappus umbrella
+            var n = 14;
+            for (var fi = 0; fi < n; fi++) {
+              var a = -Math.PI * 0.8 + (Math.PI * 1.6 / n) * fi;
+              var fLen = sz * (0.7 + Math.sin(fi * 2.3 + drift) * 0.2);
+              var tipX = Math.cos(a) * fLen;
+              var tipY = Math.sin(a) * fLen;
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.quadraticCurveTo(Math.cos(a) * fLen * 0.4, Math.sin(a) * fLen * 0.4, tipX, tipY);
+              ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.2 + ')';
+              ctx.lineWidth = 0.25;
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.arc(tipX, tipY, 0.4, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.5 + ')';
+              ctx.fill();
+            }
+            // Seed dot
+            ctx.beginPath();
+            ctx.arc(0, 0, 0.8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.7 + ')';
             ctx.fill();
           }
-          // Soft glow center
-          ctx.beginPath();
-          ctx.arc(0, 0, p.boss?1.5:1, 0, Math.PI*2);
-          ctx.fillStyle='rgba('+rgb+','+alpha*0.8+')';
-          ctx.fill();
           ctx.restore();
         });
         // Connections
