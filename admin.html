@@ -155,6 +155,14 @@
         <button class="btn btn-primary btn-sm" id="saveThemeBtn">Save for all visitors</button>
       </div>
       <div class="theme-grid" id="themeGrid"></div>
+
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <label style="margin:0">Theme Cycle Order (drag to reorder, uncheck to exclude)</label>
+          <button class="btn btn-primary btn-sm" id="saveOrderBtn">Save Order for All</button>
+        </div>
+        <div id="themeOrderList" style="display:flex;flex-direction:column;gap:4px"></div>
+      </div>
     </div>
 
     <!-- Publications Tab -->
@@ -793,10 +801,137 @@
     });
 
     // ═══ Init ═══
+    // ═══ Theme Order Management ═══
+    var allThemeIds = THEMES.map(function(t){return t.id});
+    var themeOrder = config.themeOrder || allThemeIds.slice();
+
+    function renderThemeOrder() {
+      var list = document.getElementById('themeOrderList');
+      list.textContent = '';
+      themeOrder.forEach(function(tid, idx) {
+        var th = THEMES.find(function(t){return t.id===tid});
+        if (!th) return;
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:grab';
+        row.draggable = true;
+        row.dataset.tid = tid;
+        // Checkbox
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = true;
+        cb.style.cssText = 'accent-color:var(--accent);cursor:pointer';
+        cb.addEventListener('change', function() {
+          if (!this.checked) {
+            themeOrder = themeOrder.filter(function(t){return t!==tid});
+            renderThemeOrder();
+          }
+        });
+        // Color swatch
+        var swatch = document.createElement('div');
+        swatch.style.cssText = 'width:16px;height:16px;border-radius:50%;background:'+th.colors[2]+';flex-shrink:0';
+        // Name
+        var name = document.createElement('span');
+        name.textContent = th.name;
+        name.style.cssText = 'flex:1;font-size:13px;color:var(--t1)';
+        // Up/Down buttons
+        var up = document.createElement('button');
+        up.textContent = '\u25B2';
+        up.className = 'btn btn-outline btn-sm';
+        up.style.cssText = 'padding:2px 8px;font-size:10px';
+        up.addEventListener('click', function() {
+          if (idx > 0) { var t=themeOrder[idx]; themeOrder[idx]=themeOrder[idx-1]; themeOrder[idx-1]=t; renderThemeOrder(); }
+        });
+        var dn = document.createElement('button');
+        dn.textContent = '\u25BC';
+        dn.className = 'btn btn-outline btn-sm';
+        dn.style.cssText = 'padding:2px 8px;font-size:10px';
+        dn.addEventListener('click', function() {
+          if (idx < themeOrder.length-1) { var t=themeOrder[idx]; themeOrder[idx]=themeOrder[idx+1]; themeOrder[idx+1]=t; renderThemeOrder(); }
+        });
+        row.appendChild(cb);
+        row.appendChild(swatch);
+        row.appendChild(name);
+        row.appendChild(up);
+        row.appendChild(dn);
+        list.appendChild(row);
+        // Drag and drop
+        row.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text', tid); row.style.opacity='0.5'; });
+        row.addEventListener('dragend', function() { row.style.opacity='1'; });
+        row.addEventListener('dragover', function(e) { e.preventDefault(); row.style.borderColor='var(--accent)'; });
+        row.addEventListener('dragleave', function() { row.style.borderColor='var(--border)'; });
+        row.addEventListener('drop', function(e) {
+          e.preventDefault();
+          row.style.borderColor='var(--border)';
+          var fromId = e.dataTransfer.getData('text');
+          var fromIdx = themeOrder.indexOf(fromId);
+          if (fromIdx < 0) return;
+          themeOrder.splice(fromIdx, 1);
+          var toIdx = themeOrder.indexOf(tid);
+          themeOrder.splice(toIdx, 0, fromId);
+          renderThemeOrder();
+        });
+      });
+      // Show excluded themes
+      var excluded = allThemeIds.filter(function(t){return themeOrder.indexOf(t)<0});
+      if (excluded.length > 0) {
+        var divider = document.createElement('div');
+        divider.style.cssText = 'font-size:11px;color:var(--t3);margin-top:8px;padding:4px 0';
+        divider.textContent = 'Excluded (click to add back):';
+        list.appendChild(divider);
+        excluded.forEach(function(tid) {
+          var th = THEMES.find(function(t){return t.id===tid});
+          if (!th) return;
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 12px;opacity:0.4;cursor:pointer';
+          row.addEventListener('click', function() { themeOrder.push(tid); renderThemeOrder(); });
+          var swatch = document.createElement('div');
+          swatch.style.cssText = 'width:16px;height:16px;border-radius:50%;background:'+th.colors[2];
+          var name = document.createElement('span');
+          name.textContent = th.name + ' +';
+          name.style.cssText = 'font-size:13px;color:var(--t3)';
+          row.appendChild(swatch);
+          row.appendChild(name);
+          list.appendChild(row);
+        });
+      }
+    }
+
+    document.getElementById('saveOrderBtn').addEventListener('click', function() {
+      config.themeOrder = themeOrder;
+      saveConfig(config);
+      // Also save via GitHub API
+      var token = localStorage.getItem(TOKEN_KEY);
+      if (!token) { toast('Theme order saved locally. Login to save for all visitors.'); return; }
+      this.textContent = 'Saving...'; this.disabled = true;
+      var btn = this;
+      var orderStr = "'" + themeOrder.join("','") + "'";
+      fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
+        headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+      }).then(function(r){return r.json()}).then(function(data) {
+        var raw = atob(data.content.replace(/\n/g,''));
+        var bytes = new Uint8Array(raw.length);
+        for(var i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+        var content = new TextDecoder().decode(bytes);
+        content = content.replace(/var DEFAULT_THEME_ORDER = \[.*?\];/, "var DEFAULT_THEME_ORDER = [" + orderStr + "];");
+        var utf8 = new TextEncoder().encode(content);
+        var bin=''; for(var i=0;i<utf8.length;i++) bin+=String.fromCharCode(utf8[i]);
+        return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/index.html', {
+          method:'PUT',
+          headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+          body:JSON.stringify({message:'Update theme order',content:btoa(bin),sha:data.sha})
+        });
+      }).then(function(r){return r.json()}).then(function(res) {
+        if (res.content) toast('Theme order saved for all visitors!');
+        else toast('Error: '+(res.message||'unknown'));
+      }).catch(function(e){toast('Error: '+e.message)})
+      .finally(function(){btn.textContent='Save Order for All';btn.disabled=false});
+    });
+
     function initAdmin() {
       renderThemes();
       renderPaperList();
       loadProfileLinks();
+      renderThemeOrder();
     }
   })();
   </script>
