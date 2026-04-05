@@ -742,42 +742,44 @@
           var dist = Math.sqrt(dx*dx + dy*dy);
           var repel = p.boss ? 0.5 : 1.5;
           if (dist < 120) { p.x += dx / dist * repel; p.y += dy / dist * repel; }
-          var alpha = p.boss ? 0.6 : 0.4;
-          var sz = p.r * 2.5;
-          var rot = (p.x + p.y) * 0.01 + Date.now() * 0.0003;
+          var alpha = p.boss ? 0.5 : 0.35;
+          var sz = p.boss ? p.r * 4 : p.r * 3;
+          var drift = Date.now() * 0.0005 + p.x * 0.02;
           ctx.save();
           ctx.translate(p.x, p.y);
-          ctx.rotate(rot);
-          // Stem
+          ctx.rotate(Math.sin(drift) * 0.15);
+          // Thin stem
           ctx.beginPath();
-          ctx.moveTo(0, sz * 0.6);
-          ctx.lineTo(0, -sz * 0.2);
-          ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.5 + ')';
-          ctx.lineWidth = 0.5;
+          ctx.moveTo(0, sz * 1.2);
+          ctx.quadraticCurveTo(Math.sin(drift*2)*2, sz*0.5, 0, 0);
+          ctx.strokeStyle='rgba('+rgb+','+alpha*0.3+')';
+          ctx.lineWidth=0.4;
           ctx.stroke();
-          // Filaments
-          var filaments = p.boss ? 10 : 6;
-          for (var fi = 0; fi < filaments; fi++) {
-            var angle = -Math.PI * 0.15 + (Math.PI * 1.3 / filaments) * fi - Math.PI * 0.5;
-            var fLen = sz * (0.7 + Math.sin(fi * 1.5) * 0.3);
-            var fx = Math.cos(angle) * fLen;
-            var fy = Math.sin(angle) * fLen;
+          // Pappus - fluffy umbrella of fine filaments
+          var n = p.boss ? 24 : 16;
+          for(var fi=0;fi<n;fi++){
+            var a = (Math.PI*2/n)*fi;
+            var fLen = sz*(0.6+Math.sin(fi*2.7+drift)*0.25);
+            var tipX = Math.cos(a)*fLen;
+            var tipY = Math.sin(a)*fLen - sz*0.3;
+            var cpX = Math.cos(a)*fLen*0.4 + Math.sin(drift+fi)*1.5;
+            var cpY = Math.sin(a)*fLen*0.4 - sz*0.15;
             ctx.beginPath();
-            ctx.moveTo(0, -sz * 0.2);
-            ctx.lineTo(fx, fy - sz * 0.2);
-            ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha * 0.4 + ')';
-            ctx.lineWidth = 0.3;
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(cpX, cpY, tipX, tipY);
+            ctx.strokeStyle='rgba('+rgb+','+alpha*0.25+')';
+            ctx.lineWidth=0.3;
             ctx.stroke();
-            // Tiny dot at tip
+            // Wispy tip
             ctx.beginPath();
-            ctx.arc(fx, fy - sz * 0.2, p.boss ? 1.2 : 0.7, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(' + rgb + ',' + alpha + ')';
+            ctx.arc(tipX, tipY, 0.5, 0, Math.PI*2);
+            ctx.fillStyle='rgba('+rgb+','+alpha*0.6+')';
             ctx.fill();
           }
-          // Center seed
+          // Soft glow center
           ctx.beginPath();
-          ctx.ellipse(0, -sz * 0.2, p.r * 0.4, p.r * 0.6, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.8 + ')';
+          ctx.arc(0, 0, p.boss?1.5:1, 0, Math.PI*2);
+          ctx.fillStyle='rgba('+rgb+','+alpha*0.8+')';
           ctx.fill();
           ctx.restore();
         });
