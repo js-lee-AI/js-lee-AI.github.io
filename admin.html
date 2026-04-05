@@ -658,10 +658,36 @@
         papers.push(data);
       }
 
-      // Save image
+      // Save image - commit to GitHub repo for all visitors
       if (!config.paperImages) config.paperImages = {};
-      if (editImage) {
-        config.paperImages[editingId] = editImage;
+      var token = localStorage.getItem(TOKEN_KEY);
+      if (editImage && token) {
+        // Upload image to repo as assets/papers/{id}.jpg
+        var imgPath = 'assets/papers/' + editingId + '.jpg';
+        var base64Data = editImage.split(',')[1]; // remove data:image/...;base64, prefix
+        (function(path, b64, pid) {
+          // Check if file exists (get SHA for update)
+          fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/' + path, {
+            headers: {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'}
+          }).then(function(r){return r.json()}).then(function(existing) {
+            var body = {message:'Add framework image for paper '+pid, content:b64};
+            if (existing.sha) body.sha = existing.sha; // update existing
+            return fetch('https://api.github.com/repos/js-lee-AI/js-lee-AI.github.io/contents/' + path, {
+              method:'PUT',
+              headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+              body:JSON.stringify(body)
+            });
+          }).then(function(r){return r.json()}).then(function(res) {
+            if (res.content) {
+              toast('Image committed to repo!');
+              // Store path reference (not base64) in config
+              config.paperImages[pid] = 'assets/papers/' + pid + '.jpg?v=' + Date.now();
+              saveConfig(config);
+            }
+          }).catch(function(e){ toast('Image upload error: '+e.message); });
+        })(imgPath, base64Data, editingId);
+      } else if (editImage) {
+        config.paperImages[editingId] = editImage; // fallback to localStorage if no token
       } else {
         delete config.paperImages[editingId];
       }
