@@ -946,15 +946,18 @@
           }
         }
         checkBossBurst();
-        // J2: Mouse trail ribbon
+        // J2: Mouse trail ribbon (fades from old to new)
         if (trail.length > 1) {
           trail = trail.filter(function(t){ return --t.life > 0; });
-          ctx.beginPath();
-          ctx.moveTo(trail[0].x, trail[0].y);
-          for(var ti=1;ti<trail.length;ti++) ctx.lineTo(trail[ti].x, trail[ti].y);
-          ctx.strokeStyle='rgba('+rgb+',0.15)';
-          ctx.lineWidth=2;
-          ctx.stroke();
+          for(var ti=1;ti<trail.length;ti++){
+            var alpha = (trail[ti].life / 40) * 0.2;
+            ctx.beginPath();
+            ctx.moveTo(trail[ti-1].x, trail[ti-1].y);
+            ctx.lineTo(trail[ti].x, trail[ti].y);
+            ctx.strokeStyle='rgba('+rgb+','+alpha+')';
+            ctx.lineWidth = (trail[ti].life / 40) * 2.5;
+            ctx.stroke();
+          }
         }
         requestAnimationFrame(animateParticles);
       }
