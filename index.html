@@ -810,16 +810,17 @@
           var dist = Math.sqrt(dx*dx + dy*dy);
           if (dist < p.r + 40 && !bossCooldowns[i]) {
             bossCooldowns[i] = true;
-            for (var j = 0; j < 12; j++) {
-              var angle = (Math.PI * 2 / 12) * j + Math.random() * 0.3;
-              var speed = 1.5 + Math.random() * 2;
+            for (var j = 0; j < 16; j++) {
+              var angle = (Math.PI * 2 / 16) * j + Math.random() * 0.3;
+              var far = Math.random() > 0.25;
+              var speed = far ? (3 + Math.random() * 3) : (0.8 + Math.random() * 1.2);
               particles.push({
                 x: p.x, y: p.y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed,
                 r: Math.random() * 1.5 + 0.5,
                 boss: false,
-                burst: 80
+                burst: far ? 120 : 60
               });
             }
             (function(idx){ setTimeout(function(){ delete bossCooldowns[idx]; }, 3000); })(i);
