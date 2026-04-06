@@ -950,7 +950,7 @@
         if (trail.length > 2) {
           trail = trail.filter(function(t){ return --t.life > 0; });
           for(var ti=1;ti<trail.length;ti++){
-            var pct = trail[ti].life / 40;
+            var pct = trail[ti].life / 80;
             var alpha = pct * pct * 0.4;
             ctx.beginPath();
             ctx.moveTo(trail[ti-1].x, trail[ti-1].y);
@@ -1065,8 +1065,8 @@
 
     // ─── J2: Mouse Trail ───
     document.addEventListener('mousemove', function(e) {
-      trail.push({x:e.clientX, y:e.clientY, life:40});
-      if (trail.length > 50) trail.shift();
+      trail.push({x:e.clientX, y:e.clientY, life:80});
+      if (trail.length > 100) trail.shift();
     });
 
     // ─── J4: Scroll-Driven Particle Opacity ───
