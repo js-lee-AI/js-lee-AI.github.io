@@ -145,6 +145,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="theme">Theme</button>
       <button class="tab" data-tab="papers">Publications</button>
+      <button class="tab" data-tab="analytics">Analytics</button>
       <button class="tab" data-tab="settings">Settings</button>
     </div>
 
@@ -172,6 +173,30 @@
         <button class="btn btn-primary btn-sm" id="addPaperBtn">+ Add Paper</button>
       </div>
       <div id="paperList"></div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div class="tab-panel" id="tab-analytics">
+      <h3 style="font-size:16px;margin-bottom:20px;color:var(--t2)">Site Analytics (Last 14 Days)</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="padding:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center">
+          <div style="font-size:36px;font-weight:700;color:var(--accent)" id="stat-views">—</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Total Views</div>
+        </div>
+        <div style="padding:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center">
+          <div style="font-size:36px;font-weight:700;color:var(--accent)" id="stat-uniques">—</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Unique Visitors</div>
+        </div>
+      </div>
+      <div style="margin-bottom:24px">
+        <label>Daily Views</label>
+        <div id="daily-chart" style="display:flex;align-items:flex-end;gap:4px;height:120px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:10px"></div>
+      </div>
+      <div style="margin-bottom:24px">
+        <label>Top Referrers</label>
+        <div id="referrers-list"></div>
+      </div>
+      <p style="font-size:11px;color:var(--t3);margin-top:16px">GitHub API provides data for the last 14 days only. For long-term analytics, set up Google Analytics.</p>
     </div>
 
     <!-- Settings Tab -->
@@ -987,12 +1012,64 @@
       .finally(function(){btn.textContent='Save Order for All';btn.disabled=false});
     });
 
+    // ═══ Analytics ═══
+    function loadAnalytics() {
+      var token = localStorage.getItem(TOKEN_KEY);
+      if (!token) return;
+      var headers = {'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json'};
+      var repo = 'js-lee-AI/js-lee-AI.github.io';
+      // Views
+      fetch('https://api.github.com/repos/'+repo+'/traffic/views',{headers:headers})
+      .then(function(r){return r.json()}).then(function(d) {
+        document.getElementById('stat-views').textContent = d.count || 0;
+        document.getElementById('stat-uniques').textContent = d.uniques || 0;
+        // Daily chart
+        var chart = document.getElementById('daily-chart');
+        chart.textContent = '';
+        var views = d.views || [];
+        var maxCount = Math.max.apply(null, views.map(function(v){return v.count})) || 1;
+        views.forEach(function(v) {
+          var bar = document.createElement('div');
+          var pct = (v.count / maxCount) * 100;
+          bar.style.cssText = 'flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-width:12px;position:relative;height:'+pct+'%;transition:height .3s';
+          bar.title = v.timestamp.slice(0,10) + ': ' + v.count + ' views (' + v.uniques + ' unique)';
+          // Date label
+          var label = document.createElement('div');
+          label.style.cssText = 'position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--t3);white-space:nowrap';
+          label.textContent = v.timestamp.slice(5,10);
+          bar.appendChild(label);
+          chart.appendChild(bar);
+        });
+      }).catch(function(){});
+      // Referrers
+      fetch('https://api.github.com/repos/'+repo+'/traffic/popular/referrers',{headers:headers})
+      .then(function(r){return r.json()}).then(function(refs) {
+        var list = document.getElementById('referrers-list');
+        list.textContent = '';
+        if (!refs.length) { list.textContent = 'No referrer data yet'; list.style.cssText='font-size:13px;color:var(--t3);padding:12px'; return; }
+        refs.forEach(function(ref) {
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px';
+          var name = document.createElement('span');
+          name.textContent = ref.referrer;
+          name.style.color = 'var(--t1)';
+          var count = document.createElement('span');
+          count.textContent = ref.count + ' views / ' + ref.uniques + ' unique';
+          count.style.color = 'var(--t3)';
+          row.appendChild(name);
+          row.appendChild(count);
+          list.appendChild(row);
+        });
+      }).catch(function(){});
+    }
+
     function initAdmin() {
       loadDataJson(function() {
         renderThemes();
         renderPaperList();
         loadProfileLinks();
         renderThemeOrder();
+        loadAnalytics();
       });
     }
   })();
