@@ -767,7 +767,7 @@
       var ctx = canvas.getContext('2d');
       var particles = [];
       var mouse = {x: -999, y: -999};
-      var PARTICLE_COUNT = 50;
+      var PARTICLE_COUNT = 70;
       var CONNECT_DIST = 150;
       var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c8a45c';
 
@@ -784,7 +784,7 @@
       resize();
       window.addEventListener('resize', resize);
 
-      var BOSS_COUNT = 4;
+      var BOSS_COUNT = 5;
       for (var i = 0; i < PARTICLE_COUNT; i++) {
         var isBoss = i < BOSS_COUNT;
         particles.push({
@@ -813,7 +813,7 @@
             for (var j = 0; j < 16; j++) {
               var angle = (Math.PI * 2 / 16) * j + Math.random() * 0.3;
               var far = Math.random() > 0.25;
-              var speed = far ? (3 + Math.random() * 3) : (0.8 + Math.random() * 1.2);
+              var speed = far ? (4.5 + Math.random() * 4) : (1 + Math.random() * 1.5);
               particles.push({
                 x: p.x, y: p.y,
                 vx: Math.cos(angle) * speed,
@@ -845,7 +845,7 @@
           ctx.translate(p.x, p.y);
           if (p.boss) {
             // ── Full dandelion puff ball (seeds still attached) ──
-            var bsz = p.r * 5;
+            var bsz = p.r * 7;
             ctx.rotate(Math.sin(drift * 0.3) * 0.05);
             // Long green stem
             ctx.beginPath();
@@ -895,7 +895,7 @@
             ctx.fill();
           } else {
             // ── Individual floating seed ──
-            var sz = p.r * 3;
+            var sz = p.r * 4.5;
             ctx.rotate(Math.sin(drift) * 0.2);
             // Thin stem
             ctx.beginPath();
