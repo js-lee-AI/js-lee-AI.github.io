@@ -13,7 +13,7 @@ Personal academic CV website featuring publications, research interests, and int
 - **Homepage**: [js-lee-ai.github.io](https://js-lee-ai.github.io/)
 - **CV (PDF)**: [Download](https://js-lee-ai.github.io/cv/cv_jungseob_lee.pdf)
 - **Google Scholar**: [Profile](https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ)
-- **LinkedIn**: [Profile](https://www.linkedin.com/in/%EC%9D%B4%EC%A0%95%EC%84%AD-1b167a354/)
+- **LinkedIn**: [Profile](https://www.linkedin.com/in/jslee-nlp/)
 
 ## License
 
