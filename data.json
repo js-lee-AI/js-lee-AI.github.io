@@ -1,6 +1,20 @@
 {
   "papers": [
     {
+      "id": 24,
+      "title": "Towards enhancing Natural Language Inference for identifying erroneous outputs in data-to-text generation",
+      "authors": "C. Ok, E.K. Lee, H. Ju, **J. Lee**, D. Oh",
+      "venue": "KBS",
+      "venueType": "journal",
+      "venueFull": "Knowledge-Based Systems",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "pdf": "https://www.sciencedirect.com/science/article/pii/S0950705126006878/pdfft?crasolve=1&r=9e912094b9160d79&ts=1775649790223&rtype=https&vrr=UKN&redir=UKN&redir_fr=UKN&redir_arc=UKN&vhash=UKN&host=d3d3LnNjaWVuY2VkaXJlY3QuY29t&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&re=X2JsYW5rXw%3D%3D&ns_h=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ns_e=X2JsYW5rXw%3D%3D",
+        "doi": "https://www.sciencedirect.com/science/article/pii/S0950705126006878"
+      }
+    },
+    {
       "id": 23,
       "title": "Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment",
       "authors": "S. Hong, Y. Jang, **J. Lee**, H. Moon, H. Lim",
