@@ -1098,7 +1098,7 @@
       document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
       (function cursorLoop() {
         dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-        rx += (mx - rx) * 0.25; ry += (my - ry) * 0.25;
+        rx += (mx - rx) * 0.35; ry += (my - ry) * 0.35;
         ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
         requestAnimationFrame(cursorLoop);
       })();
