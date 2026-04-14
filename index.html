@@ -882,8 +882,9 @@
 
       function animateParticles() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles = particles.filter(function(p) { return !p.burst || p.burst > 0; });
         particles.forEach(function(p) {
-          if (p.burst > 0) { p.burst--; p.vx *= 0.97; p.vy *= 0.97; }
+          if (p.burst > 0) { p.burst--; p.vx *= 0.97; p.vy *= 0.97; if (p.burst === 0) return; }
           p.x += p.vx; p.y += p.vy;
           if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
           if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
@@ -982,9 +983,10 @@
           }
           ctx.restore();
         });
-        // Connections
-        for (var a = 0; a < particles.length; a++) {
-          for (var b = a + 1; b < particles.length; b++) {
+        // Connections (only among base particles to avoid O(n²) with burst particles)
+        var connLimit = Math.min(particles.length, PARTICLE_COUNT);
+        for (var a = 0; a < connLimit; a++) {
+          for (var b = a + 1; b < connLimit; b++) {
             var dx = particles[a].x - particles[b].x;
             var dy = particles[a].y - particles[b].y;
             var d = Math.sqrt(dx*dx + dy*dy);
