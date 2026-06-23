@@ -28,6 +28,58 @@
       }
     },
     {
+      "id": 25,
+      "title": "Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations",
+      "authors": "D.J. Lee, **J. Lee**, S. Lee, S. Hong, S. Son, S. Eo, J. Seo, H. Lim",
+      "venue": "Under Review",
+      "venueType": "preprint",
+      "venueFull": "Preprint, Under Review",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "code": "https://github.com/js-lee-AI/skin-deep"
+      }
+    },
+    {
+      "id": 26,
+      "title": "DART: Draft-Agreement Routing for Training-Free Adaptive Thinking Budgets in Hybrid Reasoning Models",
+      "authors": "**J. Lee**, S. Hong, S. Lee, J. Seo, J. Son, S. Eo, C. Park, H. Park, H. Moon, H. Lim",
+      "venue": "Under Review",
+      "venueType": "preprint",
+      "venueFull": "Preprint, Under Review",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "code": "https://github.com/js-lee-AI/DART"
+      }
+    },
+    {
+      "id": 27,
+      "title": "Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards",
+      "authors": "**J. Lee**, S. Lee, S. Hong, M. Kim, C. Park, H. Lim",
+      "venue": "Under Review",
+      "venueType": "preprint",
+      "venueFull": "Preprint, Under Review",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "code": "https://github.com/js-lee-AI/ACOER"
+      }
+    },
+    {
+      "id": 28,
+      "title": "To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG",
+      "authors": "**J. Lee**, C. Park, H. Lim",
+      "venue": "Under Review",
+      "venueType": "preprint",
+      "venueFull": "Preprint, Under Review",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "code": "https://github.com/js-lee-AI/MADARA"
+      }
+    },
+    {
       "id": 1,
       "title": "Cross-lingual Optimization for Language Transfer in Large Language Models",
       "authors": "**J. Lee**, S. Hong, H. Moon, H.S. Lim",
