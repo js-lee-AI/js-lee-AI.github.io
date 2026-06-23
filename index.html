@@ -562,7 +562,7 @@
       // Apply profile links from data.json
       if (d.profileLinks) {
         document.querySelectorAll('a[href*="scholar.google"]').forEach(function(a){ if(d.profileLinks.scholar) a.href=d.profileLinks.scholar; });
-        document.querySelectorAll('a[href*="github.com/js-lee"]').forEach(function(a){ if(d.profileLinks.github) a.href=d.profileLinks.github; });
+        document.querySelectorAll('a[href*="github.com/js-lee"]:not(.pub-link-btn):not(.pub-title-text)').forEach(function(a){ if(d.profileLinks.github) a.href=d.profileLinks.github; });
         document.querySelectorAll('a[href*="mailto:"]').forEach(function(a){ if(d.profileLinks.email) a.href='mailto:'+d.profileLinks.email; });
         document.querySelectorAll('a[href*="linkedin.com"]').forEach(function(a){ if(d.profileLinks.linkedin) a.href=d.profileLinks.linkedin; });
       }

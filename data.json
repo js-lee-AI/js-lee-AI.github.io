@@ -37,6 +37,7 @@
       "year": 2026,
       "citations": 0,
       "links": {
+        "arxiv": "https://arxiv.org/abs/2606.22676",
         "code": "https://github.com/js-lee-AI/skin-deep"
       }
     },
@@ -50,6 +51,7 @@
       "year": 2026,
       "citations": 0,
       "links": {
+        "arxiv": "https://arxiv.org/abs/2606.23181",
         "code": "https://github.com/js-lee-AI/DART"
       }
     },
@@ -63,6 +65,7 @@
       "year": 2026,
       "citations": 0,
       "links": {
+        "arxiv": "https://arxiv.org/abs/2606.22716",
         "code": "https://github.com/js-lee-AI/ACOER"
       }
     },
