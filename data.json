@@ -30,10 +30,10 @@
     {
       "id": 25,
       "title": "Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations",
-      "authors": "D.J. Lee, **J. Lee**, S. Lee, S. Hong, S. Son, S. Eo, J. Seo, H. Lim",
+      "authors": "D.J. Lee*, **J. Lee***, S. Lee, S. Hong, S. Son, S. Eo, J. Seo, H. Lim",
       "venue": "Under Review",
       "venueType": "preprint",
-      "venueFull": "Preprint, Under Review",
+      "venueFull": "*Equal contribution. Preprint, Under Review.",
       "year": 2026,
       "citations": 0,
       "links": {
