@@ -599,7 +599,7 @@
       // Header
       const header = document.createElement('div');
       header.className = 'pub-card-header';
-      const allLinks = Object.assign({}, p.links || {}, (config.paperLinks || {})[p.id] || {});
+      const allLinks = Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
       const mainUrl = allLinks.pdf || allLinks.doi || allLinks.arxiv || Object.values(allLinks)[0] || '';
       var title;
       if (mainUrl) {
@@ -669,7 +669,7 @@
       // Links
       const linksDiv = document.createElement('div');
       linksDiv.className = 'pub-links';
-      const paperLinks = Object.assign({}, p.links || {}, (config.paperLinks || {})[p.id] || {});
+      const paperLinks = Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
       Object.entries(paperLinks).forEach(function(entry) {
         const type = entry[0], url = entry[1];
         if (!url) return;

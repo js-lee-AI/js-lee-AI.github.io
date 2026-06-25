@@ -747,13 +747,18 @@
         delete config.paperImages[editingId];
       }
 
-      // Save links
+      // Save links INTO the paper object's own .links (the field index.html
+      // reads via p.links, visible to ALL visitors). Mirror into config.paperLinks
+      // for admin-local preview, but papers[].links is authoritative.
       if (!config.paperLinks) config.paperLinks = {};
       var linkObj = {};
       editLinks.forEach(function(l) { if (l.url) linkObj[l.type] = l.url; });
+      var savedPaper = papers.find(function(x) { return x.id === editingId; });
       if (Object.keys(linkObj).length > 0) {
+        if (savedPaper) savedPaper.links = linkObj;
         config.paperLinks[editingId] = linkObj;
       } else {
+        if (savedPaper) delete savedPaper.links;
         delete config.paperLinks[editingId];
       }
 
@@ -811,7 +816,7 @@
         scholar:'https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ',
         github:'https://github.com/js-lee-AI',
         email:'omanma1928@korea.ac.kr',
-        linkedin:'https://www.linkedin.com/in/jslee-nlp/
+        linkedin:'https://www.linkedin.com/in/jslee-nlp/'
       };
       var links = Object.assign({}, defaults, config.profileLinks || {});
       config.profileLinks = links;
