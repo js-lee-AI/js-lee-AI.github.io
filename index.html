@@ -273,17 +273,8 @@
     .hero-kw{padding:5px 14px;border:1px solid var(--border-light);border-radius:20px;font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:.04em;transition:all .4s;backdrop-filter:blur(4px)}
     .hero-kw:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-dim);transform:translateY(-2px)}
 
-    /* Custom cursor */
-    @media(hover:hover) and (pointer:fine){
-      *{cursor:none !important}
-      .cursor-dot{position:fixed;top:0;left:0;width:6px;height:6px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:100001;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s}
-      .cursor-ring{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid var(--accent);border-radius:50%;pointer-events:none;z-index:100000;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,background .3s;opacity:.5}
-      .cursor-hover .cursor-dot{width:10px;height:10px;background:var(--accent-hover)}
-      .cursor-hover .cursor-ring{width:52px;height:52px;border-color:var(--accent-hover);background:var(--accent-dim);opacity:.3}
-    }
-    @media(hover:none),(pointer:coarse){
-      .cursor-dot,.cursor-ring{display:none !important}
-    }
+    /* Custom cursor removed for performance — native cursor restored */
+    .cursor-dot,.cursor-ring{display:none !important}
     /* Light theme adjustments */
     [data-theme="ivory"] .cursor-dot,[data-theme="arctic"] .cursor-dot{mix-blend-mode:normal}
     [data-theme="ivory"] .cursor-ring,[data-theme="arctic"] .cursor-ring{mix-blend-mode:normal;opacity:.4}
@@ -480,6 +471,10 @@
         <div class="project-links">
           <a href="https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><path d="M37.6 76.8c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm44.8 0c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zM28.4 52.8c-1.6-1.6-1.6-4 0-5.6l8-8c1.6-1.6 4-1.6 5.6 0 1.6 1.6 1.6 4 0 5.6l-8 8c-1.6 1.6-4 1.6-5.6 0zm63.2 0c-1.6 1.6-4 1.6-5.6 0l-8-8c-1.6-1.6-1.6-4 0-5.6 1.6-1.6 4-1.6 5.6 0l8 8c1.6 1.6 1.6 4 0 5.6zM60 24c-22 0-40 18-40 40v20c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16V64c0-22-18-40-40-40z" fill="currentColor"/></svg>Model</a>
           <a href="https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>Technical Report</a>
+          <a href="https://www.korea.ac.kr/bbs/ko/42/120917/artclView.do" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M22 3l-1.67 1.67L18.67 3 17 4.67 15.33 3l-1.66 1.67L12 3l-1.67 1.67L8.67 3 7 4.67 5.33 3 3.67 4.67 2 3v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V3zM11 19H4v-6h7v6zm9 0h-7v-2h7v2zm0-4h-7v-2h7v2zm0-4H4V8h16v3z"/></svg>Press · Korea University</a>
+          <a href="https://www.yna.co.kr/view/RPR20230926008900353" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M22 3l-1.67 1.67L18.67 3 17 4.67 15.33 3l-1.66 1.67L12 3l-1.67 1.67L8.67 3 7 4.67 5.33 3 3.67 4.67 2 3v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V3zM11 19H4v-6h7v6zm9 0h-7v-2h7v2zm0-4h-7v-2h7v2zm0-4H4V8h16v3z"/></svg>Press · Yonhap News</a>
+          <a href="https://www.aitimes.kr/news/articleView.html?idxno=37944" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M22 3l-1.67 1.67L18.67 3 17 4.67 15.33 3l-1.66 1.67L12 3l-1.67 1.67L8.67 3 7 4.67 5.33 3 3.67 4.67 2 3v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V3zM11 19H4v-6h7v6zm9 0h-7v-2h7v2zm0-4h-7v-2h7v2zm0-4H4V8h16v3z"/></svg>Press · AI Times</a>
+          <a href="https://www.newstomato.com/ReadNews.aspx?no=1270232" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M22 3l-1.67 1.67L18.67 3 17 4.67 15.33 3l-1.66 1.67L12 3l-1.67 1.67L8.67 3 7 4.67 5.33 3 3.67 4.67 2 3v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V3zM11 19H4v-6h7v6zm9 0h-7v-2h7v2zm0-4h-7v-2h7v2zm0-4H4V8h16v3z"/></svg>Press · Newstomato</a>
           <button class="pub-img-toggle" onclick="var fw=this.parentElement.nextElementSibling;fw.classList.toggle('visible')">Figure</button>
         </div>
         <div class="pub-framework">
@@ -819,7 +814,7 @@
       var ctx = canvas.getContext('2d');
       var particles = [];
       var mouse = {x: -999, y: -999};
-      var PARTICLE_COUNT = 140;
+      var PARTICLE_COUNT = 70;
       var CONNECT_DIST = 150;
       var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c8a45c';
 
@@ -881,6 +876,7 @@
       }
 
       function animateParticles() {
+        if (document.hidden) { requestAnimationFrame(animateParticles); return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles = particles.filter(function(p) { return !p.burst || p.burst > 0; });
         particles.forEach(function(p) {
@@ -908,7 +904,7 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
             // Dense puff ball - many seeds in sphere
-            var seeds = 36;
+            var seeds = 18;
             for (var fi = 0; fi < seeds; fi++) {
               var a = (Math.PI * 2 / seeds) * fi;
               var ring = (fi % 3) * 0.2 + 0.6;
@@ -930,7 +926,7 @@
               ctx.fillStyle = 'rgba(' + rgb + ',' + alpha * 0.7 + ')';
               ctx.fill();
               // Sub-filaments at tip (extra fluff)
-              for (var si = 0; si < 3; si++) {
+              for (var si = 0; si < 2; si++) {
                 var sa = a + (si - 1) * 0.4;
                 var sLen = bsz * 0.15;
                 ctx.beginPath();
@@ -958,7 +954,7 @@
             ctx.lineWidth = 0.3;
             ctx.stroke();
             // Pappus umbrella
-            var n = 14;
+            var n = 10;
             for (var fi = 0; fi < n; fi++) {
               var a = -Math.PI * 0.8 + (Math.PI * 1.6 / n) * fi;
               var fLen = sz * (0.7 + Math.sin(fi * 2.3 + drift) * 0.2);
@@ -1031,41 +1027,48 @@
       });
     }
 
-    // ─── Mouse Parallax on Hero ───
+    // ─── Mouse Parallax on Hero + 3D Card Tilt (single rAF-throttled handler) ───
     var heroSection = document.querySelector('.hero');
     var heroPhoto = document.querySelector('.hero-photo-wrapper');
     var heroDecors = document.querySelectorAll('.hero-photo-decor');
+    var lastMx = 0, lastMy = 0, lastTarget = null, moveTick = false, tiltedCard = null;
+
+    function processMouse() {
+      moveTick = false;
+      // Hero parallax — only while the pointer is inside the hero
+      if (heroSection && heroPhoto) {
+        var hr = heroSection.getBoundingClientRect();
+        if (lastMx >= hr.left && lastMx <= hr.right && lastMy >= hr.top && lastMy <= hr.bottom) {
+          var hx = (lastMx - hr.left) / hr.width - 0.5;
+          var hy = (lastMy - hr.top) / hr.height - 0.5;
+          heroPhoto.style.transform = 'translateY(0) scale(1) translate(' + (hx*-12) + 'px,' + (hy*-8) + 'px)';
+          heroDecors.forEach(function(d, i) {
+            var factor = (i + 1) * 10;
+            d.style.transform = 'translate(' + (hx*factor) + 'px,' + (hy*factor) + 'px) rotate(' + (hx*5) + 'deg)';
+          });
+        }
+      }
+      // 3D tilt — only the card currently under the pointer (no full-list rect scan)
+      var card = (lastTarget && lastTarget.closest) ? lastTarget.closest('.pub-card') : null;
+      if (tiltedCard && tiltedCard !== card) { tiltedCard.style.transform = ''; tiltedCard = null; }
+      if (card) {
+        var cr = card.getBoundingClientRect();
+        var cx = (lastMx - cr.left) / cr.width - 0.5;
+        var cy = (lastMy - cr.top) / cr.height - 0.5;
+        card.style.transform = 'perspective(800px) rotateY(' + (cx*4) + 'deg) rotateX(' + (-cy*3) + 'deg) translateX(6px)';
+        tiltedCard = card;
+      }
+    }
+    document.addEventListener('mousemove', function(e) {
+      lastMx = e.clientX; lastMy = e.clientY; lastTarget = e.target;
+      if (!moveTick) { moveTick = true; requestAnimationFrame(processMouse); }
+    }, {passive: true});
     if (heroSection && heroPhoto) {
-      heroSection.addEventListener('mousemove', function(e) {
-        var rect = heroSection.getBoundingClientRect();
-        var x = (e.clientX - rect.left) / rect.width - 0.5;
-        var y = (e.clientY - rect.top) / rect.height - 0.5;
-        heroPhoto.style.transform = 'translateY(0) scale(1) translate(' + (x*-12) + 'px,' + (y*-8) + 'px)';
-        heroDecors.forEach(function(d, i) {
-          var factor = (i + 1) * 10;
-          d.style.transform = 'translate(' + (x*factor) + 'px,' + (y*factor) + 'px) rotate(' + (x*5) + 'deg)';
-        });
-      });
       heroSection.addEventListener('mouseleave', function() {
         heroPhoto.style.transform = '';
         heroDecors.forEach(function(d) { d.style.transform = ''; });
       });
     }
-
-    // ─── 3D Card Tilt on Publications ───
-    document.addEventListener('mousemove', function(e) {
-      document.querySelectorAll('.pub-card').forEach(function(card) {
-        var rect = card.getBoundingClientRect();
-        if (e.clientX < rect.left - 20 || e.clientX > rect.right + 20 ||
-            e.clientY < rect.top - 20 || e.clientY > rect.bottom + 20) {
-          card.style.transform = '';
-          return;
-        }
-        var x = (e.clientX - rect.left) / rect.width - 0.5;
-        var y = (e.clientY - rect.top) / rect.height - 0.5;
-        card.style.transform = 'perspective(800px) rotateY(' + (x*4) + 'deg) rotateX(' + (-y*3) + 'deg) translateX(6px)';
-      });
-    });
 
     // ─── Mascot Interaction (click counter) ───
     var mascot = document.getElementById('mascot');
@@ -1092,37 +1095,7 @@
       mascot.addEventListener('touchstart', function(e) { e.preventDefault(); handleMascotClick(); });
     }
 
-    // ─── Custom Cursor ───
-    var dot = document.getElementById('cursorDot');
-    var ring = document.getElementById('cursorRing');
-    if (dot && ring && window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
-      var mx = 0, my = 0, rx = 0, ry = 0;
-      document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
-      (function cursorLoop() {
-        dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-        rx = mx; ry = my;
-        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-        requestAnimationFrame(cursorLoop);
-      })();
-      // Hover detection on interactive elements
-      document.addEventListener('mouseover', function(e) {
-        if (e.target.closest('a,button,.pub-card,.hero-link,.hero-kw,.tab,.theme-card,.nav-links a')) {
-          document.body.classList.add('cursor-hover');
-        }
-      });
-      document.addEventListener('mouseout', function(e) {
-        if (e.target.closest('a,button,.pub-card,.hero-link,.hero-kw,.tab,.theme-card,.nav-links a')) {
-          document.body.classList.remove('cursor-hover');
-        }
-      });
-    }
-
-
-    // ─── J2: Mouse Trail ───
-    document.addEventListener('mousemove', function(e) {
-      trail.push({x:e.clientX, y:e.clientY, life:80});
-      if (trail.length > 100) trail.shift();
-    });
+    // ─── Custom Cursor removed for performance (native cursor restored) ───
 
     // ─── J4: Scroll-Driven Particle Opacity ───
     window.addEventListener('scroll', function() {
