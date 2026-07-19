@@ -84,6 +84,20 @@
       }
     },
     {
+      "id": 29,
+      "title": "Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language Models",
+      "authors": "**J. Lee**, S. Lee, S. Son, D.J. Lee, S. Han, S. Eo, H. Lim",
+      "venue": "Under Review",
+      "venueType": "preprint",
+      "venueFull": "Preprint, Under Review",
+      "year": 2026,
+      "citations": 0,
+      "links": {
+        "arxiv": "https://arxiv.org/abs/2607.14552",
+        "code": "https://github.com/js-lee-AI/answer-leakage"
+      }
+    },
+    {
       "id": 1,
       "title": "Cross-lingual Optimization for Language Transfer in Large Language Models",
       "authors": "**J. Lee**, S. Hong, H. Moon, H.S. Lim",
