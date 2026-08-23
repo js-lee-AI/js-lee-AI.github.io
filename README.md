@@ -2,7 +2,7 @@
 
 > **[js-lee-ai.github.io](https://js-lee-ai.github.io/)**
 
-NLP Researcher & Graduate Student at Korea University (고려대학교)
+NLP Researcher & Graduate Student at Korea University (NLP&AI Lab) (고려대학교)
 
 ## About
 
@@ -10,8 +10,7 @@ Personal academic CV website featuring publications, research interests, and int
 
 ## Links
 
-- **Homepage**: [js-lee-ai.github.io](https://js-lee-ai.github.io/)
-- **CV (PDF)**: [Download](https://js-lee-ai.github.io/cv/cv_jungseob_lee.pdf)
+- **Homepage (CV)**: [js-lee-ai.github.io](https://js-lee-ai.github.io/)
 - **Google Scholar**: [Profile](https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ)
 - **LinkedIn**: [Profile](https://www.linkedin.com/in/jslee-nlp/)
 
