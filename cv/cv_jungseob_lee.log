@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  6 APR 2026 06:36
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  24 AUG 2026 09:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -622,32 +622,70 @@ line 82.
 LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <10.95> not av
 ailable
 (Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
-line 89.
+line 83.
 
 LaTeX Font Warning: Font shape `TU/UnBatang.ttf(0)/m/it' undefined
-(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 89.
+(Font)              using `TU/UnBatang.ttf(0)/m/n' instead on input line 91.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 89--91
+Underfull \hbox (badness 10000) in paragraph at lines 91--93
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--104
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 110--113
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--121
 
  []
 
 [1
 
-] [2] [3] (./cv_jungseob_lee.aux)
+]
+LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <10> not avail
+able
+(Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
+line 131.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 131.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 131.
+
+Overfull \hbox (2.40495pt too wide) in paragraph at lines 144--146
+[]\TU/UnBatang.ttf(0)/m/it/10.95 “\TU/lmr/m/it/10.95 Language Chain in Alignmen
+t: Cross-Lingual Ranking Preference Optimization\TU/UnBatang.ttf(0)/m/it/10.95 
+” \TU/lmr/m/n/10.95 — S. Lee, M. Kim,
+ []
+
+
+Overfull \hbox (0.11305pt too wide) in paragraph at lines 158--160
+[]\TU/UnBatang.ttf(0)/m/it/10.95 “\TU/lmr/m/it/10.95 Skin-Deep: A Geometric Dia
+gnostic for Alignment Fragility in LLM Representations\TU/UnBatang.ttf(0)/m/it/
+10.95 ” \TU/lmr/m/n/10.95 — D.J. Lee$[]$,
+ []
+
+[2] (./cv_jungseob_lee.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `cv_jungseob_lee.out' has not changed.
-(rerunfilecheck)             Checksum: 7E9E08E278501C617A3F48D9C9897D75;327.
+(rerunfilecheck)             Checksum: F429D0FD1A444A1103C7C2FEB0A868FF;483.
  ) 
 Here is how much of TeX's memory you used:
- 17232 strings out of 478190
- 297286 string characters out of 5854814
- 649287 words of memory out of 5000000
- 37620 multiletter control sequences out of 15000+600000
- 472606 words of font info for 69 fonts, out of 8000000 for 9000
+ 17252 strings out of 478190
+ 297856 string characters out of 5854814
+ 655341 words of memory out of 5000000
+ 37631 multiletter control sequences out of 15000+600000
+ 472662 words of font info for 76 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 102i,11n,105p,302b,2709s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 102i,12n,105p,617b,2709s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on cv_jungseob_lee.pdf (3 pages).
+Output written on cv_jungseob_lee.pdf (2 pages).

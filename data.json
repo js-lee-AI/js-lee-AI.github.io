@@ -1,6 +1,39 @@
 {
   "papers": [
     {
+      "id": 30,
+      "title": "The Geometry of Hallucination Detection: Why Simple Probes Are Sufficient",
+      "authors": "**J. Lee**, J. Seo, H. Lim",
+      "venue": "EMNLP 2026",
+      "venueType": "acl",
+      "venueFull": "Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing (Main)",
+      "year": 2026,
+      "citations": 0,
+      "links": {}
+    },
+    {
+      "id": 31,
+      "title": "Language Chain in Alignment: Cross-Lingual Ranking Preference Optimization",
+      "authors": "S. Lee, M. Kim, **J. Lee**, H. Lim",
+      "venue": "EMNLP 2026",
+      "venueType": "acl",
+      "venueFull": "Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing (Main)",
+      "year": 2026,
+      "citations": 0,
+      "links": {}
+    },
+    {
+      "id": 32,
+      "title": "ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models",
+      "authors": "M. Kang*, **J. Lee***, J. Seo, H. Lim",
+      "venue": "Findings of EMNLP 2026",
+      "venueType": "acl",
+      "venueFull": "*Equal contribution. Findings of the Association for Computational Linguistics: EMNLP 2026",
+      "year": 2026,
+      "citations": 0,
+      "links": {}
+    },
+    {
       "id": 24,
       "title": "Towards enhancing Natural Language Inference for identifying erroneous outputs in data-to-text generation",
       "authors": "C. Ok, E.K. Lee, H. Ju, **J. Lee**, D. Oh",
@@ -45,9 +78,9 @@
       "id": 26,
       "title": "DART: Draft-Agreement Routing for Training-Free Adaptive Thinking Budgets in Hybrid Reasoning Models",
       "authors": "**J. Lee**, S. Hong, S. Lee, J. Seo, J. Son, S. Eo, C. Park, H. Park, H. Moon, H. Lim",
-      "venue": "Under Review",
-      "venueType": "preprint",
-      "venueFull": "Preprint, Under Review",
+      "venue": "Findings of EMNLP 2026",
+      "venueType": "acl",
+      "venueFull": "Findings of the Association for Computational Linguistics: EMNLP 2026",
       "year": 2026,
       "citations": 0,
       "links": {
