@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  26 AUG 2026 22:21
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.6)  29 AUG 2026 00:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -647,25 +647,26 @@ Underfull \hbox (badness 10000) in paragraph at lines 118--121
 
  []
 
-LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <10> not avail
-able
-(Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
-line 131.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 131.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 131.
 [1
 
 ]
-Overfull \hbox (2.40495pt too wide) in paragraph at lines 149--151
+LaTeX Font Info:    Font shape `TU/UnBatang.ttf(0)/bx/n' in size <10> not avail
+able
+(Font)              Font shape `TU/UnBatang.ttf(0)/b/n' tried instead on input 
+line 135.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 135.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 135.
+
+Overfull \hbox (2.40495pt too wide) in paragraph at lines 153--155
 []\TU/UnBatang.ttf(0)/m/it/10.95 “\TU/lmr/m/it/10.95 Language Chain in Alignmen
 t: Cross-Lingual Ranking Preference Optimization\TU/UnBatang.ttf(0)/m/it/10.95 
 ” \TU/lmr/m/n/10.95 — S. Lee, M. Kim,
  []
 
 
-Overfull \hbox (0.11305pt too wide) in paragraph at lines 163--165
+Overfull \hbox (0.11305pt too wide) in paragraph at lines 167--169
 []\TU/UnBatang.ttf(0)/m/it/10.95 “\TU/lmr/m/it/10.95 Skin-Deep: A Geometric Dia
 gnostic for Alignment Fragility in LLM Representations\TU/UnBatang.ttf(0)/m/it/
 10.95 ” \TU/lmr/m/n/10.95 — D.J. Lee$[]$,
@@ -676,12 +677,12 @@ gnostic for Alignment Fragility in LLM Representations\TU/UnBatang.ttf(0)/m/it/
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `cv_jungseob_lee.out' has not changed.
-(rerunfilecheck)             Checksum: F429D0FD1A444A1103C7C2FEB0A868FF;483.
+(rerunfilecheck)             Checksum: BB8A4A6C821617F8150A7B3F8205E41E;537.
  ) 
 Here is how much of TeX's memory you used:
  17252 strings out of 478190
  297856 string characters out of 5854814
- 653341 words of memory out of 5000000
+ 654341 words of memory out of 5000000
  37631 multiletter control sequences out of 15000+600000
  472662 words of font info for 76 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
