@@ -1,0 +1,303 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Hallucination Signal Is a Mean Shift: Why Simple Probes Suffice</title>
+  <meta name="description" content="In the paired-example paradigm, the hidden-state signal that separates factual from hallucinated responses is dominated by a single mean-shift direction, and LayerMix aggregates it across layers to match oracle-layer performance. EMNLP 2026.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/LayerMix/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="The Hallucination Signal Is a Mean Shift: Why Simple Probes Suffice">
+  <meta property="og:description" content="In the paired-example paradigm, the hallucination signal in LLM hidden states is dominated by a single mean-shift direction. LayerMix aggregates it across layers to match oracle-layer performance without oracle access. EMNLP 2026.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/LayerMix/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/LayerMix/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Hallucination Signal Is a Mean Shift: Why Simple Probes Suffice">
+  <meta name="twitter:description" content="In the paired-example paradigm, the hallucination signal in LLM hidden states is dominated by a single mean-shift direction. LayerMix aggregates it across layers.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/LayerMix/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Factual blue and hallucinated red, taken from the projection figure. */
+    :root { --accent-a: #1f77b4; --accent-b: #d62728; }
+    .step { --step: #1f77b4; --step-ink: #185f91; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">The Hallucination Signal Is a <span class="name nw">Mean Shift</span>: Why Simple Probes Suffice</h1>
+        <p class="venue">EMNLP 2026 (Main Conference)</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>2*</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1*</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Konkuk University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2608.28930" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2608.28930" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/LayerMix" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">In the paired-example paradigm, the hidden-state signal that separates factual from hallucinated responses is dominated by one direction. Removing it drops detection to chance.</p>
+        <figure class="fig narrow">
+          <a class="plate" href="assets/geometry.webp" data-zoom>
+            <img src="assets/geometry.webp" width="1401" height="1399" alt="Scatter plot of factual and hallucinated hidden states with marginal densities. Along the horizontal axis, the projection onto the mean-shift direction, the hallucinated points sit to the right of the factual points. Along the vertical axis, the first principal component of the residual subspace, the two classes overlap.">
+          </a>
+          <figcaption>2D projection of factual and hallucinated hidden states from <span class="nw">Qwen2.5-7B</span> (Layer 18) on TruthfulQA.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Hidden-state probes effectively detect LLM hallucinations, but the geometry of the signal remains poorly characterized, driving increasingly complex probe architectures. Across three <span class="nw">7B-scale</span> models and three datasets in a paired-example paradigm, we find the signal overwhelmingly dominated by a single mean-shift component, and removing this direction collapses detection to chance. Shrinkage linear discriminant analysis closes about 73% of the gap between 1D and full-dimensional classifiers, so apparent architectural complexity largely reflects high-dimensional covariance estimation difficulty rather than exploitable non-linearity. A simple <span class="nw">L2-regularized</span> logistic regression (0.952 AUROC) bounds or outperforms twelve controlled architectural alternatives, and our multi-layer aggregation exceeds CLAP cross-layer attention probing under matched paradigm. Because the signal spans a contiguous layer band, LayerMix aggregates it to match oracle-layer performance without oracle access. Our claims characterize the geometry within the controlled paired-example paradigm. Our code is available at <a href="https://github.com/js-lee-AI/LayerMix" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>LayerMix</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="geometry">
+      <div class="wrap">
+        <h2>The Signal Is a Mean Shift</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Let \(\boldsymbol{\mu}_0\) and \(\boldsymbol{\mu}_1\) be the centroids of factual and hallucinated hidden states, and \(\boldsymbol{\delta} = \boldsymbol{\mu}_1 - \boldsymbol{\mu}_0\) the mean-shift direction. Averaged over 3 models × 3 datasets, removing \(\boldsymbol{\delta}\) collapses detection to chance (0.499). The 1D projection onto \(\boldsymbol{\delta}\) alone achieves 0.834 AUROC, and Cohen's \(d\) along it ranges <span class="nw">1.2–1.6</span> although the direction accounts for less than 3% of total variance.</p>
+            <p>The mean shift is necessary but not sufficient. The 1D projection underperforms <span class="nw">L2-regularized</span> logistic regression by <span class="nw">0.09–0.16</span> AUROC in every condition (0.834 vs. 0.952 on average). Shrinkage LDA reaches 0.920 mean AUROC and closes about 73% of that gap, so the apparent complexity largely reflects high-dimensional covariance estimation difficulty rather than exploitable non-linearity.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Mean-shift decomposition table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l" scope="col">Condition</th><th scope="col">AUROC</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th class="l" scope="row">Unreg. LR (all dims)</th><td>.928</td></tr>
+                  <tr><th class="l" scope="row">Mean-shift only (1D)</th><td>.834</td></tr>
+                  <tr><th class="l" scope="row">Mean-shift + 4 residual (5D)</th><td>.891</td></tr>
+                  <tr class="sep"><th class="l" scope="row">Without mean-shift</th><td>.499</td></tr>
+                  <tr><th class="l" scope="row">Mean-centered (oracle)</th><td>.503</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="caption long">Mean-shift decomposition (avg. 9 conditions). “Unreg. LR” denotes unregularized logistic regression, used to enable clean decomposition into mean-shift and residual components without regularization-induced shrinkage.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="layers">
+      <div class="wrap">
+        <h2>The Signal Distributes Across Layers</h2>
+        <div class="prose">
+          <p>The best single layer differs by model: on TruthfulQA, L14 for Llama, L16 for Mistral, L18 for Qwen. A fixed-layer heuristic therefore cannot be optimal across conditions. The signal instead concentrates in a model-specific contiguous band, and averaging predictions from the layers selected by cross-validation outperforms any single layer in all 9 conditions (by +0.0004 to +0.0086 AUROC).</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/layers.webp" data-zoom>
+            <img src="assets/layers.webp" width="2400" height="684" loading="lazy" alt="Three panels, one each for TruthfulQA, HaluEval-Dialogue, and FaithDial, plotting probe AUROC against layer index for Llama-3.1-8B, Mistral-7B, and Qwen2.5-7B. Every curve rises through the early layers, peaks in the middle layers between about layer 12 and layer 18, and declines gently toward the last layers.">
+          </a>
+          <figcaption>Layer-wise AUROC across 3 models and 3 datasets. Shaded bands show ±1 std across CV folds. Dots mark the optimal layer per condition.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>LayerMix</h2>
+        <div class="prose">
+          <p>LayerMix identifies the informative layer band via cross-validation, trains independent probes on the top-\(K\) layers, and averages their predictions. It is not presented as a complex algorithmic innovation, but as a consequence of the geometric analysis.</p>
+        </div>
+        <ol class="steps cols-3">
+          <li class="step">
+            <span class="step-label">Stage 1</span>
+            <h3>Layer scoring</h3>
+            <p>For each layer, evaluate an <span class="nw">L2-regularized</span> logistic regression probe with stratified <span class="nw">5-fold</span> cross-validation. The layer's score is its mean AUROC across folds, so the ranking uses only training data and replaces oracle selection.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Stage 2</span>
+            <h3>Layer selection</h3>
+            <p>Select the top-\(K\) layers, with \(K = 5\) as the default. In practice the selected layers form a contiguous block around the model's most informative region, for example layers <span class="nw">16–20</span> for <span class="nw">Qwen2.5-7B</span>.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Stage 3</span>
+            <h3>Aggregation</h3>
+            <p>Train one <span class="nw">L2-regularized</span> LR probe <span class="nw">(\(C = 0.001\))</span> on the full hidden state of each selected layer and average the predictions uniformly. No learned aggregation weights are needed.</p>
+          </li>
+        </ol>
+        <p class="formula">\[\hat{p}(x) = \frac{1}{K} \sum_{\ell \in \mathcal{L}^*} f_\ell\bigl(\mathbf{h}^{(\ell)}(x)\bigr)\]</p>
+        <div class="prose">
+          <p>Here \(\mathcal{L}^*\) is the set of selected layers, \(f_\ell\) is the probe trained on layer \(\ell\), and \(\mathbf{h}^{(\ell)}(x)\) is the layer-\(\ell\) hidden state of a test input \(x\).</p> <p>The total overhead is about 35 seconds. Scoring all layers takes about 30 seconds on a single GPU for \(N = 5{,}000\) examples, and training the \(K\) probes adds about 5 seconds.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Main Results</h2>
+        <div class="prose">
+          <p>The comparison covers three <span class="nw">7B-scale</span> base models (<span class="nw">Llama-3.1-8B</span>, <span class="nw">Mistral-7B</span>, <span class="nw">Qwen2.5-7B</span>) and three benchmarks: TruthfulQA (TQA), HaluEval-Dialogue (HE), and FaithDial (FD). LayerMix achieves 0.954 mean AUROC across 9 conditions, matching the single-layer oracle (0.952) without post-hoc oracle layer access. The best zero-overhead heuristic, middle-layer LR, achieves 0.941. LayerMix exceeds CLAP in 9/9 conditions (0.954 vs. 0.928 mean AUROC), and all-layer averaging (0.944) underperforms LayerMix.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Main results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Method</th><th class="l" scope="col">Type</th><th scope="col">TQA</th><th scope="col">HE</th><th scope="col">FD</th><th scope="col">Mean</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Training-free baselines</span></th></tr>
+                <tr><th class="l stick" scope="row">Perplexity</th><td class="l muted">unsup.</td><td>.594</td><td>.445</td><td>.560</td><td>.533</td></tr>
+                <tr><th class="l stick" scope="row">Entropy</th><td class="l muted">unsup.</td><td>.576</td><td>.476</td><td>.536</td><td>.529</td></tr>
+                <tr><th class="l stick" scope="row">Self-eval P(True)</th><td class="l muted">unsup.</td><td>.621</td><td>.812</td><td>.548</td><td>.660</td></tr>
+                <tr><th class="l stick" scope="row">Verbalize</th><td class="l muted">unsup.</td><td>.618</td><td>.768</td><td>.541</td><td>.642</td></tr>
+                <tr><th class="l stick" scope="row">LLM-Check</th><td class="l muted">unsup.</td><td>.500</td><td>.500</td><td>.500</td><td>.500</td></tr>
+                <tr><th class="l stick" scope="row">DoLa</th><td class="l muted">unsup.</td><td>.607</td><td>.553</td><td>.579</td><td>.580</td></tr>
+                <tr><th class="l stick" scope="row">INSIDE</th><td class="l muted">unsup.</td><td>.559</td><td>.594</td><td>.542</td><td>.565</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Unsupervised / semi-supervised probes</span></th></tr>
+                <tr><th class="l stick" scope="row">HaloScope<sup>†</sup></th><td class="l muted">unsup.</td><td>.576</td><td>.658</td><td>.584</td><td>.606</td></tr>
+                <tr><th class="l stick" scope="row">CCS</th><td class="l muted">unsup.</td><td>.564</td><td>.519</td><td>.528</td><td>.537</td></tr>
+                <tr><th class="l stick" scope="row">TSV<sup>†</sup></th><td class="l muted">semi-sup.</td><td>.812</td><td>.677<sup>*</sup></td><td>.642<sup>*</sup></td><td>.710</td></tr>
+                <tr><th class="l stick" scope="row">ICR Probe</th><td class="l muted">sup.</td><td>.567</td><td>.628</td><td>.540</td><td>.578</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Subspace probes (single layer, oracle)</span></th></tr>
+                <tr><th class="l stick" scope="row">SVD+LR (\(k = 100\))</th><td class="l muted">sup.</td><td>.925</td><td>.940</td><td>.921</td><td>.929</td></tr>
+                <tr><th class="l stick" scope="row">PLS-DA+LR (\(k = 2\))</th><td class="l muted">sup.</td><td>.908</td><td>.921</td><td>.900</td><td>.910</td></tr>
+                <tr><th class="l stick" scope="row">PLS-DA+LR (\(k = 5\))</th><td class="l muted">sup.</td><td>.926</td><td>.948</td><td>.948</td><td>.941</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Full-dim probes (single layer)</span></th></tr>
+                <tr><th class="l stick" scope="row">SAPLMA (MLP)</th><td class="l muted">sup.</td><td>.908</td><td>.930</td><td>.918</td><td>.919</td></tr>
+                <tr><th class="l stick" scope="row">Last-layer LR</th><td class="l muted">sup.</td><td>.895</td><td>.936</td><td>.917</td><td>.918</td></tr>
+                <tr><th class="l stick" scope="row">Middle-layer LR</th><td class="l muted">sup.</td><td>.924</td><td>.954</td><td>.946</td><td>.941</td></tr>
+                <tr><th class="l stick" scope="row">Oracle LR</th><td class="l muted">sup.</td><td><u>.940</u></td><td><u>.961</u></td><td><u>.954</u></td><td><u>.952</u></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Multi-layer aggregation</span></th></tr>
+                <tr><th class="l stick" scope="row">All-layer avg</th><td class="l muted">sup.</td><td>.916</td><td>.957</td><td>.958</td><td>.944</td></tr>
+                <tr><th class="l stick" scope="row">CLAP<sup>a</sup></th><td class="l muted">sup.</td><td>.896</td><td>.953</td><td>.935</td><td>.928</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">LayerMix (Ours)</th><td class="l muted">sup.</td><td><b>.942</b></td><td><b>.962</b></td><td><b>.957</b></td><td><b>.954</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Hallucination detection AUROC averaged over three <span class="nw">7B-scale</span> base models. Bold marks LayerMix and underline marks the single-layer oracle. <sup>†</sup>Official implementation. <sup>*</sup>Adapted for dataset-specific pseudo-labeling. <sup>a</sup>CLAP cross-layer attention probe, trained from the official implementation on the same cached multi-layer hidden states under <span class="nw">3-fold</span> cross-validation.</p>
+        </div>
+        <div class="prose">
+          <p>All methods are evaluated on identical pre-extracted hidden states under the paired-example paradigm. Methods originally designed for dynamic generation (HaloScope, ICR Probe, TSV, CLAP) are therefore evaluated outside their native deployment regime, and their published numbers under that regime are not in question.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="scaling">
+      <div class="wrap">
+        <h2>Scaling Across 25 Models</h2>
+        <div class="prose">
+          <p>Across 25 models spanning 5 families (0.5B to 70B), detection AUROC increases with parameter count. On TruthfulQA, small models (&lt;2B) start in the <span class="nw">0.86–0.91</span> range, while <span class="nw">Llama-3.1-70B</span> approaches 0.98. LayerMix tracks or exceeds the single-layer oracle across 72 of 75 evaluated conditions (96.0%).</p>
+        </div>
+        <figure class="fig narrow">
+          <a class="plate" href="assets/scaling.webp" data-zoom>
+            <img src="assets/scaling.webp" width="1400" height="1137" loading="lazy" alt="Scatter plot of AUROC against model parameters on a log scale from 0.5 to 70 billion, for TruthfulQA, HaluEval, and FaithDial. Solid markers are LayerMix and hollow markers are the single-layer oracle. The LayerMix trend line starts near 0.92 and the oracle trend line near 0.91 at the smallest models, and both reach about 0.98 at the largest models.">
+          </a>
+          <figcaption>Scaling law of hallucination detection across 25 models (0.5B to 70B), evaluated on 75 conditions (25 models × 3 datasets). The plot compares the performance of LayerMix (solid markers and trend line) against the single-layer Oracle (hollow markers and dashed trend line).</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="artifact">
+      <div class="wrap">
+        <h2>Is the Mean Shift an Artifact?</h2>
+        <div class="prose">
+          <p>Several observations argue against a superficial explanation such as length or style. Length-only AUROC (≤ 0.610) is far below probe performance, random-label controls yield chance AUROC, and the mean-shift dominance replicates across Llama, Mistral, and Qwen. In an intervention on <span class="nw">Qwen2.5-7B</span>, reinforcing the unit mean-shift direction \(\hat{\boldsymbol{\delta}}\) degrades truthfulness while projecting away from it improves truthfulness. In the sweep below, positive \(\alpha\) projects away from the hallucination direction and negative \(\alpha\) reinforces it. The effect size across the full sweep is 0.058 MC1 (17.4% relative), and the same sweep along 10 random directions shows no systematic trend.</p>
+        </div>
+        <figure class="fig narrow">
+          <a class="plate" href="assets/intervention.webp" data-zoom>
+            <img src="assets/intervention.webp" width="1400" height="969" loading="lazy" alt="Line plot of TruthfulQA MC1 score against intervention strength alpha from minus 2 to plus 2. The score along the mean-shift direction rises from about 0.305 at alpha minus 2, after a dip to about 0.303 at alpha minus 1.5, to about 0.363 at alpha plus 2, while the random-direction mean stays flat near 0.331 within a band of one standard deviation.">
+          </a>
+          <figcaption>Intervention alpha sweep on <span class="nw">Qwen2.5-7B</span> (Layer 18, TruthfulQA MC1). The plot shows the effect of projecting hidden states along the mean-shift direction \(\hat{\boldsymbol{\delta}}\) across varying \(\alpha\) values, compared against 10 random control directions.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The intervention remains a single-model, single-dataset pilot, and confounds within the paired-example paradigm cannot be definitively excluded without free-form generation tests. More broadly, the conclusions are paradigm-bounded statements about the controlled paired-example setting, not universality claims across all detection scenarios.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@article{lee2026hallucination,
+  title   = {The Hallucination Signal Is a Mean Shift: Why Simple Probes Suffice},
+  author  = {Lee, Jungseob and Seo, Jaehyung and Lim, Heuiseok},
+  journal = {arXiv preprint arXiv:2608.28930},
+  year    = {2026},
+  url     = {https://arxiv.org/abs/2608.28930}
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

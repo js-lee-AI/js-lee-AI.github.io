@@ -1,0 +1,255 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cross-Lingual Optimization for Language Transfer in Large Language Models</title>
+  <meta name="description" content="Cross-Lingual Optimization (CLO) transfers an English-centric LLM to a target language while preserving its English capabilities, using publicly available English SFT data and a translation model. ACL 2025 (Oral).">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/CLO/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Cross-Lingual Optimization for Language Transfer in Large Language Models">
+  <meta property="og:description" content="CLO transfers an English-centric LLM to a target language while preserving its English capabilities, using English SFT data and a translation model. ACL 2025 (Oral).">
+  <meta property="og:url" content="https://js-lee-ai.github.io/CLO/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/CLO/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cross-Lingual Optimization for Language Transfer in Large Language Models">
+  <meta name="twitter:description" content="CLO transfers an English-centric LLM to a target language while preserving its English capabilities.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/CLO/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* English blue and target-language purple, taken from the overview figure. */
+    :root { --accent-a: #2f6fb7; --accent-b: #8f4f9b; }
+    .s1 { --step: #3a78c2; --step-ink: #275a96; }
+    .s2 { --step: #9a5aa6; --step-ink: #74407f; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><span class="name">Cross-Lingual Optimization</span> for Language Transfer in Large Language Models</h1>
+        <p class="venue">ACL 2025 <span class="award">(Oral)</span></p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>*</sup>,</span>
+          <span class="author">Seongtae Hong<sup>*</sup>,</span>
+          <span class="author">Hyeonseok Moon,</span>
+          <span class="author">Heuiseok Lim<sup>†</sup></span>
+        </p>
+        <p class="affils">
+          <span>Korea University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding author</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://aclanthology.org/2025.acl-long.734.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://aclanthology.org/2025.acl-long.734/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15.5H6.5a1 1 0 0 0 0 2H20V22H6.5A2.5 2.5 0 0 1 4 19.5v-15zM8 6v2h8V6H8zm0 4v2h6v-2H8z"/></svg>
+            ACL Anthology
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">CLO transfers an English-centric LLM to a target language while preserving its English capabilities, using publicly available English SFT data and a translation model.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2401" height="1039" alt="Two-part diagram. Top, cross-lingual dataset preparation: English instruction and response pairs are translated into the target language, and each instruction is paired with a preferred response in its own language and a rejected response in the other language. Bottom, cross-lingual optimization: an LLM is trained with supervised fine-tuning on target-language pairs and with a cross-lingual adaptation loss in both directions, combined into one CLO loss.">
+          </a>
+          <figcaption class="long">Overview of cross-lingual dataset preparation and optimization method. The process begins with translating English \((x_{\text{en}}, y_{\text{en}})\) pairs into a target language to create a cross-lingual dataset. This process results in the creation of \((x_\ell, y_\ell)\) pairs in the target language. The optimization is performed using a combined loss \(\mathcal{L}_{\text{CLO}}\).</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Adapting large language models to other languages typically employs supervised fine-tuning (SFT) as a standard approach. However, it often suffers from an overemphasis on English performance, a phenomenon that is especially pronounced in data-constrained environments. To overcome these challenges, we propose Cross-Lingual Optimization (CLO) that efficiently transfers an English-centric LLM to a target language while preserving its English capabilities. CLO utilizes publicly available English SFT data and a translation model to enable cross-lingual transfer. We conduct experiments using five models on six languages, each possessing varying levels of resource. Our results show that CLO consistently outperforms SFT in both acquiring target language proficiency and maintaining English performance. Remarkably, in low-resource languages, CLO with only 3,200 samples surpasses SFT with 6,400 samples, demonstrating that CLO can achieve better performance with less data. Furthermore, we find that SFT is particularly sensitive to data quantity in medium and low-resource languages, whereas CLO remains robust. Our comprehensive analysis emphasizes the limitations of SFT and incorporates additional training strategies in CLO to enhance efficiency.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="motivation">
+      <div class="wrap">
+        <h2>Motivation</h2>
+        <div class="split">
+          <div class="prose">
+            <p>English-centric language models show limited multilingual capabilities in two ways. They may fail to comprehend certain languages, or they may understand a language but still default to communicating in English.</p>
+            <p>When posed with a Swahili question, the Llama2 Chat model fails to comprehend Swahili adequately, while the Llama3 Chat model understands the query but is unable to generate responses in Swahili. Even the fine-tuned model, despite being trained with 6,400 Swahili data, still struggles to produce appropriate outputs in Swahili.</p>
+            <p>CLO builds on the hypothesis that simultaneously enhancing target language ability and aligning it with English facilitates efficient transfer.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/examples.webp" data-zoom>
+              <img src="assets/examples.webp" width="1501" height="1961" loading="lazy" alt="A Swahili query asking for a description of badminton, followed by four responses. Llama2 Chat replies in English that a Swahili word is not valid. Llama2 SFT replies in Swahili that does not make sense. Llama2 CLO replies in Swahili that badminton is a racquet sport where players hit a shuttlecock across a net. Llama3 Chat replies in English.">
+            </a>
+            <figcaption>Example responses to a Swahili query generated by English-centric instruction models, the SFT model, and the proposed CLO model.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>CLO assumes a base language model, a small amount of English SFT data, and a translation model that supports the target language. The process consists of two steps.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Step 1</span>
+            <h3>Cross-lingual dataset preparation</h3>
+            <p>Translate the English prompts and responses of an existing SFT dataset into the target language. For an English prompt, the English response is the chosen response and the translated response is the rejected one, which preserves English capability.</p>
+            <p>For a target-language prompt the mapping is reversed, which encourages the model to answer in the target language by relying on its underlying English knowledge.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Step 2</span>
+            <h3>Cross-lingual optimization</h3>
+            <p>A cross-lingual loss \(\mathcal{L}_{\text{CL}}\), modified from DPO, uses the paired data within the same batch to teach the correspondence between input and output languages. It is combined with an NLL loss \(\mathcal{L}_{\text{SFT}}\) computed only on target-language outputs, which mitigates the inherent English bias.</p>
+            <p class="formula">\[\mathcal{L}_{\text{CLO}} = \lambda \cdot \mathcal{L}_{\text{SFT}} + (1 - \lambda) \cdot \mathcal{L}_{\text{CL}}\]</p>
+            <p>The trade-off parameter \(\lambda\) is set to 0.5 for all models and languages, and only the attention layers are fine-tuned.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The experiments use 6,400 English samples from OpenAssistant, translated with the M2M100 1.2B model for a total of 12,800 samples (6,400 in English and 6,400 in the target language). They cover five models (<span class="nw">Llama-2-7B</span>, <span class="nw">Llama-2-13B</span>, <span class="nw">Llama-3-8B</span>, <span class="nw">Mistral-7B-v0.1</span>, <span class="nw">Qwen-2.5-3B</span>) and six languages: Chinese and German (high-resource), Korean and Indonesian (medium-resource), and Swahili and Yoruba (low-resource).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <h2>Instruction-Following Results</h2>
+        <div class="prose">
+          <p>On AlpacaEval, CLO consistently surpasses SFT across all base models and languages, achieving a win rate exceeding 50% in all cases. Applying DPO after SFT on the same cross-lingual data only partially improves SFT and does not close the gap with CLO, a gap that is particularly pronounced in low-resource languages.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="AlpacaEval win-rate table" tabindex="0">
+            <table class="tbl dense">
+              <thead>
+                <tr><th class="l stick" rowspan="3" scope="col">Eval Lang</th><th class="grp" colspan="6" scope="col"><span>High-Resource</span></th><th class="grp" colspan="6" scope="col"><span>Medium-Resource</span></th><th class="grp" colspan="6" scope="col"><span>Low-Resource</span></th></tr>
+                <tr><th class="grp" colspan="3" scope="col"><span>Chinese</span></th><th class="grp" colspan="3" scope="col"><span>German</span></th><th class="grp" colspan="3" scope="col"><span>Korean</span></th><th class="grp" colspan="3" scope="col"><span>Indonesian</span></th><th class="grp" colspan="3" scope="col"><span>Swahili</span></th><th class="grp" colspan="3" scope="col"><span>Yoruba</span></th></tr>
+                <tr><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th><th class="g" scope="col">SFT<wbr>+DPO</th><th scope="col">CLO</th><th class="c" scope="col">Δ</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="19" scope="rowgroup"><span>Llama-3-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">Target</th><td class="g">59.1<small>±1.70</small></td><td>70.4<small>±1.62</small></td><td class="d h3">+11.3</td><td class="g">51.7<small>±1.76</small></td><td>54.6<small>±1.76</small></td><td class="d h1">+2.9</td><td class="g">62.5<small>±1.70</small></td><td>77.8<small>±1.47</small></td><td class="d h4">+15.3</td><td class="g">54.9<small>±1.75</small></td><td>56.4<small>±1.75</small></td><td class="d h0">+1.5</td><td class="g">65.4<small>±1.67</small></td><td>83.0<small>±1.61</small></td><td class="d h4">+17.6</td><td class="g">52.4<small>±1.76</small></td><td>64.0<small>±1.70</small></td><td class="d h3">+11.6</td></tr>
+                <tr><th class="l stick" scope="row">English</th><td class="g">52.0<small>±1.76</small></td><td>64.0<small>±1.73</small></td><td class="d h3">+12.0</td><td class="g">50.1<small>±1.76</small></td><td>55.5<small>±1.76</small></td><td class="d h2">+5.4</td><td class="g">52.1<small>±1.76</small></td><td>64.4<small>±1.69</small></td><td class="d h3">+12.3</td><td class="g">51.6<small>±1.76</small></td><td>57.7<small>±1.75</small></td><td class="d h2">+6.1</td><td class="g">50.3<small>±1.76</small></td><td>61.4<small>±1.73</small></td><td class="d h3">+11.1</td><td class="g">51.2<small>±1.76</small></td><td>58.2<small>±1.75</small></td><td class="d h2">+7.0</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="19" scope="rowgroup"><span>Llama-2-7B</span></th></tr>
+                <tr><th class="l stick" scope="row">Target</th><td class="g">59.1<small>±1.73</small></td><td>61.1<small>±1.72</small></td><td class="d h1">+2.0</td><td class="g">50.3<small>±1.76</small></td><td>59.5<small>±1.73</small></td><td class="d h2">+9.2</td><td class="g">52.5<small>±1.76</small></td><td>53.8<small>±1.76</small></td><td class="d h0">+1.3</td><td class="g">50.8<small>±1.76</small></td><td>55.8<small>±1.75</small></td><td class="d h2">+5.0</td><td class="g">64.1<small>±1.64</small></td><td>65.0<small>±1.72</small></td><td class="d h0">+0.9</td><td class="g">43.5<small>±1.74</small></td><td>67.1<small>±1.66</small></td><td class="d h5">+23.6</td></tr>
+                <tr><th class="l stick" scope="row">English</th><td class="g">51.1<small>±1.76</small></td><td>55.7<small>±1.76</small></td><td class="d h1">+4.6</td><td class="g">48.4<small>±1.76</small></td><td>61.2<small>±1.72</small></td><td class="d h3">+12.8</td><td class="g">50.6<small>±1.76</small></td><td>51.0<small>±1.76</small></td><td class="d h0">+0.4</td><td class="g">49.3<small>±1.76</small></td><td>62.4<small>±1.71</small></td><td class="d h3">+13.1</td><td class="g">51.5<small>±1.76</small></td><td>55.5<small>±1.75</small></td><td class="d h1">+4.0</td><td class="g">50.3<small>±1.76</small></td><td>61.2<small>±1.72</small></td><td class="d h3">+10.9</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="19" scope="rowgroup"><span>Llama-2-13B</span></th></tr>
+                <tr><th class="l stick" scope="row">Target</th><td class="g">59.3<small>±1.74</small></td><td>65.2<small>±1.71</small></td><td class="d h2">+5.9</td><td class="g">50.5<small>±1.76</small></td><td>53.7<small>±1.76</small></td><td class="d h1">+3.2</td><td class="g">51.6<small>±1.75</small></td><td>53.9<small>±1.75</small></td><td class="d h1">+2.3</td><td class="g">52.4<small>±1.76</small></td><td>61.7<small>±1.71</small></td><td class="d h2">+9.3</td><td class="g">53.9<small>±1.56</small></td><td>70.9<small>±1.60</small></td><td class="d h4">+17.0</td><td class="g">43.5<small>±1.75</small></td><td>67.3<small>±1.65</small></td><td class="d h5">+23.8</td></tr>
+                <tr><th class="l stick" scope="row">English</th><td class="g">50.6<small>±1.76</small></td><td>50.4<small>±1.76</small></td><td class="d hn">−0.2</td><td class="g">53.0<small>±1.76</small></td><td>58.5<small>±1.74</small></td><td class="d h2">+5.5</td><td class="g">51.4<small>±1.76</small></td><td>52.3<small>±1.76</small></td><td class="d h0">+0.9</td><td class="g">52.9<small>±1.76</small></td><td>59.8<small>±1.73</small></td><td class="d h2">+6.9</td><td class="g">50.8<small>±1.76</small></td><td>55.0<small>±1.75</small></td><td class="d h1">+4.2</td><td class="g">51.1<small>±1.76</small></td><td>54.2<small>±1.76</small></td><td class="d h1">+3.1</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="19" scope="rowgroup"><span>Mistral-7B-v0.1</span></th></tr>
+                <tr><th class="l stick" scope="row">Target</th><td class="g">56.8<small>±1.75</small></td><td>57.4<small>±1.74</small></td><td class="d h0">+0.6</td><td class="g">49.9<small>±1.76</small></td><td>50.8<small>±1.76</small></td><td class="d h0">+0.9</td><td class="g">48.5<small>±1.76</small></td><td>50.5<small>±1.76</small></td><td class="d h1">+2.0</td><td class="g">50.0<small>±1.76</small></td><td>51.1<small>±1.76</small></td><td class="d h0">+1.1</td><td class="g">35.4<small>±1.71</small></td><td>51.3<small>±1.76</small></td><td class="d h4">+15.9</td><td class="g">50.9<small>±1.76</small></td><td>51.1<small>±1.52</small></td><td class="d h0">+0.2</td></tr>
+                <tr><th class="l stick" scope="row">English</th><td class="g">51.4<small>±1.76</small></td><td>57.1<small>±1.75</small></td><td class="d h2">+5.7</td><td class="g">48.6<small>±1.76</small></td><td>50.6<small>±1.76</small></td><td class="d h1">+2.0</td><td class="g">52.9<small>±1.76</small></td><td>65.2<small>±1.71</small></td><td class="d h3">+12.3</td><td class="g">52.3<small>±1.76</small></td><td>54.8<small>±1.76</small></td><td class="d h1">+2.5</td><td class="g">51.2<small>±1.76</small></td><td>64.2<small>±1.69</small></td><td class="d h3">+13.0</td><td class="g">49.4<small>±1.76</small></td><td>52.8<small>±1.76</small></td><td class="d h1">+3.4</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="19" scope="rowgroup"><span>Qwen-2.5-3B</span></th></tr>
+                <tr><th class="l stick" scope="row">Target</th><td class="g">54.2<small>±1.75</small></td><td>59.9<small>±1.73</small></td><td class="d h2">+5.7</td><td class="g">53.0<small>±1.76</small></td><td>54.0<small>±1.76</small></td><td class="d h0">+1.0</td><td class="g">52.3<small>±1.76</small></td><td>62.4<small>±1.71</small></td><td class="d h3">+10.1</td><td class="g">53.8<small>±1.76</small></td><td>54.9<small>±1.75</small></td><td class="d h0">+1.1</td><td class="g">51.7<small>±1.76</small></td><td>74.7<small>±1.53</small></td><td class="d h5">+23.0</td><td class="g">45.9<small>±1.76</small></td><td>68.9<small>±1.63</small></td><td class="d h5">+23.0</td></tr>
+                <tr><th class="l stick" scope="row">English</th><td class="g">50.7<small>±1.76</small></td><td>56.7<small>±1.75</small></td><td class="d h2">+6.0</td><td class="g">51.9<small>±1.76</small></td><td>54.8<small>±1.76</small></td><td class="d h1">+2.9</td><td class="g">50.8<small>±1.76</small></td><td>61.0<small>±1.72</small></td><td class="d h3">+10.2</td><td class="g">50.6<small>±1.76</small></td><td>58.0<small>±1.75</small></td><td class="d h2">+7.4</td><td class="g">51.1<small>±1.76</small></td><td>58.1<small>±1.74</small></td><td class="d h2">+7.0</td><td class="g">54.4<small>±1.76</small></td><td>57.0<small>±1.75</small></td><td class="d h1">+2.6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Win-rate (%) results on AlpacaEval for models fine-tuned with SFT+DPO and CLO, evaluated against their SFT baselines. Each cell reports the win rate and its standard deviation. The Δ denotes the absolute improvement of CLO over SFT+DPO.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="data-size">
+      <div class="wrap">
+        <h2>Effect of Training Data Size</h2>
+        <div class="prose">
+          <p>With <span class="nw">Llama-2-7B</span>, each model trained with a different data size is compared against the SFT model trained on 6,400 pairs. CLO improves efficiently across all three languages tested (Chinese, Korean, and Swahili), even in low-data environments. In Swahili, CLO achieves performance similar to the SFT model trained on 6,400 pairs using merely 1,600 pairs, and with 3,200 pairs it surpasses that model. SFT, by contrast, exhibits a strong dependence on the quantity of training data in medium and low-resource languages.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/datasize.webp" data-zoom>
+            <img src="assets/datasize.webp" width="2401" height="1624" loading="lazy" alt="Six line plots of win rate against training data size from 200 to 6,400 pairs for Chinese, Korean, and Swahili models, evaluated on the target language in the top row and on English in the bottom row. The CLO curve lies above the SFT curve at most data sizes. For the Swahili model evaluated on Swahili, CLO reaches about 48 percent with 1,600 pairs and about 53 percent with 3,200 pairs, while SFT stays below 30 percent until it reaches the 6,400-pair reference at 50 percent.">
+          </a>
+          <figcaption class="long">Comparison of win rates between CLO and SFT on <span class="nw">Llama-2-7B</span> models trained with varying amounts of data, evaluated against a SFT with 6,400 pair examples on the AlpacaEval. The ‘SFT Assumed’ baseline is assigned a win rate of 50%, as it compares identical models.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@inproceedings{lee-etal-2025-cross,
+    title = "Cross-Lingual Optimization for Language Transfer in Large Language Models",
+    author = "Lee, Jungseob  and
+      Hong, Seongtae  and
+      Moon, Hyeonseok  and
+      Lim, Heuiseok",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-long.734/",
+    doi = "10.18653/v1/2025.acl-long.734",
+    pages = "15100--15119",
+    ISBN = "979-8-89176-251-0"
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

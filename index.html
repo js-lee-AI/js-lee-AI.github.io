@@ -561,11 +561,11 @@
     const CONFIG_KEY = 'jl-cv-config';
     const PAPERS_KEY = 'jl-cv-papers';
     const LINK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7H5V5h7V3H5zm9 0v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>';
-    const LABEL = {pdf:'PDF',arxiv:'arXiv',code:'Code',slides:'Slides',video:'Video',demo:'Demo',doi:'DOI'};
+    const LABEL = {project:'Project Page',pdf:'PDF',arxiv:'arXiv',code:'Code',slides:'Slides',video:'Video',demo:'Demo',doi:'DOI'};
 
     const DEFAULT_PAPERS = [
       {id:23,title:"Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment",authors:"S. Hong, Y. Jang, **J. Lee**, H. Moon, H. Lim",venue:"ICLR 2026 Poster",venueType:"acl",venueFull:"The Fourteenth International Conference on Learning Representations",year:2026,citations:0,links:{pdf:"https://openreview.net/pdf?id=NvKvW5k6Kk"}},
-      {id:1,title:"Cross-lingual Optimization for Language Transfer in Large Language Models",authors:"**J. Lee**, S. Hong, H. Moon, H.S. Lim",venue:"ACL 2025 Oral",venueType:"acl",venueFull:"Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Oral)",year:2025,citations:3,links:{pdf:"https://aclanthology.org/2025.acl-long.734.pdf"}},
+      {id:1,title:"Cross-Lingual Optimization for Language Transfer in Large Language Models",authors:"**J. Lee**, S. Hong, H. Moon, H.S. Lim",venue:"ACL 2025 Oral",venueType:"acl",venueFull:"Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Oral)",year:2025,citations:3,links:{project:"CLO/",pdf:"https://aclanthology.org/2025.acl-long.734.pdf"}},
       {id:2,title:"VAETKI Technical Report",authors:"NCAI Consortium",venue:"Report",venueType:"preprint",venueFull:"",year:2025,citations:0,links:{pdf:"https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf"}},
       {id:3,title:"An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training",authors:"S. Son, C. Park, **J. Lee**, M. Shim, C. Lee, Y. Jang, J. Seo, J. Lim, H. Lim",venue:"ESWA",venueType:"journal",venueFull:"Expert Systems With Applications, 267, 125841",year:2025,citations:1,links:{doi:"https://doi.org/10.1016/j.eswa.2024.125841"}},
       {id:4,title:"Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation",authors:"**J. Lee**, H. Moon, S. Lee, C. Park, S. Eo, H. Ko, J. Seo, S. Lee, H.S. Lim",venue:"Findings of ACL 2024",venueType:"acl",venueFull:"Findings of the Association for Computational Linguistics: ACL 2024, pp. 2287\u20132303",year:2024,citations:10,links:{pdf:"https://aclanthology.org/2024.findings-acl.135.pdf"}},
@@ -639,13 +639,16 @@
       const header = document.createElement('div');
       header.className = 'pub-card-header';
       const allLinks = Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
-      const mainUrl = allLinks.pdf || allLinks.doi || allLinks.arxiv || Object.values(allLinks)[0] || '';
+      const mainUrl = allLinks.project || allLinks.pdf || allLinks.doi || allLinks.arxiv || Object.values(allLinks)[0] || '';
       var title;
       if (mainUrl) {
         title = document.createElement('a');
         title.href = mainUrl;
-        title.target = '_blank';
-        title.rel = 'noopener';
+        // A project page is part of this site, so it opens in the same tab.
+        if (mainUrl !== allLinks.project) {
+          title.target = '_blank';
+          title.rel = 'noopener';
+        }
       } else {
         title = document.createElement('h3');
       }
@@ -715,8 +718,10 @@
         const a = document.createElement('a');
         a.href = url;
         a.className = 'pub-link-btn';
-        a.target = '_blank';
-        a.rel = 'noopener';
+        if (type !== 'project') {
+          a.target = '_blank';
+          a.rel = 'noopener';
+        }
         a.textContent = LABEL[type] || type;
         linksDiv.appendChild(a);
       });

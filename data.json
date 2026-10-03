@@ -10,6 +10,7 @@
       "year": 2026,
       "citations": 0,
       "links": {
+        "project": "LayerMix/",
         "arxiv": "https://arxiv.org/abs/2608.28930"
       }
     },
@@ -85,6 +86,7 @@
       "year": 2026,
       "citations": 0,
       "links": {
+        "project": "DART/",
         "arxiv": "https://arxiv.org/abs/2606.23181",
         "code": "https://github.com/js-lee-AI/DART"
       }
@@ -144,7 +146,7 @@
     },
     {
       "id": 1,
-      "title": "Cross-lingual Optimization for Language Transfer in Large Language Models",
+      "title": "Cross-Lingual Optimization for Language Transfer in Large Language Models",
       "authors": "**J. Lee**, S. Hong, H. Moon, H.S. Lim",
       "venue": "ACL 2025 Oral",
       "venueType": "acl",
@@ -152,6 +154,7 @@
       "year": 2025,
       "citations": 3,
       "links": {
+        "project": "CLO/",
         "pdf": "https://aclanthology.org/2025.acl-long.734.pdf"
       }
     },
