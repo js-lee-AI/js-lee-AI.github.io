@@ -267,6 +267,16 @@ sup {
   fill: currentColor;
 }
 
+/* A resource that is announced but not public yet keeps its place in the
+   row and reads as inactive. */
+.btn.soon,
+.btn.soon:hover {
+  background: transparent;
+  color: var(--pill);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  cursor: default;
+}
+
 /* ---------- Sections ---------- */
 
 .section {

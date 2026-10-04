@@ -105,10 +105,10 @@
       <div class="wrap">
         <p class="tldr">Redline deploys the fastest serving configuration whose reference-relative risk it can keep within a user-chosen budget at a user-chosen confidence.</p>
         <figure class="fig">
-          <a class="plate" href="assets/overview.webp" data-zoom>
-            <img src="assets/overview.webp" width="2400" height="1017" alt="Two-panel diagram. The top panel, levers inside the serving loop, shows a training-gradient box with a train lever, a pre-forward-state box with an allocate lever in which a static rule roughly equals an oracle, a forward pass of a fixed engine in which several blocks are denoised concurrently, and a post-forward-state box with a commit lever that commits every resolved block. The bottom panel, Redline as risk control outside the loop, shows a calibration set scored for answer correctness, a risk test that counts prompts where the reference is right and the candidate is wrong and applies an exact binomial test with Holm, four tested configurations of which A and B pass and C and D fail, and a box stating that the risk is within budget at the chosen confidence. An arrow labelled deploy the fastest that passes leads back to the forward pass.">
+          <a class="plate" href="assets/grid.webp" data-zoom>
+            <img src="assets/grid.webp" width="2400" height="750" alt="Two panels. (a) Serving loop, one prompt. A calibration prompt, a word problem about cutting a tree into planks whose correct answer is 96, goes to eight configurations of two thresholds. The configuration with thresholds 0.85 and 0.70 writes 830 × 1.2 = 996 and answers 996, which is wrong, and the other seven write 80 × 1.2 = 96 and answer 96. (b) Redline, whole calibration set. Each configuration gets a strip over the calibration prompts, with every prompt marked correct, regression or both wrong, and a bar of its regressions with a margin, next to a dashed line for the risk budget. An arrow marks the upper configurations as faster. The configuration with thresholds 0.95 and 0.90 is the reference. Bars whose margin crosses the budget are grey as not valid, the two bars that stay under it are green as valid, and the faster of the two, with thresholds 0.90 and 0.90, is highlighted as deployed.">
           </a>
-          <figcaption>Levers inside the serving loop and risk control outside it. Top, the three levers at the decision sites they act on. Bottom, Redline tests every configuration on the correctness of its answers, keeps those that pass (green) and deploys the fastest.</figcaption>
+          <figcaption class="long">Redline on one serving grid. (a) Every configuration answers the same prompt. (b) Redline counts the regressions over all calibration prompts, where a configuration fails and the reference succeeds, and deploys the fastest one that stays under the risk budget by a finite-sample margin.</figcaption>
         </figure>
       </div>
     </section>
@@ -216,7 +216,7 @@
                 <tr><th scope="col">Gain</th><th scope="col">Δacc.</th><th scope="col">Gain</th><th scope="col">Δacc.</th><th scope="col">Gain</th><th scope="col">Δacc.</th></tr>
               </thead>
               <tbody>
-                <tr class="group"><th colspan="10" scope="rowgroup"><span>Block-diffusion serving, TPF gain&nbsp;(%)</span></th></tr>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Block-diffusion serving</span></th></tr>
                 <tr><th class="l stick" scope="row">LLaDA2 math</th><td>1,012</td><td>7</td><td>0.07</td><td>+37.5</td><td>−4.0</td><td>+37.5</td><td>−4.0</td><td>+37.5</td><td>−4.0</td></tr>
                 <tr><th class="l stick" scope="row">LLaDA2 math, large grid</th><td>1,012</td><td>50</td><td>0.07</td><td>+65.4</td><td>−3.4</td><td>+72.0</td><td>−5.9</td><td>+72.0</td><td>−5.9</td></tr>
                 <tr><th class="l stick" scope="row">LLaDA2 code</th><td>542</td><td>8</td><td>0.11</td><td>0.0</td><td>0.0</td><td>+33.7</td><td>−7.0</td><td>+42.4</td><td>−13.1</td></tr>
@@ -226,7 +226,7 @@
             </table>
           </div>
           <p class="scroll-hint">Scroll sideways to see every column.</p>
-          <p class="caption long">Configurations that Redline deploys at three risk budgets (\(\delta = 0.10\), Holm), with the gain over the reference in the group's cost measure and the net accuracy change in points. Below \(\alpha_{\min}\), the smallest budget at which a cheaper configuration passes, the reference is deployed. This table shows the block-diffusion rows of the paper's table, and the remaining rows appear in a later section.</p>
+          <p class="caption long">Configurations that Redline deploys at three risk budgets (\(\delta = 0.10\), Holm). Gain is in TPF (%), accepted tokens for each target forward (%) or weight-memory reduction, and Δacc. in points. Below \(\alpha_{\min}\), the smallest budget at which a cheaper configuration passes, the reference is deployed. This table shows the block-diffusion rows of the paper's table, and the remaining rows appear in a later section.</p>
         </div>
         <div class="prose">
           <p>In both families, math gains speed at a smaller budget than code, and at every tested budget at which code gains speed, math does too. At \(\alpha = 0.10\), the deployed math configurations already run well ahead of the reference, at +37.5% TPF on LLaDA2 and +13.1% on SDAR, with 95% intervals of 34.0 to 41.1% and 7.1 to 19.6%. Both sit about three points of empirical risk under the budget, and the SDAR math configuration also cuts the forwards of each request by 15.9%.</p>
@@ -269,18 +269,18 @@
                 <tr><th scope="col">Gain</th><th scope="col">Δacc.</th><th scope="col">Gain</th><th scope="col">Δacc.</th><th scope="col">Gain</th><th scope="col">Δacc.</th></tr>
               </thead>
               <tbody>
-                <tr class="group"><th colspan="10" scope="rowgroup"><span>Speculative decoding on GSM8K, gain in accepted tokens for each target forward&nbsp;(%)</span></th></tr>
-                <tr><th class="l stick" scope="row">Llama</th><td>512</td><td>7</td><td>0.09</td><td>+13.8</td><td>−3.3</td><td>+16.8</td><td>−9.0</td><td>+16.8</td><td>−9.0</td></tr>
-                <tr><th class="l stick" scope="row">Qwen</th><td>512</td><td>7</td><td>0.04</td><td>+18.1</td><td>−1.6</td><td>+18.1</td><td>−1.6</td><td>+18.1</td><td>−1.6</td></tr>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Speculative decoding</span></th></tr>
+                <tr><th class="l stick" scope="row">Llama GSM8K</th><td>512</td><td>7</td><td>0.09</td><td>+13.8</td><td>−3.3</td><td>+16.8</td><td>−9.0</td><td>+16.8</td><td>−9.0</td></tr>
+                <tr><th class="l stick" scope="row">Qwen GSM8K</th><td>512</td><td>7</td><td>0.04</td><td>+18.1</td><td>−1.6</td><td>+18.1</td><td>−1.6</td><td>+18.1</td><td>−1.6</td></tr>
               </tbody>
               <tbody>
-                <tr class="group"><th colspan="10" scope="rowgroup"><span>Weight quantization on GSM8K, reduction in weight memory</span></th></tr>
-                <tr><th class="l stick" scope="row">Llama</th><td>512</td><td>4</td><td>0.07</td><td>2.81×</td><td>−1.4</td><td>2.81×</td><td>−1.4</td><td>2.81×</td><td>−1.4</td></tr>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Weight quantization</span></th></tr>
+                <tr><th class="l stick" scope="row">Llama GSM8K</th><td>512</td><td>4</td><td>0.07</td><td>2.81×</td><td>−1.4</td><td>2.81×</td><td>−1.4</td><td>2.81×</td><td>−1.4</td></tr>
               </tbody>
             </table>
           </div>
           <p class="scroll-hint">Scroll sideways to see every column.</p>
-          <p class="caption long">Configurations that Redline deploys at three risk budgets (\(\delta = 0.10\), Holm), with the gain over the reference in the group's cost measure and the net accuracy change in points. Below \(\alpha_{\min}\), the smallest budget at which a cheaper configuration passes, the reference is deployed. This table shows the speculative-decoding and quantization rows of the paper's table.</p>
+          <p class="caption long">Configurations that Redline deploys at three risk budgets (\(\delta = 0.10\), Holm). Gain is in TPF (%), accepted tokens for each target forward (%) or weight-memory reduction, and Δacc. in points. Below \(\alpha_{\min}\), the smallest budget at which a cheaper configuration passes, the reference is deployed. This table shows the speculative-decoding and quantization rows of the paper's table.</p>
         </div>
         <div class="prose">
           <p>For the typical acceptance of Medusa, a faster setting is deployed from \(\alpha = 0.04\) on for the Qwen pair, with a net accuracy gain at \(\alpha = 0.05\), and from \(\alpha = 0.09\) on for the Llama pair. The Llama draft agrees with the target's argmax on more tokens than the Qwen draft, 90.5% against 88.7%, yet needs a larger budget, since the risk measures whether a divergent token changes the final answer rather than how often tokens diverge.</p>

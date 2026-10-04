@@ -93,10 +93,10 @@
       <div class="wrap">
         <p class="tldr">CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement.</p>
         <figure class="fig">
-          <a class="plate" href="assets/overview.webp" data-zoom>
-            <img src="assets/overview.webp" width="2400" height="1097" alt="Two rows that start from the same DFlash drafter pass over the block far, he, is, from, home, at, the, end, with an amber score bar under each token and lower-ranked candidates such as John below. Top row, standard decoding: the top-1 chain is sent to the target in one verify pass, the target accepts far, rejects he because it wanted John, and 2 tokens are committed. Bottom row, CAST: a prefix-closed tree of the 15 candidates with the largest prefix mass adds the branches John, is, from, home and home, home, at to the chain, the tree is verified in one pass under an ancestor mask, the path far, John, is, from, home is accepted, and 6 tokens are committed.">
+          <a class="plate" href="assets/tree.webp" data-zoom>
+            <img src="assets/tree.webp" width="2400" height="885" alt="Three panels that start from one block drafter pass after a prefix ending in how. (a) Standard decoding verifies the top-1 chain far, he, is, from, home, at, the, end under a causal mask, while lower-ranked candidates such as John, home and away stay unverified. The target model accepts far, rejects he, supplies its own token John and commits R = 2. (b) CAST verifies a tree that adds the branches John, is, from, home, at under far and home, home, at under is, under an ancestor mask. The target accepts far, John, is, from, home, supplies at and commits R = 6. (c) Width rule. The inequality ρ(N+1) ≥ (g(N) + 1) / ℓ(N) · c1 sits next to a bar chart of prefix mass against rank with a dashed line for N after rank 15, and a small table in which widths 3, 7, 15 and 31 pack 4, 8, 16 and 32 tokens and commit 2, 3, 6 and 10, with width 15 highlighted.">
           </a>
-          <figcaption class="long">One round of standard DFlash decoding (top) and CAST (bottom) on a GSM8K prompt, using the same drafter scores (amber bars) and one verification pass of 16 packed tokens. Standard decoding verifies only the <span class="nw">top-1</span> chain and discards the other scored candidates (gray bars), whereas CAST verifies a prefix-closed tree of the 15 highest-scoring nonroot candidates and the pending root \(b\) under an ancestor mask. Green and red mark accepted and rejected tokens.</figcaption>
+          <figcaption class="long">One decoding round on a GSM8K prompt. With the same drafter scores and 16 packed tokens, (a) standard DFlash decoding commits two tokens, whereas (b) CAST verifies a tree and commits six. (c) Theorem 2 chooses the width \(N\).</figcaption>
         </figure>
       </div>
     </section>
@@ -220,7 +220,7 @@
       <div class="wrap">
         <h2>Width Across Hardware</h2>
         <div class="prose">
-          <p>The rule thresholds drafter-score order statistics from 1,500 offline GSM8K rounds, using one curve across deployments and changing only the measured cost slope. Width selection uses scores and costs, not timing-sweep outcomes. Across all eight settings, the predicted gain is within 1.7 percentage points of the sweep oracle, and the predicted width matches the best swept width in six settings. The settings cover three GPUs, two model families, two block sizes, and a 30B sparse mixture-of-experts target.</p>
+          <p>The rule thresholds drafter-score order statistics from 1,500 offline GSM8K rounds, using one curve across deployments and changing only the measured cost slope. Width selection uses scores and costs, not timing-sweep outcomes. Across all eight settings, the predicted gain is within 1.7 percentage points of the sweep oracle, and the predicted width matches the best swept width in six settings. The sweeps use \(N\in\{15,31,47,63,95,127\}\). Among them, the H100 SXM <span class="nw">Qwen3-8B</span> and <span class="nw">Qwen3-4B</span> sweeps start at \(N{=}47\), and the A6000 sweeps end at \(N{=}95\). The settings cover three GPUs, two model families, two block sizes, and a 30B sparse mixture-of-experts target.</p>
         </div>
         <div class="table-block wide">
           <div class="table-wrap" role="region" aria-label="Predicted and sweep-oracle widths table" tabindex="0">
@@ -241,7 +241,7 @@
             </table>
           </div>
           <p class="scroll-hint">Scroll sideways to see every column.</p>
-          <p class="caption long">Predicted and sweep-oracle widths across the eight settings. Gain over DFlash is averaged over domains. Gap is measured in percentage points. Sweeps use \(N\in\{15,31,47,63,95,127\}\). The H100 SXM <span class="nw">Qwen3-8B</span> and <span class="nw">Qwen3-4B</span> sweeps start at \(N{=}47\), and the A6000 sweeps end at \(N{=}95\). <span class="nw">\(\ddagger\) marks</span> cells measured on a second A6000 host.</p>
+          <p class="caption long">Predicted and sweep-oracle widths across the eight settings. Gain over DFlash is averaged over domains. Gap is in percentage points. <span class="nw">\(\ddagger\) marks</span> cells measured on a second A6000 host.</p>
         </div>
         <div class="prose">
           <p>CAST is faster than the standard DFlash chain in all eight hardware and model settings, with average gains of <span class="nw">20–36%</span> and up to 43% on a single domain.</p>
