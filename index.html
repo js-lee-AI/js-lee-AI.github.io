@@ -182,6 +182,15 @@
     .pub-year-heading{font-family:var(--font-display);font-size:28px;font-weight:300;color:var(--text-muted);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
     .pub-year-list{display:flex;flex-direction:column;gap:12px}
 
+    /* Preprints: the list stays folded until the toggle in the section header is used */
+    .section-toggle{order:1;flex-shrink:0;display:inline-flex;align-items:center;gap:10px;padding:6px 16px;border:1px dashed var(--border-light);border-radius:10px;background:none;color:var(--accent);font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:all .3s}
+    .section-toggle:hover{background:var(--accent-dim);border-color:var(--accent)}
+    .section-toggle::after{content:'';width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .3s}
+    .section-toggle[aria-expanded="true"]::after{transform:translateY(2px) rotate(-135deg)}
+    #preprints:not(.open) .section-header{margin-bottom:0}
+    #preprint-container[hidden]{display:none}
+    #preprint-container{animation:imgf .4s ease}
+
     /* Projects */
     .project-card{padding:32px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);position:relative;overflow:hidden;transition:all .5s cubic-bezier(.16,1,.3,1)}
     .project-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),transparent);opacity:0;transition:opacity .4s}
@@ -366,7 +375,10 @@
       section{padding:0 24px}.news-item{grid-template-columns:80px 1fr;gap:20px}.edu-item{grid-template-columns:1fr;gap:8px}
       .pub-card{padding:20px 24px}.pub-card-header{flex-direction:column-reverse;gap:8px}.pub-links{margin-left:0}
     }
-    @media(max-width:600px){.hero-name{font-size:36px}.news-item{grid-template-columns:1fr;gap:4px}.pub-title-text{font-size:17px}}
+    @media(max-width:600px){.hero-name{font-size:36px}.news-item{grid-template-columns:1fr;gap:4px}.pub-title-text{font-size:17px}
+      /* On a phone the toggle takes its own full-width row under the section title */
+      #preprints .section-header{flex-wrap:wrap}.section-toggle{flex-basis:100%;justify-content:center;padding:12px 16px}
+      #preprints.open .section-header{margin-bottom:24px}}
   </style>
 </head>
 <body>
@@ -388,6 +400,7 @@
     <div class="nav-links" id="navLinks">
       <a href="#about">About</a>
       <a href="#news">News</a>
+      <a href="#preprints">Preprints</a>
       <a href="#publications">Publications</a>
       <a href="#projects">Projects</a>
       <a href="#awards">Awards</a>
@@ -450,6 +463,16 @@
         <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">KBS 2026</span> Our paper <strong>"Towards enhancing Natural Language Inference for identifying erroneous outputs in data-to-text generation"</strong> has been accepted at <strong>Knowledge-Based Systems (KBS)</strong>.</div></div>
         <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">ICLR 2026</span> Our paper <strong>"Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment"</strong> has been accepted at <strong>ICLR 2026</strong> (Poster).</div></div>
       </div>
+    </div>
+  </section>
+
+  <section id="preprints">
+    <div class="section-inner">
+      <div class="section-header reveal">
+        <h2 class="section-title">Preprints</h2>
+        <button type="button" class="section-toggle" id="preprintToggle" aria-expanded="false" aria-controls="preprint-container">Show</button>
+      </div>
+      <div id="preprint-container" class="pub-year-list" hidden></div>
     </div>
   </section>
 
@@ -622,7 +645,7 @@
           }
         });
       }
-    }).catch(function(){});
+    }).catch(function(){ setPreprintsShown(false); });
 
     function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
@@ -731,12 +754,44 @@
       return card;
     }
 
+    // Preprints: papers flagged "preprint" in data.json, newest first, in their own folded section.
+    function renderPreprints(list, config) {
+      const section = document.getElementById('preprints');
+      const box = document.getElementById('preprint-container');
+      const toggle = document.getElementById('preprintToggle');
+      if (!section || !box || !toggle) return;
+      box.textContent = '';
+      list.sort(function(a, b) { return b.year - a.year || b.id - a.id; })
+          .forEach(function(p) { box.appendChild(buildCard(p, config)); });
+      if (list.length) toggle.textContent = list.length + (list.length === 1 ? ' paper' : ' papers');
+      // The section keeps its place until data.json has answered, then leaves if it has nothing to show.
+      setPreprintsShown(list.length > 0 || !siteData);
+    }
+
+    function setPreprintsShown(shown) {
+      const section = document.getElementById('preprints');
+      const link = document.querySelector('.nav-links a[href="#preprints"]');
+      if (section) section.hidden = !shown;
+      if (link) link.hidden = !shown;
+    }
+
+    function setPreprintsOpen(open) {
+      const section = document.getElementById('preprints');
+      const box = document.getElementById('preprint-container');
+      const toggle = document.getElementById('preprintToggle');
+      if (!section || !box || !toggle) return;
+      section.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      box.hidden = !open;
+    }
+
     function renderPublications() {
       const container = document.getElementById('pub-container');
       if (!container) return;
       container.textContent = '';
       const config = getConfig();
-      const papers = getPapers();
+      const papers = getPapers().filter(function(p) { return !p.preprint; });
+      renderPreprints(getPapers().filter(function(p) { return p.preprint; }), config);
 
       // Group by year
       const groups = {};
@@ -846,6 +901,14 @@
         if (c.theme) document.documentElement.setAttribute('data-theme', c.theme);
       }
     });
+
+    // Preprints toggle. A link that points at the section opens it.
+    document.getElementById('preprintToggle').addEventListener('click', function() {
+      setPreprintsOpen(this.getAttribute('aria-expanded') !== 'true');
+    });
+    function openPreprintsFromHash() { if (location.hash === '#preprints') setPreprintsOpen(true); }
+    window.addEventListener('hashchange', openPreprintsFromHash);
+    openPreprintsFromHash();
 
     // Init
     renderPublications();

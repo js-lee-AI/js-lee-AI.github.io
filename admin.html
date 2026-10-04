@@ -274,6 +274,12 @@
           <input type="number" id="ed-citations" min="0">
         </div>
       </div>
+      <div class="form-row">
+        <label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;letter-spacing:0;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="ed-preprint" style="accent-color:var(--accent);cursor:pointer">
+          List under Preprints (folded section above Publications)
+        </label>
+      </div>
 
       <div class="form-row" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
         <label>Framework / Architecture Image</label>
@@ -545,7 +551,7 @@
         item.appendChild(header);
         var meta = document.createElement('div');
         meta.className = 'paper-item-meta';
-        meta.textContent = p.venue + ' \u00B7 ' + p.year + (p.citations > 0 ? ' \u00B7 ' + p.citations + ' citations' : '');
+        meta.textContent = p.venue + ' \u00B7 ' + p.year + (p.citations > 0 ? ' \u00B7 ' + p.citations + ' citations' : '') + (p.preprint ? ' \u00B7 Preprints section' : '');
         var hasImg = config.paperImages && config.paperImages[p.id];
         var hasLinks = config.paperLinks && config.paperLinks[p.id] && Object.values(config.paperLinks[p.id]).some(function(v){return v;});
         if (hasImg) meta.textContent += ' \u00B7 \uD83D\uDDBC\uFE0F Image';
@@ -567,6 +573,7 @@
       document.getElementById('ed-venueFull').value = p ? (p.venueFull || '') : '';
       document.getElementById('ed-year').value = p ? p.year : new Date().getFullYear();
       document.getElementById('ed-citations').value = p ? (p.citations || 0) : 0;
+      document.getElementById('ed-preprint').checked = !!(p && p.preprint);
 
       // Image
       editImage = (config.paperImages && config.paperImages[id]) || null;
@@ -707,6 +714,8 @@
         year: parseInt(document.getElementById('ed-year').value) || 2025,
         citations: parseInt(document.getElementById('ed-citations').value) || 0
       };
+      // Papers with this flag are listed in the Preprints section of the homepage instead of Publications.
+      if (document.getElementById('ed-preprint').checked) data.preprint = true;
 
       if (editingId) {
         // Update existing
