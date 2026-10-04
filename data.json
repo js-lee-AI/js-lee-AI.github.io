@@ -116,6 +116,7 @@
       "citations": 0,
       "preprint": true,
       "links": {
+        "project": "ACOER/",
         "arxiv": "https://arxiv.org/abs/2606.22716",
         "code": "https://github.com/js-lee-AI/ACOER"
       }

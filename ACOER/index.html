@@ -1,0 +1,376 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards</title>
+  <meta name="description" content="ACOER pays a length bonus only for correct completions, sets the budget from the policy's own correct outputs, and adapts the bonus weight to the accuracy trend, so that efficiency training with GRPO stays stable where length-reward baselines collapse. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/ACOER/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards">
+  <meta property="og:description" content="A correct-only length reward with an adaptive budget and weight that trains stably where length-reward baselines collapse, cutting the tokens generated on MATH-500 by more than half at accuracy on par with the base model. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/ACOER/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/ACOER/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards">
+  <meta name="twitter:description" content="A correct-only length reward with an adaptive budget and weight that trains stably where length-reward baselines collapse, cutting the tokens generated on MATH-500 by more than half at accuracy on par with the base model.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/ACOER/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The blue of the adaptive parts and the green of correct completions
+       in the overview figure. */
+    :root { --accent-a: #2f55a4; --accent-b: #1b5e20; }
+    /* The cards keep the figure's coding: green for correct completions,
+       blue for the adaptive parts and red for incorrect completions, whose
+       label takes a darker shade of that red so that it stays legible. */
+    .correct { --step: #1b5e20; --step-ink: #1b5e20; }
+    .adaptive { --step: #2f55a4; --step-ink: #2f55a4; }
+    .incorrect { --step: #e53935; --step-ink: color-mix(in srgb, #e53935 78%, #000); }
+    /* Six names would leave the last one alone on the second line, so the
+       lines of the author list are balanced. */
+    .authors { text-wrap: balance; }
+    /* The proposition spans the row above the two pathways it leads to. */
+    .steps .full { grid-column: 1 / -1; }
+    /* Where the text and the reward table no longer fit side by side, the
+       table moves under the text and keeps its own width. */
+    @media (max-width: 61.99rem) {
+      .split.stack { grid-template-columns: minmax(0, 1fr); }
+      .split.stack .prose { width: 100%; max-width: var(--w-text); justify-self: center; }
+      .split.stack .table-block { width: 100%; max-width: 27rem; justify-self: center; }
+    }
+    /* The proposed method keeps its tint, and bold is left to mark the best
+       values as in the paper's table. */
+    .tbl tbody tr.ours > td { font-weight: 400; }
+    /* Slightly tighter cells let the ten columns of the main table fit the
+       full page width without scrolling. */
+    @media (min-width: 62rem) {
+      #results .tbl th, #results .tbl td { padding-right: 0.65rem; padding-left: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via <span class="name">Adaptive <span class="nw">Correct-Only</span> Rewards</span></h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1*</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1*</sup>,</span>
+          <span class="author">Seongtae Hong<sup>1</sup>,</span>
+          <span class="author">Minhyuk Kim<sup>1</sup>,</span>
+          <span class="author">Chanjun Park<sup>2†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Soongsil University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2606.22716" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2606.22716" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/ACOER" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A <span class="nw">correct-only</span> length reward with an adaptive budget and weight that trains stably where <span class="nw">length-reward</span> baselines collapse, cutting the tokens generated on <span class="nw">MATH-500</span> by more than half at accuracy on par with the base model.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="818" alt="Overview of ACOER. Top row, the GRPO loop: a prompt x goes to the policy, which samples completions y1 to yG, drawn as green bars for correct and red bars for incorrect ones. The highlighted reward box feeds a group-relative advantage and a policy update, which returns to the policy. The reward box opens into three panels. Panel 1, correct-only signal: the reward of a correct completion falls with its length and flattens at a dot, while incorrect completions lie on a flat red line with no length term. The formulas read r(y) = 1 + alpha_t g(min{l/B_t, 1}) in green and r(y) = 0 in red. Panel 2, adaptive budget: the point where the reward curve flattens moves left from its earlier, dashed position to the budget B_t, which follows the EMA of correct lengths, drawn falling over training steps. Panel 3, control-loop bonus: the weight alpha_t sets the height of the reward curve above its earlier, dashed state, and a plot of alpha_t over training steps rises, drops where the accuracy change is at most minus delta, and rises again.">
+          </a>
+          <figcaption class="long">Overview of ACOER, omitting the format reward. Mechanism&nbsp;1 removes the length term from incorrect completions, 2 sets the budget from correct lengths, and 3 rescales the bonus with the accuracy trend. Green marks correct, red incorrect, blue adaptive parts, and dashed curves earlier states.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Reasoning models spend many tokens on problems that need far fewer, and a length term in the reward of group relative policy optimization (GRPO) is a natural remedy. However, such rewards often end in reward collapse, where outputs shrink until accuracy falls. To find out why, we analyze GRPO's group normalization. Whenever a prompt's completions share one outcome, the normalization stretches even a very small length term into a <span class="nw">full-strength</span> learning signal. Experiments on a <span class="nw">1.7B</span> reasoning model are consistent with this: with a fixed bonus for correct completions, penalizing short incorrect completions does not prevent collapse at any tested weight, and dropping the penalty is not enough, since the bonus alone compresses outputs. Building on this diagnosis, we propose ACOER (Adaptive <span class="nw">Correct-Only</span> Efficiency Reward), which pays a length bonus only for correct completions, sets the budget from the policy's own correct outputs, and adapts the bonus weight to the accuracy trend. ACOER trains stably where the <span class="nw">length-reward</span> baselines collapse, cutting the tokens generated on <span class="nw">MATH-500</span> by more than half at accuracy on par with the base model. Code is available at <a href="https://github.com/js-lee-AI/ACOER" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>ACOER</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="design">
+      <div class="wrap">
+        <h2>Reward Design Space and Experimental Setup</h2>
+        <div class="prose">
+          <p>Length rewards are compared in one form, a generalized reward that treats correct and incorrect completions separately:</p>
+          <p class="formula">\[\begin{aligned} r &amp;= c + c \cdot \alpha \cdot f(\ell) \\ &amp;\quad - (1 - c) \cdot \beta \cdot f(\ell) + r_{\text{format}} \end{aligned}\]</p>
+          <p>Here \(c \in \{0, 1\}\) indicates whether the final answer is correct, \(\ell\) is the number of generated reasoning tokens, and \(f(\ell) = 1 - \ell/L\) decays linearly up to the maximum token limit \(L\). The weight \(\alpha \geq 0\) scales the length bonus reserved for correct answers, and \(\beta \geq 0\) scales a penalty on incorrect answers that is largest for the shortest ones. The format reward \(r_{\text{format}}\) equals 1 when the completion contains valid <code>&lt;think&gt;</code> and <code>\boxed{}</code> tags and 0 otherwise. Setting \(\beta = 0\) yields a <span class="nw">correct-only</span> reward, whereas \(\beta &gt; 0\) puts a length signal on both outcomes.</p>
+        </div>
+        <div class="split stack">
+          <div class="prose">
+            <p>The table lists the reward of each baseline and ablation, grouped by whether the length signal, if any, acts only on correct answers or on incorrect answers as well. <span class="nw">GRPO-acc</span> is the reference without any length signal and rewards correctness alone. <span class="nw">GRPO-LEAD</span> applies its length term to correct answers only: a correct completion earns a reward that decays with its length, and an incorrect one a fixed penalty. GRPO+LP subtracts a penalty proportional to the length from every completion, and ReCUT gives an output of \(|Y|\) tokens a reward of \(1/|Y|\) if it is correct and \(-1/|Y|\) if it is not, so both also act on incorrect answers.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Reward configurations table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Method</th><th class="l" scope="col">Reward \(r\)</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="group"><th colspan="2" scope="rowgroup"><span>Correct-only</span></th></tr>
+                  <tr><th class="l stick" scope="row">GRPO-acc</th><td class="l">\(c\)</td></tr>
+                  <tr><th class="l stick" scope="row">\(\beta = 0\)</th><td class="l">\(c + 0.3\,c\,(1 - \ell/L)\)</td></tr>
+                  <tr><th class="l stick" scope="row">GRPO-LEAD</th><td class="l">\(e^{-\ell/L}\) if correct, \(-1\) if incorrect</td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="2" scope="rowgroup"><span>Length signal on incorrect answers</span></th></tr>
+                  <tr><th class="l stick" scope="row">\(\beta &gt; 0\)</th><td class="l">\(c + 0.3\,c\,(1 - \ell/L) - \beta\,(1 - c)(1 - \ell/L)\)</td></tr>
+                  <tr><th class="l stick" scope="row">GRPO+LP</th><td class="l">\(c - 0.3\,\ell/L\)</td></tr>
+                  <tr><th class="l stick" scope="row">ReCUT</th><td class="l">\(1/|Y|\) if correct, \(-1/|Y|\) if incorrect</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">Reward of each baseline and ablation as implemented here, with the format reward omitted. \(L\) is the maximum token limit, \(|Y|\) the number of output tokens, \(\beta \in \{0.01, 0.05, 0.10\}\), acc denotes accuracy only, and LP denotes length penalty.</p>
+          </div>
+        </div>
+        <div class="prose">
+          <p>All configurations are trained under identical conditions and differ only in their reward. <span class="nw">Qwen3-1.7B</span>, a reasoning model that writes its reasoning between <code>&lt;think&gt;</code> and <code>&lt;/think&gt;</code> tags, is trained with GRPO and <span class="nw">low-rank</span> adaptation on the training splits of MATH and GSM8K, which together contain 14,973 English mathematical problems. For each prompt, the policy samples \(G = 16\) completions of at most 8,192 tokens, and every run lasts 1,200 steps. The primary benchmark is <span class="nw">MATH-500</span>, and three harder benchmarks test transfer: <span class="nw">MATH-Hard</span>, AIME 2025, and OlympiadBench. At evaluation, generation is limited to 16,384 new tokens, twice the training limit, and the mean number of generated tokens counts both the reasoning and the final response.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="collapse">
+      <div class="wrap">
+        <h2>Diagnosing Reward Collapse</h2>
+        <div class="prose">
+          <p>A run is called collapsed when its <span class="nw">MATH-500</span> accuracy drops by more than five points between two consecutive evaluations, taken every 200 training steps, and never returns to within five points of the level before the drop. The first such evaluation marks the collapse onset, and a run that never meets this condition is called stable.</p>
+          <p>The sweep varies the <span class="nw">incorrect-answer</span> weight over \(\beta = 0\), \(0.01\), \(0.05\), and \(0.10\), with the <span class="nw">correct-answer</span> bonus fixed at \(\alpha = 0.3\). Every run with \(\beta &gt; 0\) collapses, from the smallest weight, thirty times below \(\alpha\), to the largest. Penalizing short incorrect answers therefore does not prevent collapse at any tested weight.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/sweep.webp" data-zoom>
+            <img src="assets/sweep.webp" width="2000" height="715" loading="lazy" alt="Two line charts over training steps 200 to 1,200 for beta = 0 with seeds 42 and 43, beta = 0.01, beta = 0.05 and beta = 0.10, with a dotted line for the base model. Left, MATH-500 accuracy: all runs start between about 86 and 89 percent. The beta = 0, seed 42 run stays between about 84 and 89 percent, while the other four runs drop to between about 56 and 68 percent, with rings at their collapse onsets: step 600 for seed 43 and beta = 0.01, step 800 for beta = 0.05 and step 1,000 for beta = 0.10. Right, mean generated tokens: the base model is at about 5.5K, all runs start between about 4.7K and 5.1K and decline, to about 2.3K for beta = 0, seed 42 and to between about 0.6K and 1.5K for the others.">
+          </a>
+          <figcaption class="long">Accuracy and mean generated tokens on <span class="nw">MATH-500</span> during training for different <span class="nw">incorrect-answer</span> weights \(\beta\) with \(\alpha = 0.3\). Rings mark the collapse onset, and the dotted line shows the base model.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The completions sampled during training shrink in the <span class="nw">length-reward</span> baselines and in the four sweep runs shown. The mean length of these completions, averaged over windows of 50 steps, falls from between 2,300 and 2,800 tokens at step 100 to between 200 and 500 tokens at step 1,200, whereas <span class="nw">GRPO-acc</span> ends near 2,000 tokens. In the sweep, the decline begins within the first few hundred steps for every \(\beta\), including \(\beta = 0\), well before the <span class="nw">MATH-500</span> accuracy drops.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/lengths.webp" data-zoom>
+            <img src="assets/lengths.webp" width="2000" height="480" loading="lazy" alt="Two line charts of the mean length of training completions over training steps 0 to 1,200. Left: GRPO-acc stays between about 2K and 2.8K tokens and ends near 2K, while GRPO+LP, GRPO-LEAD and ReCUT fall from about 2.7K tokens to a few hundred. Right: the beta = 0, 0.01, 0.05 and 0.10 runs all fall from about 2.7K tokens to a few hundred by step 1,200, while GRPO-acc, dotted, stays near 2K to 2.5K.">
+          </a>
+          <figcaption class="long">Mean length of the completions sampled on training prompts, averaged over 50 steps, for <span class="nw">GRPO-acc</span> and the <span class="nw">length-reward</span> baselines on the left and for the \(\beta\) sweep with \(\alpha = 0.3\) on the right.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Setting \(\beta = 0\) does not remove the problem. One seed collapses at step 600 although its reward contains no length term on incorrect completions. The other does not collapse within 1,200 steps and cuts the tokens on <span class="nw">MATH-500</span> by more than half, yet it ends below the base model on all four benchmarks, by 20.0 points on AIME 2025 and 22.1 on OlympiadBench, a loss about as large as in the collapsed runs. A <span class="nw">correct-only</span> reward with a fixed bonus therefore does not guarantee stability.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="mechanism">
+      <div class="wrap">
+        <h2>Why a Small Length Term Can Matter</h2>
+        <div class="prose">
+          <p>GRPO samples a group of \(G\) completions for a prompt and computes the advantage of each completion from the <span class="nw">group-normalized</span> rewards:</p>
+          <p class="formula">\[\hat{A}_i = \frac{r_i - \text{mean}(\{r_j\}_{j=1}^G)}{\text{std}(\{r_j\}_{j=1}^G)}\]</p>
+          <p>Consider a prompt whose sampled completions all have the same correctness and the same format validity, so that \(c\) and \(r_{\text{format}}\) are constant within the group. The generalized reward then reduces to \(r_i = a + w\,f(\ell_i)\), where \(a\) collects the constant terms, \(w = \alpha\) if all completions are correct, and \(w = -\beta\) if all are incorrect. The length term is now the only source of variation in the group, and the normalization removes its scale.</p>
+        </div>
+        <div class="steps">
+          <div class="step full">
+            <span class="step-label">Proposition 1</span>
+            <h3>Scale invariance within a group of equal outcomes</h3>
+            <p>Let \(r_i = a + w\,f(\ell_i)\) for \(i = 1, \ldots, G\) with \(w \neq 0\), and let the values \(f(\ell_i)\) not all be equal. Then</p>
+            <p class="formula">\[\hat{A}_i = \mathrm{sign}(w)\,\frac{f(\ell_i) - \bar{f}}{s_f}\]</p>
+            <p>where \(\bar{f}\) and \(s_f\) are the mean and the standard deviation of \(f(\ell_1), \ldots, f(\ell_G)\). In particular, \(\hat{A}_i\) does not depend on \(|w|\).</p>
+            <p>As an illustration, consider a group of four correct completions with 1,000, 2,000, 3,000, and 4,000 tokens and \(L = 8{,}192\), and let the denominator be the sample standard deviation plus \(10^{-4}\) as in TRL. A weight of \(w = 0.3\), the value of \(\alpha\) in the sweep, gives the advantages +1.16, +0.39, −0.39, and −1.16. A weight of \(w = 0.01\) makes the reward differences thirty times smaller, yet leaves the advantages almost unchanged at +1.09, +0.36, −0.36, and −1.09. A weight of exactly zero silences the group, because all rewards are then equal and the group contributes no policy gradient.</p>
+          </div>
+          <div class="step incorrect">
+            <span class="step-label">Pathway 1</span>
+            <h3>Length terms on incorrect completions</h3>
+            <p>When all completions of a prompt are incorrect and equally well formatted, a reward without a length term is constant and the group is ignored. With \(\beta &gt; 0\), the same group instead delivers advantages as large as in any other group, and they carry no information about correctness, even for a very small \(\beta\).</p>
+            <p>Such groups arise on hard prompts, and the form of the term sets the direction of their gradient. The penalties of the generalized reward and of ReCUT are largest for short incorrect completions and push the policy toward longer outputs on these prompts, whereas the penalty of GRPO+LP grows with length and pushes it toward shorter ones. In either direction, the policy moves along the length term without any check from accuracy.</p>
+          </div>
+          <div class="step correct">
+            <span class="step-label">Pathway 2</span>
+            <h3>Compression of correct answers</h3>
+            <p>The same argument applies to prompts whose completions are all correct. Such prompts arise on easy problems, and they become more frequent as the policy improves. In these groups the bonus \(\alpha f(\ell)\) is the only varying term, and a <span class="nw">correct-only</span> reward still delivers a <span class="nw">full-strength</span> push toward shorter answers.</p>
+            <p>Nothing in the group signals when answers become too short, and the compression can continue until accuracy drops on harder prompts. The bonus is shared by every run of the sweep and is the only length term of the generalized reward that rewards shorter outputs. This is consistent with the shrinking training lengths of every sweep run and with the collapse of one \(\beta = 0\) seed.</p>
+          </div>
+        </div>
+        <div class="prose">
+          <p>Suppose the policy solves a prompt with probability \(p\) and its \(G = 16\) samples are independent. For \(p = 0.95\) an entirely correct group occurs with probability \(0.95^{16} \approx 0.44\), for \(p = 0.9\) with probability \(0.9^{16} \approx 0.19\), and a prompt solved with probability 0.05 or 0.1 yields entirely incorrect groups with the same probabilities. Because prompts differ in difficulty, such groups can be frequent even when the average accuracy is moderate.</p>
+          <p>Both pathways call for design choices beyond tuning a fixed weight. With the standard normalization kept, a reward should carry no length term for incorrect completions, and its bonus for correct completions should stay tied to the current lengths of the policy and to its accuracy.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="method">
+      <div class="wrap">
+        <h2>ACOER: Adaptive <span class="nw">Correct-Only</span> Efficiency Reward</h2>
+        <div class="prose">
+          <p>ACOER changes only the reward in the GRPO loop and meets these requirements with three mechanisms. At optimization step \(t\), the reward of a completion \(y\) with \(\ell\) reasoning tokens is</p>
+          <p class="formula">\[r(y) = c\,\bigl(1 + \alpha_t\, g(\min\{\ell / B_t,\, 1\})\bigr) + r_{\text{format}}\]</p>
+          <p>where \(c\) indicates correctness, and \(g(x) = \log(1 + k(1 - x)) / \log(1 + k)\) with \(k = 5\) falls from 1 at \(x = 0\) to 0 at \(x = 1\) and flattens for very short answers, so that further shortening earns a diminishing reward. The absence of a length term for incorrect completions, the budget \(B_t\), and the weight \(\alpha_t\) correspond to the three mechanisms.</p>
+        </div>
+        <ol class="steps cols-3">
+          <li class="step correct">
+            <span class="step-label">Mechanism 1</span>
+            <h3>Correct-only signal</h3>
+            <p>A <span class="nw">correct-only</span> signal pays a length bonus only for correct completions, and groups of incorrect completions are again ignored.</p>
+            <p>ACOER sets \(\beta = 0\), so incorrect completions carry no length term. A group in which all completions are incorrect and equally well formatted then has constant rewards and no policy gradient, which removes Pathway&nbsp;1 and keeps the length bonus for correct solutions.</p>
+          </li>
+          <li class="step adaptive">
+            <span class="step-label">Mechanism 2</span>
+            <h3>Adaptive budget</h3>
+            <p>With the fixed limit \(L\), two short completions differ in \(f(\ell)\) by only \(\Delta\ell / L\). ACOER instead measures length against a budget</p>
+            <p class="formula">\[B_t = \max(B_{\min},\, \gamma \cdot \text{EMA}_t)\]</p>
+            <p>where \(\text{EMA}_t\) is an exponential moving average of the lengths of correct completions, \(\gamma = 0.85\), and the floor \(B_{\min}\) is 512 tokens. A completion is thus rewarded for being shorter than the recent correct answers of the policy itself.</p>
+          </li>
+          <li class="step adaptive">
+            <span class="step-label">Mechanism 3</span>
+            <h3>Control-loop bonus</h3>
+            <p>In groups that mix correct and incorrect completions, a bonus that is too strong trades accuracy for brevity. A control loop therefore adapts \(\alpha_t\) to the accuracy trend:</p>
+            <p class="formula">\[\begin{aligned} \alpha_{t+1} &amp;= \min\bigl(\alpha_{\max},\\ &amp;\qquad \max(\alpha_{\min},\, m_t\,\alpha_t)\bigr) \end{aligned}\]</p>
+            <p>where \(m_t\) is \(\alpha_{\text{up}} = 1.02\) if \(\Delta\text{acc} \geq -\delta\) and \(\alpha_{\text{down}} = 0.95\) otherwise, \(\Delta\text{acc}\) is the change in <span class="nw">moving-average</span> accuracy over a <span class="nw">100-step</span> window, and \(\delta = 0.02\). The weight thus falls faster than it rises.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The loop starts from a small weight \(\alpha_0 = 0.02\) and, after a warmup of 200 steps, adapts it together with the budget. In groups of only correct completions, Proposition&nbsp;1 shows that \(\alpha_t\) merely rescales the rewards, and the signal there is shaped by the budget of Mechanism&nbsp;2. ACOER thus removes Pathway&nbsp;1 and confines Pathway&nbsp;2 to groups that contain a completion below the budget, while \(\alpha_t\) moderates the bonus in mixed groups.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <h2>Main Results</h2>
+        <div class="prose">
+          <p>The table reports accuracy and mean generated tokens of the trained <span class="nw">Qwen3-1.7B</span> models on all four benchmarks. ACOER is shown at its final step without checkpoint selection. Methods that collapse appear twice, at step 1,200 and at their best checkpoint before the collapse, and <span class="nw">GRPO-acc</span> is shown at its best checkpoint, a choice that favors the baselines in accuracy. The fixed <span class="nw">correct-only</span> reward is shown for the seed that does not collapse.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Main results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method</th><th rowspan="2" scope="col">Step</th><th class="grp" colspan="2" scope="col"><span>MATH-500</span></th><th class="grp" colspan="2" scope="col"><span>MATH-Hard</span></th><th class="grp" colspan="2" scope="col"><span>AIME 2025</span></th><th class="grp" colspan="2" scope="col"><span>OlympiadBench</span></th></tr>
+                <tr><th scope="col">Acc&nbsp;↑</th><th scope="col">Tokens&nbsp;↓</th><th scope="col">Acc&nbsp;↑</th><th scope="col">Tokens&nbsp;↓</th><th scope="col">Acc&nbsp;↑</th><th scope="col">Tokens&nbsp;↓</th><th scope="col">Acc&nbsp;↑</th><th scope="col">Tokens&nbsp;↓</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Base</th><td>0</td><td>88.8</td><td>5,553</td><td>76.4</td><td>7,958</td><td>30.0</td><td>13,298</td><td>55.3</td><td>9,579</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Stable</span></th></tr>
+                <tr><th class="l stick" scope="row">GRPO-acc</th><td>1,000</td><td><b>88.8</b></td><td>4,091<span class="delta muted">(−26%)</span></td><td>77.6</td><td>6,277<span class="delta muted">(−21%)</span></td><td><u>33.3</u></td><td>11,836<span class="delta muted">(−11%)</span></td><td><u>56.2</u></td><td>7,982<span class="delta muted">(−17%)</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">ACOER (ours)</th><td>1,200</td><td><u>88.4</u></td><td><b>2,134</b><span class="delta muted">(−62%)</span></td><td><b>78.1</b></td><td><b>3,509</b><span class="delta muted">(−56%)</span></td><td><b>36.7</b></td><td><b>8,922</b><span class="delta muted">(−33%)</span></td><td>55.3</td><td><b>5,177</b><span class="delta muted">(−46%)</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Fixed correct-only reward</span></th></tr>
+                <tr><th class="l stick" scope="row">\(\beta = 0\) (seed 42)</th><td>1,200</td><td>84.4</td><td>2,255<span class="delta muted">(−59%)</span></td><td>70.9</td><td>4,149<span class="delta muted">(−48%)</span></td><td>10.0</td><td>8,191<span class="delta muted">(−38%)</span></td><td>33.2</td><td>4,767<span class="delta muted">(−50%)</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Collapsed</span></th></tr>
+                <tr><th class="l stick" rowspan="2" scope="row">GRPO+LP</th><td>1,200</td><td>68.0</td><td>561<span class="delta muted">(−90%)</span></td><td>40.2</td><td>965<span class="delta muted">(−88%)</span></td><td>0.0</td><td>1,810<span class="delta muted">(−86%)</span></td><td>32.5</td><td>1,222<span class="delta muted">(−87%)</span></td></tr>
+                <tr><td>400</td><td>86.8</td><td>3,279<span class="delta muted">(−41%)</span></td><td>77.8</td><td>5,186<span class="delta muted">(−35%)</span></td><td>30.0</td><td>11,643<span class="delta muted">(−12%)</span></td><td>54.2</td><td>7,150<span class="delta muted">(−25%)</span></td></tr>
+                <tr class="sep"><th class="l stick" rowspan="2" scope="row">GRPO-LEAD</th><td>1,200</td><td>55.8</td><td>1,005<span class="delta muted">(−82%)</span></td><td>36.1</td><td>1,716<span class="delta muted">(−78%)</span></td><td>10.0</td><td>4,594<span class="delta muted">(−65%)</span></td><td>30.1</td><td>2,358<span class="delta muted">(−75%)</span></td></tr>
+                <tr><td>200</td><td><b>88.8</b></td><td>4,718<span class="delta muted">(−15%)</span></td><td><u>77.9</u></td><td>7,110<span class="delta muted">(−11%)</span></td><td>20.0</td><td>13,396<span class="delta muted">(+1%)</span></td><td><b>56.4</b></td><td>8,780<span class="delta muted">(−8%)</span></td></tr>
+                <tr class="sep"><th class="l stick" rowspan="2" scope="row">ReCUT</th><td>1,200</td><td>65.6</td><td>943<span class="delta muted">(−83%)</span></td><td>46.8</td><td>1,859<span class="delta muted">(−77%)</span></td><td>10.0</td><td>4,853<span class="delta muted">(−64%)</span></td><td>31.3</td><td>2,401<span class="delta muted">(−75%)</span></td></tr>
+                <tr><td>400</td><td>87.6</td><td><u>2,487</u><span class="delta muted">(−55%)</span></td><td>73.6</td><td><u>4,191</u><span class="delta muted">(−47%)</span></td><td>30.0</td><td><u>9,933</u><span class="delta muted">(−25%)</span></td><td>55.0</td><td><u>5,888</u><span class="delta muted">(−39%)</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Accuracy (Acc, %) and mean generated tokens on four benchmarks, with the token change relative to Base. Bold and underline mark the best and second best values, excluding Base, the fixed <span class="nw">correct-only</span> row, and the collapsed <span class="nw">step-1,200</span> rows.</p>
+        </div>
+        <div class="prose">
+          <p>ACOER removes more than half of the generated tokens on <span class="nw">MATH-500</span> and keeps accuracy on par with the base model on all four benchmarks, with differences of −0.4, +1.7, +6.7, and 0.0 points. The relative savings fall from <span class="nw">MATH-500</span> through <span class="nw">MATH-Hard</span> and OlympiadBench to AIME 2025, the order in which the accuracy of the base model falls. The same trend holds across the five difficulty levels of <span class="nw">MATH-500</span>, where the token reduction goes from 79 percent on the easiest level to 53 percent on the hardest. ACOER thus shortens reasoning most where the base model needs it least, consistent with the shared budget of Mechanism&nbsp;2. The <span class="nw">GRPO-acc</span> row keeps accuracy as well but removes a much smaller share of the tokens, since its reward contains no explicit length term.</p>
+          <p>The \(\beta = 0\) seed shown keeps the <span class="nw">correct-only</span> signal of ACOER, but its bonus is linear in length, with a fixed length scale and a fixed weight. It compresses outputs by a similar amount yet ends below ACOER on all four benchmarks, by 26.7 points on AIME 2025 and 22.1 on OlympiadBench. Together with the collapse of its second seed, this shows that a <span class="nw">correct-only</span> signal with a fixed bonus is not enough.</p>
+          <p>GRPO+LP, <span class="nw">GRPO-LEAD</span>, and ReCUT stay close to the base model on <span class="nw">MATH-500</span> at their best early checkpoint, but at step 1,200 they generate the fewest tokens and fall far below the base model on every benchmark. GRPO+LP and ReCUT put a length signal on incorrect answers as well and are exposed to both pathways. <span class="nw">GRPO-LEAD</span> collapses although its length signal acts only on correct answers, in line with Pathway&nbsp;2. <span class="nw">GRPO-acc</span>, which has no explicit length term, is the only baseline that stays stable.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="plane">
+      <div class="wrap">
+        <h2>Base-Level Accuracy at Short Outputs</h2>
+        <div class="split">
+          <div class="prose">
+            <p>The figure places the checkpoints of the \(\beta\) sweep and the rows of the main table on the plane of accuracy and mean generated tokens. For the fixed rewards, accuracy stays within five points of the base model down to about 2,000 tokens and then falls steeply.</p>
+            <p>ACOER reaches 2,134 tokens with an accuracy within half a point of the base model, and every other plotted checkpoint with fewer tokens lies at least five points below the base model.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/plane.webp" data-zoom>
+              <img src="assets/plane.webp" width="1200" height="928" loading="lazy" alt="MATH-500 accuracy against mean generated tokens. A grey band marks one point around the base model, drawn as a star at about 5.5K tokens and 89 percent. The five beta runs start at the base model and move left as training proceeds: they stay within a few points of the base model down to about 2K tokens and then fall steeply, with rings at their collapse onsets, ending below 70 percent at 0.6K to 1.5K tokens, except the beta = 0, seed 42 run, which ends at about 84 percent and 2.3K tokens. The ACOER cross sits inside the band at about 2.1K tokens. Hollow markers for the best checkpoints of GRPO-acc, GRPO+LP, GRPO-LEAD and ReCUT lie near the band between about 2.5K and 4.7K tokens, and filled markers for GRPO+LP, GRPO-LEAD and ReCUT at step 1,200 lie between about 56 and 68 percent at 0.6K to 1K tokens.">
+            </a>
+            <figcaption class="long">Accuracy and mean generated tokens on <span class="nw">MATH-500</span>. Lines join the checkpoints of each \(\beta\) run in training order, rings mark collapse onsets, and the band lies within one point of the base model. Hollow baseline markers show the best checkpoint, filled ones step 1,200.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026acoer,
+  title = {Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards},
+  author = {Jungseob Lee and Seungyoon Lee and Seongtae Hong and Minhyuk Kim and Chanjun Park and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2606.22716},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2606.22716},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>
