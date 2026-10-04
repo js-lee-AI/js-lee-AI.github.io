@@ -30,10 +30,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
   <link rel="stylesheet" href="../assets/project/page.css">
   <style>
-    /* The navy that marks GLANCE in the paper's plots and the purple of the
-       frozen target in the overview figure. The two method cards take the same
-       pair, navy for the draft pass of the block head and purple for the verify
-       pass of the target. */
+    /* The navy that marks GLANCE in the paper's plots and figures and the
+       purple of its plots. The two method cards take the same pair, navy for
+       the draft pass of the block head and purple for the verify pass of the
+       target. */
     :root { --accent-a: #1f4e79; --accent-b: #826ac4; }
     .s1 { --step: #1f4e79; --step-ink: #1f4e79; }
     .s2 { --step: #826ac4; --step-ink: #5f49a6; }
@@ -124,8 +124,8 @@
       <div class="wrap">
         <p class="tldr">GLANCE drafts a whole block in one forward pass over the target's already fused <span class="nw">vision-language</span> states, and the target commits exactly its greedy output.</p>
         <figure class="fig">
-          <a class="plate" href="assets/overview.webp" data-zoom>
-            <img src="assets/overview.webp" width="2400" height="964" alt="Two-panel diagram of GLANCE. In the top panel, a document image with the prompt, total amount of other expenses?, enters the frozen target Qwen3-VL-8B, drawn as 36 decoder layers with layers 1, 9, 17, 25, and 33 highlighted. These layers yield a stack of fused hidden states, marked never raw visual tokens, which feeds the block head. The bottom panel shows one decoding round in three numbered parts. In the block draft, the one-pass block head (1.05B) fills a row of masked positions with The, total, amount, of, other in 1 draft pass. In the wide tree, a prefix-closed tree of budget N grows from the root b into The and A, with children total, sum, total, and value. In verify and commit, one ancestor-masked target pass accepts the path b, The, total and marks the other nodes as not accepted, and the round commits The, total, and a bonus token as the target greedy output (lossless).">
+          <a class="plate" href="assets/framework.webp" data-zoom>
+            <img src="assets/framework.webp" width="2400" height="962" alt="Two-part diagram of GLANCE. In the top part, a budget request summary page with row 4, Other Expense, outlined passes through a vision encoder into the frozen VLM target, and a dashed path for raw visual tokens that bypasses the target is crossed out. The prompt, total amount of other expenses?, also enters the target. The target is drawn as a row of decoder layers, five of which are highlighted, and their outputs form a stack of fused states that feeds the trained block head. The bottom part shows one decoding round in three numbered steps. In 1, block draft, the root b is followed by the tokens The, total, amount, of, other, each with a small bar chart of scores, all produced in one pass. In 2, candidate tree, a tree of budget N grows from b into The and A, with children total and sum under The and total and value under A. In 3, verify and commit, one target pass with an ancestor mask accepts the path b, The, total and crosses out the other nodes, and the round commits The and total followed by a new root, which equals the target greedy output. An arrow labeled next round returns to the block draft.">
           </a>
           <figcaption>Overview of GLANCE. The block head (top) reads the frozen target's fused <span class="nw">vision-language</span> states at five layers, never raw visual tokens. In one round (bottom), one draft pass fills the block, the top prefixes form a candidate tree, and one target pass verifies it.</figcaption>
         </figure>
@@ -160,12 +160,12 @@
             <h3>Wide-tree verification</h3>
             <p>A candidate tree \(S\) is a prefix-closed set of nonempty strings after the root \(b\), of depth at most \(L\) and budget \(N = |S|\). The tree builder keeps the \(N\) prefixes with the highest plug-in score, and the tree is packed into one ancestor-masked target pass, in which the row of a <span class="nw">depth-\(d\)</span> node \(y_{1:d}\) yields exactly the target's distribution \(p(\cdot \mid x \circ b \circ y_{1:d})\). With \(Y\) the target's greedy continuation, the accepted length is</p>
             <p class="formula fit">\[A(S) = \max\{k \ge 0 : Y_{1:j} \in S \ \text{for all } j \le k\}\]</p>
-            <p>The walk commits \(Y_{1:A(S)}\) and emits the next target-greedy token from the last verified row as the new root. A weak head can only shorten the accepted prefixes, and no fallback path is needed, because every committed token is the argmax of a target row. Growing \(N\) adds verifier work inside that single pass but no draft passes. The experiments use \(N = 63\) in the Hugging Face implementation and a <span class="nw">31-node</span> tree in the production engine, where together with the root GLANCE verifies the same 32 draft tokens a round as the production head.</p>
+            <p>The walk commits \(Y_{1:A(S)}\) and emits the next target-greedy token from the last verified row as the new root. A weak head can only shorten the accepted prefixes, and no fallback path is needed, because every committed token is the argmax of a target row. Growing \(N\) adds verifier work inside that single pass but no draft passes. The experiments use \(N = 63\), or a <span class="nw">31-node</span> tree that together with the root matches the production head's budget of 32 draft tokens a round.</p>
           </li>
         </ol>
         <div class="prose">
           <p>Assume the target's argmax is unique at every visited prefix and its <span class="nw">top-2</span> logit gap there exceeds the numerical difference between packed and unpacked evaluation. Then, for any candidate tree, the walk commits exactly the target's greedy autoregressive sequence, token for token (Theorem&nbsp;1 of the paper, stated informally).</p>
-          <p>In fp32, GLANCE is bitwise identical to greedy decoding on all 60 audited prompts. In bf16, the target does not reproduce its own greedy output across two runs even without any drafter, because kernel choice perturbs near-ties, and GLANCE reproduces that output at least as often as a second run of the target does. The exactness guarantee concerns greedy decoding. Under sampling, every committed token is a draw from the target's own distribution, and the output distribution is preserved while byte identity is not defined.</p>
+          <p>In fp32, GLANCE is bitwise identical to greedy decoding on all 60 audited prompts. In bf16, the target does not reproduce its own greedy output across two runs even without any drafter, because kernel choice perturbs near-ties, and GLANCE reproduces that output at least as often as a second run of the target does. The exactness guarantee concerns greedy decoding. Under sampling, every committed token is a draw from the target's own distribution, and the output distribution is preserved, while bitwise identity no longer applies.</p>
           <p>Only the block head is trained, while the vision tower and the target stay frozen. The training rows are the target's own greedy generations on 8,000 <span class="nw">COCO-Caption2017</span> and 8,000 TextVQA prompts. The head is initialized from a released text-only block head for <span class="nw">Qwen3-8B</span> and trained for one epoch on one GPU. The recipe contains no document, infographic, or chart data.</p>
         </div>
       </div>
@@ -176,14 +176,14 @@
         <h2>An Entropy Law of Draftability</h2>
         <div class="split">
           <div class="prose">
-            <p>Which workloads does a one-pass drafter serve best? The paper answers with one scalar, the target's next-token entropy \(H\) at the round root. The matches along a block are modeled as a survival process with a single match probability \(p_{\mathrm{m}}(H)\) that varies slowly with the offset. Taking the match logit to be affine in the entropy gives</p>
+            <p>The paper characterizes how draftable a workload is with one scalar, the target's next-token entropy \(H\) at the round root. The matches along a block are modeled as a survival process with a single match probability \(p_{\mathrm{m}}(H)\) that varies slowly with the offset. Taking the match logit to be affine in the entropy gives</p>
             <p class="formula">\[\begin{aligned}\operatorname{logit} p_{\mathrm{m}}(H) &amp;= b_0 - b_1 H,\\ \mathbb{E}[a \mid H] &amp;\approx \sum_{\ell=1}^{L} p_{\mathrm{m}}^{\ell} = \frac{p_{\mathrm{m}}\,(1 - p_{\mathrm{m}}^{L})}{1 - p_{\mathrm{m}}}\end{aligned}\]</p>
-            <p>with block horizon \(L = 15\), where \(a\) is the accepted length. Here \(b_0\) is the zero-entropy intercept and \(b_1 &gt; 0\) the entropy slope, both fitted on each task's round log.</p>
+            <p>with block horizon \(L = 15\), where \(a\) is the accepted length. Here \(b_0\) is the zero-entropy intercept and \(b_1 &gt; 0\) the entropy slope, both fitted on the accepted lengths of each task's rounds with a <span class="nw">31-node</span> tree.</p>
             <p>Two predictions follow. First, \(\mathbb{E}[a \mid H]\) strictly decreases in \(H\), hence any workload that systematically lowers the target's entropy yields longer accepted blocks. Grounded generation is such a workload, because it copies determinate strings such as glyphs, numbers, and answer spans from the image. Second, the law has a ceiling that grounded generation breaks.</p>
           </div>
           <figure class="fig">
-            <a class="plate" href="assets/draftability.webp" data-zoom>
-              <img src="assets/draftability.webp" width="1400" height="1383" loading="lazy" alt="Two examples placed on a next-token entropy scale that runs from low at the top to high at the bottom. The top example, document reading with low entropy, shows a budget request summary whose row 4, Other Expense, 975.00, is highlighted, the question total amount of other expenses?, and eight drafted tokens, The total amount of other expenses is $975.00, all accepted, with the note that one draft pass commits the entire block. The bottom example, open captioning with high entropy, shows a photograph of a seaplane on a lake in front of hills, the question describe the image., and the drafted tokens A plane floating over the ocean at sunset, of which only the first three are accepted, with the note that the same pass commits only a short prefix.">
+            <a class="plate" href="assets/entropy.webp" data-zoom>
+              <img src="assets/entropy.webp" width="1600" height="1245" loading="lazy" alt="Two examples. Under document reading, marked low entropy, a budget request summary page with row 4, Other Expense, $975.00, outlined, the question total amount of other expenses?, and the drafted tokens The total amount of other expenses is $975.00, all marked committed. Under open captioning, marked high entropy, a photograph of a seaplane on calm water in front of hills, the question describe the image., the committed tokens A seaplane floats, and three possible continuations, on calm water, near soft hills, and in a quiet bay.">
             </a>
             <figcaption>Draftability of grounded and open generation. On a document (top), the image pins the answer, entropy is low, and one draft pass commits the entire block. Open captioning (bottom) admits many continuations, entropy is high, and the same pass commits only a short prefix.</figcaption>
           </figure>
@@ -199,7 +199,7 @@
         <h2>Head-to-Head in a Production Engine</h2>
         <div class="prose">
           <p>The target is <span class="nw">Qwen3-VL-8B-Instruct</span>, kept frozen. Five tasks are ordered from open-ended to grounded, namely COCO captioning, TextVQA, InfographicVQA (InfoVQA), DocVQA, and ChartQA. The last three, whose answers are read off a document or chart, are the grounded tasks, and they are the three tasks of lowest mean target entropy. Decoding is batch one and greedy, with up to 256 new tokens. Results are reported as the mean acceptance length \(\tau = \mathbb{E}[a] + 1\), so autoregressive (AR) decoding has \(\tau = 1\), and as wall-clock speedup, the ratio of the mean decode time for a token, autoregressive over speculative, with both arms measured in one engine on one GPU.</p>
-          <p>The table shows GLANCE and the production <span class="nw">EAGLE3-VL</span> head inside SGLang 0.5.6 on one RTX A6000 in bf16, with both CUDA-graph captured and both verifying a tree of 32 draft tokens a round, <span class="nw">EAGLE3-VL</span> its own <span class="nw">top-8</span> dynamic tree and GLANCE its prefix tree. Engine, GPU, and round budget are thus shared, and the one structural difference left is how the draft tokens are produced, in eight sequential passes by <span class="nw">EAGLE3-VL</span> and in one by GLANCE. This eight-pass tree decodes 18 to 33% faster than the released configuration of <span class="nw">EAGLE3-VL</span>, three passes over four draft tokens, on every task.</p>
+          <p>The table shows GLANCE and the production <span class="nw">EAGLE3-VL</span> head inside SGLang 0.5.6 on one RTX A6000 in bf16, with both CUDA-graph captured and both verifying a tree of 32 draft tokens a round, <span class="nw">EAGLE3-VL</span> its own <span class="nw">top-8</span> dynamic tree and GLANCE its prefix tree. Engine, GPU, and round budget are thus shared, and the draft tokens come from eight sequential passes in <span class="nw">EAGLE3-VL</span> and from one pass in GLANCE. This eight-pass tree decodes 18 to 33% faster than the released configuration of <span class="nw">EAGLE3-VL</span>, three passes over four draft tokens, on every task.</p>
         </div>
         <div class="table-block wide">
           <div class="table-wrap" role="region" aria-label="Production-engine comparison table" tabindex="0">
@@ -229,7 +229,7 @@
         </div>
         <div class="prose">
           <p>On the three lower-entropy tasks, GLANCE is the faster system by 10.6 to 11.0% and reaches 3.05× the speed of autoregressive decoding on ChartQA. Every paired bootstrap interval excludes zero, GLANCE is faster on at least 81 of the 101 prompts of each of these tasks, and it also leads on the five-task geometric mean, by 1.3% with a 95% interval from 0.3 to 2.2%. None of the three tasks appears in GLANCE's training data.</p>
-          <p>On captioning and TextVQA, the two tasks with the highest mean entropy \(\bar{H}\), the eight-pass head leads. The product-of-marginals ranking of the draft pass accounts for this split. It is accurate when the tokens of a block are nearly determined by the image, whereas on free-running text an autoregressive drafter stays coherent by construction. The production head's lead on these two tasks also comes from its training, on 400K <span class="nw">ALLaVA-4V</span> samples against 16K for GLANCE. With an <span class="nw">EAGLE-3</span> head and a GLANCE head trained on one corpus and run under the same tree, GLANCE is faster on all five tasks, by 4.5% on captioning, 14.9% on TextVQA, and 16.1 to 25.7% on the three grounded tasks.</p>
+          <p>On captioning and TextVQA, the two tasks with the highest mean entropy \(\bar{H}\), the eight-pass head leads. The product-of-marginals ranking of the draft pass accounts for this split. It is accurate when the tokens of a block are nearly determined by the image, whereas on free-running text an autoregressive drafter stays coherent by construction. With an <span class="nw">EAGLE-3</span> head and a GLANCE head trained on one corpus and run under the same tree, GLANCE is faster on all five tasks, by 4.5% on captioning, 14.9% on TextVQA, and 16.1 to 25.7% on the three grounded tasks.</p>
           <p>The measurements are at batch one, the regime in which decoding is bound by memory bandwidth and speculative decoding is deployed for latency. Serving at large batch sizes, which changes the cost of verification, is not measured.</p>
         </div>
       </div>
@@ -294,7 +294,7 @@
       <div class="wrap">
         <h2>Where the Acceptance Comes From</h2>
         <div class="prose">
-          <p>GLANCE's head has 2.6× the parameters of the <span class="nw">EAGLE3-VL</span> head, so a larger head might explain the gains. Panel&nbsp;(a) measures what the tree adds by running the identical head as a <span class="nw">width-1</span> chain. The <span class="nw">budget-63</span> tree accepts between 1.45 and 1.49× the chain's length on every task, a nearly constant factor, as the law anticipates. The tree also decodes 1.36× faster than the chain in wall-clock time, net of verifying a wider tree. In SGLang, a GLANCE round is 4 to 7% shorter than an <span class="nw">EAGLE3-VL</span> round on every task, so the larger head drafts all fifteen offsets in one pass for less than the small head pays for eight.</p>
+          <p>GLANCE's head has 2.6× the parameters of the <span class="nw">EAGLE3-VL</span> head, so a larger head might explain the gains. Panel&nbsp;(a) measures what the tree adds by running the identical head as a <span class="nw">width-1</span> chain. The <span class="nw">budget-63</span> tree accepts between 1.45 and 1.49× the chain's length on every task, a nearly constant factor, as the law anticipates. The tree also decodes 1.36× faster than the chain in wall-clock time, net of verifying a wider tree. Under the shared budget of the production-engine table, a GLANCE round is 4 to 7% shorter than an <span class="nw">EAGLE3-VL</span> round on every task, so the larger head drafts all fifteen offsets in one pass for less than the small head pays for eight.</p>
         </div>
         <figure class="fig">
           <a class="plate" href="assets/sources.webp" data-zoom>
@@ -313,7 +313,7 @@
       <div class="wrap">
         <h2>Testing the Entropy Law</h2>
         <div class="prose">
-          <p>Panel&nbsp;(a) shows GLANCE's accepted length falling with entropy on all five tasks, with grounded tasks accepting more at nearly every entropy level. Pooled over the 7,751 rounds of captioning, TextVQA, and DocVQA, the law has \(b_0 = 0.96\) and \(b_1 = 0.63\), and the slope steepens with grounding, from 0.46 on captioning to 1.71 on ChartQA. Isotonic fits explain at least 96% of the variance of the ten entropy-decile means on every task.</p>
+          <p>Panel&nbsp;(a) shows GLANCE's accepted length falling with entropy on all five tasks, with grounded tasks accepting more at nearly every entropy level. The first prediction of the law holds, since isotonic fits explain at least 96% of the variance of the ten entropy-decile means on every task. The fitted slope \(b_1\) steepens with grounding, from 0.46 on captioning to 1.71 on ChartQA.</p>
         </div>
         <figure class="fig">
           <a class="plate" href="assets/law.webp" data-zoom>
