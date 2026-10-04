@@ -1,0 +1,379 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recovering Off-Policy Supervision for Speculative Decoding</title>
+  <meta name="description" content="A rollout-based training framework for block drafters in speculative decoding. Anchor-Label Relabelling (ALR) replaces corpus labels with distributions from greedy target rollouts, and In-Rollout Anchors (IRA) place draft blocks inside these rollouts. Across fixed vision-language and text corpora, it increases greedy accepted length by up to 36.5% over DFlash. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/ALR-IRA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Recovering Off-Policy Supervision for Speculative Decoding">
+  <meta property="og:description" content="ALR replaces corpus labels with distributions from greedy target rollouts, and IRA places draft blocks inside these rollouts. Across fixed vision-language and text corpora, greedy accepted length increases by up to 36.5% over DFlash. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/ALR-IRA/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/ALR-IRA/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Recovering Off-Policy Supervision for Speculative Decoding">
+  <meta name="twitter:description" content="A rollout-based training framework for block drafters on fixed corpora: ALR relabels draft slots along greedy target rollouts, and IRA places draft blocks inside these rollouts.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/ALR-IRA/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The navy of ALR + IRA and the blue of ALR in the training-cost figure.
+       The two method cards take the same pair, ALR the blue and IRA the navy. */
+    :root { --accent-a: #2f5f98; --accent-b: #5b8fc7; }
+    .s1 { --step: #5b8fc7; --step-ink: #396ea7; }
+    .s2 { --step: #2f5f98; --step-ink: #2b578c; }
+    /* The proposed method keeps its tint, and bold is left to mark the best
+       value as in the paper's tables. */
+    .tbl tbody tr.ours > td { font-weight: 400; }
+    .tbl .own { background: var(--ours); }
+    /* The cost table and its plot sit side by side between two runs of prose,
+       and the pair keeps the gap that a single figure has there. On the
+       narrowest phones the table is wider than the column, so it may shrink
+       and scroll inside its frame. */
+    .prose + .split, .split + .prose { margin-top: 1.75rem; }
+    .split > * { min-width: 0; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">Recovering <span class="name"><span class="nw">Off-Policy</span> Supervision</span> for Speculative Decoding</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Chanjun Park<sup>2</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>3†</sup>,</span>
+          <span class="author">Hyeonseok Moon<sup>4†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Soongsil University</span>
+          <span><sup>3</sup>Yonsei University Mirae Campus</span>
+          <span><sup>4</sup>Sookmyung Women's University</span>
+        </p>
+        <p class="notes"><span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2609.38795" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2609.38795" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/ALR-IRA" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">Without modifying the training corpus, ALR relabels every slot of a draft block from greedy target rollouts and IRA places blocks inside those rollouts, recovering the supervision that erasing <span class="nw">off-policy</span> slots discards.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="1171" alt="Three rows that build the labels of a draft block from the same corpus prefix, x 1 to x a. (a) Erase: target features of the corpus prefix feed a draft block that holds the anchor x a and slots 1 to K. Each slot takes its label from the corpus token above it, and a gray wedge that thins toward the later slots stands for their shrinking weight. (b) ALR: the target continues the corpus prefix with a greedy rollout, y star 1 to y star K, and each rollout token labels the slot below it. (c) ALR + IRA: a primary block is labelled from the rollout as in ALR, and a secondary block outlined in blue is anchored on the rollout token y star j and reuses the rest of the rollout for its slots 1 to K minus j, followed by a gray tail.">
+          </a>
+          <figcaption class="long">Label construction from a fixed corpus. Amber and green denote corpus and target-rollout tokens, respectively. Purple cells are draft slots, and black downward arrows supply the target distributions predicting the tokens above them. Erase down-weights corpus-conditioned labels, whereas ALR uses rollout-conditioned labels. IRA retains the corpus context and reuses rollout features and labels in a secondary block without another target pass. Its gray tail is unsupervised.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Block drafters for speculative decoding are commonly trained on corpora written by external models, where a single off-policy token invalidates supervision for all subsequent slots in a block. Existing approaches discard these divergent slots, resulting in severe supervision loss. To resolve this problem while preserving the training corpus, we propose a rollout-based training framework that recovers full supervision through two complementary components. The first component, Anchor-Label Relabelling (ALR), replaces corpus labels with distributions from greedy target rollouts, restoring valid supervision across all predicted slots. The second component, In-Rollout Anchors (IRA), places draft blocks directly inside these rollouts to expose the drafter to target-generated context, reusing precomputed rollout features at no additional target cost. Across fixed vision-language and text corpora, our framework increases greedy accepted length by up to 36.5% over DFlash and consistently outperforms erasing baselines. Notably, a single epoch of our method surpasses the best erase schedules. After three epochs, it matches the acceptance length of training on target-regenerated responses. These results show that our framework provides an effective and compute-efficient approach for training speculative drafters on fixed corpora without modifying the original text. Code is available at <a href="https://github.com/js-lee-AI/ALR-IRA" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr><span class="nw">ALR-IRA</span></a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>Given an anchor token, a block drafter predicts all slots of a block in parallel, and each slot is trained on the corpus token at the same position. The label of a later slot therefore depends on the intermediate corpus tokens, which the drafter does not observe. If one of these tokens differs from the greedy choice of the target, every subsequent label in the block continues a prefix that the target would not generate at inference.</p>
+          <p>For a response sequence \(x\) from the training corpus and an index <span class="nw">\(a\),</span> an anchor block spans \(K + 1\) slots beginning at position <span class="nw">\(a\).</span> Slot 0 contains the anchor token <span class="nw">\(x_a\),</span> and the drafter predicts slots 1 through \(K\) in parallel conditioned on the target hidden representations up to position <span class="nw">\(a\).</span> Each objective gives slot \(k\) a label distribution \(\pi_{a,k}\) and a weight \(\omega_{a,k}\) that includes the decay envelope <span class="nw">\(w_k = e^{-(k-1)/\gamma}\).</span> With \(p_T\) the target next-token distribution, the erase baseline keeps the distillation label \(\pi_{a,k} = p_T(\cdot \mid x_{&lt;a+k})\) and scales the slot weight by a survival gate, adapting the confidence-adaptive survival weighting of <span class="nw">PARD-2</span> to distillation.</p>
+          <p class="formula">\[\begin{gathered} g_{a,k} = \prod_{1 \le j &lt; k} p_T\bigl(x_{a+j} \mid x_{&lt;a+j}\bigr) \\[0.45em] \omega_{a,k} = w_k\, g_{a,k} \end{gathered}\]</p>
+          <p>The gate equals 1 at slot 1, decreases monotonically along the block, and down-weights slots whose preceding corpus tokens have low probability under the target. Supervision remains conditioned on the corpus continuation, with only the loss weights changed.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Component 1</span>
+            <h3>Anchor-Label Relabelling (ALR)</h3>
+            <p>ALR retains the corpus context while substituting the corpus continuation with greedy rollouts generated by the target. Starting from each anchor, the target extends \(x_{\le a}\) greedily, providing slot \(k\) with the target distribution conditioned on the preceding \(k - 1\) rollout tokens.</p>
+            <p class="formula">\[\begin{gathered} y^*_i = \arg\max_v\, p_T\bigl(v \mid x_{\le a},\, y^*_{&lt;i}\bigr) \\ \pi_{a,k} = p_T\bigl(\cdot \mid x_{\le a},\, y^*_{&lt;k}\bigr) \end{gathered}\]</p>
+            <p>Slots after an early end of the sequence are masked, and the remaining slots retain <span class="nw">\(\omega_{a,k} = w_k\),</span> so none of them is erased. The rollout is computed within the training step by reusing the cached forward pass of the target, avoiding the need to generate or store full responses in advance.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Component 2</span>
+            <h3>In-Rollout Anchors (IRA)</h3>
+            <p>IRA keeps the total number of blocks fixed and relocates half of them into the rollouts of the other half. Each secondary block is positioned within a primary rollout at an offset <span class="nw">\(j \sim \mathcal{U}\{2, \dots, K - 1\}\).</span> Slot 0 is assigned the target-generated token <span class="nw">\(y^*_j\),</span> and slot \(k\) inherits the primary block label at position <span class="nw">\(j + k\).</span></p>
+            <p class="formula">\[\begin{gathered} \pi^{(j)}_{a,k} = \pi_{a,j+k} = p_T\bigl(\cdot \mid x_{\le a},\, y^*_{&lt;j+k}\bigr) \\ \omega^{(j)}_{a,k} = w_k\, \mathbf{1}[\, j + k \le K \,] \end{gathered}\]</p>
+            <p>Its conditioning context concatenates the target representations of the corpus prefix up to \(a\) with the intermediate representations stored for <span class="nw">\(y^*_1, \dots, y^*_{j-1}\).</span> The design incurs no additional forward passes over the target model, as these representations and the target distributions past index \(j\) are already computed during the primary rollout.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>Thus, ALR corrects the labels, while IRA reduces the discrepancy between training and inference contexts. The rollout depth \(R\) counts the greedy tokens fed back to the target, and \(R = K - 1\) provides supervision across all \(K\) slots whenever the target does not terminate early. Following DFlash, the experiments set \(K = 15\) and sample 128 anchors per training sequence, and all drafters are initialized from the publicly released text-only DFlash head corresponding to the target base model without architectural changes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Accepted Length and Speedup on a Fixed Corpus</h2>
+        <div class="prose">
+          <p>The vision-language experiments pair the target <span class="nw">Qwen3-VL-8B-Instruct</span> with a DFlash block drafter initialized from the public text-only DFlash head. Drafters are trained on either the <code>allava_laion</code> split of ALLaVA or ShareGPT4V captions, with both corpora matched to an identical count of image-text pairs, and evaluated on COCO captioning, TextVQA, and DocVQA under greedy decoding <span class="nw">(\(T = 0\))</span> and stochastic sampling <span class="nw">(\(T = 1\)).</span> The mean acceptance length \(\tau\) (MAT) counts accepted draft tokens plus one target token per verification step, and speedup is wall-clock speedup over autoregressive decoding (AR). The erase comparator uses the soft survival weight of <span class="nw">PARD-2</span>, and DFlash is trained on the same data.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Vision-language results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="row">Target</th><th class="grp" colspan="4" scope="col"><span>Qwen3-VL-8B</span></th><th class="grp" colspan="2" scope="col"><span>Qwen3-VL-4B</span></th></tr>
+                <tr><th class="l stick" scope="row">Train corpus</th><th class="grp" colspan="2" scope="col"><span>ALLaVA</span></th><th class="grp" colspan="2" scope="col"><span>ShareGPT4V</span></th><th class="grp" colspan="2" scope="col"><span>ALLaVA</span></th></tr>
+                <tr><th class="l stick" scope="col">Method</th><th scope="col">Speedup</th><th scope="col">\(\tau\)</th><th scope="col">Speedup</th><th scope="col">\(\tau\)</th><th scope="col">Speedup</th><th scope="col">\(\tau\)</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="7" scope="rowgroup"><span><i>T</i> = 0</span></th></tr>
+                <tr><th class="l stick" scope="row">DFlash</th><td>2.09×</td><td>2.88</td><td>2.01×</td><td>2.80</td><td>2.19×</td><td>2.92</td></tr>
+                <tr><th class="l stick" scope="row">Erase</th><td>2.62×</td><td>3.54</td><td>2.62×</td><td>3.57</td><td>2.62×</td><td>3.56</td></tr>
+                <tr><th class="l stick" scope="row">ALR</th><td>2.68×</td><td>3.70</td><td><b>2.80</b>×</td><td>3.67</td><td>2.65×</td><td>3.63</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">ALR + IRA</th><td><b>2.82</b>×</td><td><b>3.84</b></td><td>2.77×</td><td><b>3.83</b></td><td><b>2.77</b>×</td><td><b>3.81</b></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="7" scope="rowgroup"><span><i>T</i> = 1</span></th></tr>
+                <tr><th class="l stick" scope="row">DFlash</th><td>2.04×</td><td>2.79</td><td>1.90×</td><td>2.71</td><td>2.04×</td><td>2.78</td></tr>
+                <tr><th class="l stick" scope="row">Erase</th><td>2.49×</td><td>3.39</td><td>2.54×</td><td>3.39</td><td>2.45×</td><td>3.33</td></tr>
+                <tr><th class="l stick" scope="row">ALR</th><td>2.55×</td><td>3.50</td><td>2.54×</td><td>3.48</td><td>2.53×</td><td>3.41</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">ALR + IRA</th><td><b>2.68</b>×</td><td><b>3.65</b></td><td><b>2.58</b>×</td><td><b>3.60</b></td><td><b>2.67</b>×</td><td><b>3.53</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Speedup over autoregressive decoding (AR) and mean acceptance length \(\tau\) after three epochs on each fixed training corpus. Vision values summarize COCO captioning, TextVQA and DocVQA. Aggregates are geometric means across benchmarks, averaged over available replicates. This table shows the Vision panel of the paper's table, and the Text panel appears in the next section.</p>
+        </div>
+        <div class="prose">
+          <p>Under greedy decoding, ALR&nbsp;+&nbsp;IRA attains the highest accepted length across all three vision-language configurations. On both 8B corpora, ALR consistently improves upon the soft survival-weighted erase baseline, with IRA providing an additional boost that reaches an 8.54% margin over erase on ALLaVA. Over DFlash trained on identical data, ALR&nbsp;+&nbsp;IRA improves accepted length by up to 36.5% at \(T = 0\) and 33.1% at \(T = 1\) across both 8B settings. Under stochastic sampling, the aggregate ranking is preserved even though the training labels derive from greedy target rollouts.</p>
+          <p>The gain repeats with a second target. With <span class="nw">Qwen3-VL-4B-Instruct</span>, ALR&nbsp;+&nbsp;IRA exceeds erase by 7.13% in accepted length at <span class="nw">\(T = 0\).</span> On DocVQA with this target, ALR in isolation falls below erase at both decoding temperatures, whereas ALR&nbsp;+&nbsp;IRA rises above it.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/results.webp" data-zoom>
+            <img src="assets/results.webp" width="2400" height="1310" loading="lazy" alt="Two rows of bar charts, the top row for T = 0 and the bottom row for T = 1. In each row, four panels plot the MAT gain over erase in percent for ALR and for ALR + IRA: ALLaVA with the 8B target, ShareGPT4V with the 8B target and ALLaVA with the 4B target, each on captioning, TextVQA and DocVQA, and the text target Qwen3-4B on seven benchmarks. The ALR + IRA bar is the taller of the two in every group except AIME24 at T = 1, where ALR is slightly higher, and it peaks at about 14% on TextVQA for ALLaVA with the 8B target at T = 0. The ALR bar is below zero only on DocVQA with the 4B target. A fifth panel plots the ALLaVA decoding speedup over AR for DFlash trained on the same data, erase, ALR and ALR + IRA on captioning, TextVQA, DocVQA and their geometric mean. ALR + IRA has the tallest bar in every group except DocVQA at T = 0.">
+          </a>
+          <figcaption>MAT gain over erase across vision-language and text benchmarks, and ALLaVA decoding speedup over autoregressive decoding after three training epochs. The top and bottom rows show \(T = 0\) and <span class="nw">\(T = 1\),</span> respectively. Gains use means across training replicates.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>On ALLaVA, ALR&nbsp;+&nbsp;IRA decodes faster than erase at both temperatures: 2.82× versus 2.62× over AR at <span class="nw">\(T = 0\),</span> and 2.68× versus 2.49× at <span class="nw">\(T = 1\).</span> At <span class="nw">\(T = 0\),</span> captioning and TextVQA drive the speed gain while DocVQA is nearly tied despite higher accepted length. At <span class="nw">\(T = 1\),</span> ALR&nbsp;+&nbsp;IRA is faster than erase in all three domains, and the speed advantage also holds on ShareGPT4V under sampling. Autoregressive timing had a coefficient of variation of <span class="nw">3.4–5.6%</span> across the three domains in a <span class="nw">repeated-timing</span> check, so close comparisons rest on accepted length rather than small speed differences.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="text">
+      <div class="wrap">
+        <h2>The Gains Extend to a Text-Only Target</h2>
+        <div class="prose">
+          <p>DFlash, erase, ALR and ALR&nbsp;+&nbsp;IRA are trained for three epochs on the same fixed UltraChat subset with <span class="nw">Qwen3-4B</span> as the target. Evaluation covers seven benchmarks spanning instruction following, mathematical reasoning, and code generation, and it measures decoding efficiency rather than answer accuracy or code pass rate.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Text benchmark results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Benchmark</th><th class="grp" colspan="2" scope="col"><span>DFlash</span></th><th class="grp" colspan="2" scope="col"><span>Erase</span></th><th class="grp" colspan="2" scope="col"><span>ALR</span></th><th class="grp own" colspan="2" scope="col"><span>ALR + IRA</span></th></tr>
+                <tr><th scope="col">Speedup</th><th scope="col">\(\tau\)</th><th scope="col">Speedup</th><th scope="col">\(\tau\)</th><th scope="col">Speedup</th><th scope="col">\(\tau\)</th><th class="own" scope="col">Speedup</th><th class="own" scope="col">\(\tau\)</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="9" scope="rowgroup"><span><i>T</i> = 0</span></th></tr>
+                <tr><th class="l stick" scope="row">MT-Bench</th><td>1.82×</td><td>2.50</td><td>2.07×</td><td>2.85</td><td>2.09×</td><td>2.94</td><td class="own"><b>2.13</b>×</td><td class="own"><b>2.99</b></td></tr>
+                <tr><th class="l stick" scope="row">Alpaca</th><td>1.56×</td><td>2.17</td><td>1.88×</td><td>2.52</td><td>1.87×</td><td>2.58</td><td class="own"><b>1.92</b>×</td><td class="own"><b>2.62</b></td></tr>
+                <tr><th class="l stick" scope="row">GSM8K</th><td>2.79×</td><td>3.96</td><td>3.16×</td><td>4.48</td><td>3.38×</td><td>4.76</td><td class="own"><b>3.55</b>×</td><td class="own"><b>4.83</b></td></tr>
+                <tr><th class="l stick" scope="row">AIME24</th><td>2.61×</td><td>3.69</td><td>2.85×</td><td>4.06</td><td>2.91×</td><td>4.20</td><td class="own"><b>2.97</b>×</td><td class="own"><b>4.27</b></td></tr>
+                <tr><th class="l stick" scope="row">AIME25</th><td>2.76×</td><td>4.07</td><td>3.01×</td><td>4.34</td><td>2.94×</td><td>4.53</td><td class="own"><b>3.14</b>×</td><td class="own"><b>4.66</b></td></tr>
+                <tr><th class="l stick" scope="row">HumanEval</th><td>2.98×</td><td>4.22</td><td>3.46×</td><td>4.92</td><td>3.56×</td><td>4.98</td><td class="own"><b>3.63</b>×</td><td class="own"><b>5.02</b></td></tr>
+                <tr><th class="l stick" scope="row">LiveCodeBench</th><td>2.33×</td><td>3.25</td><td>2.64×</td><td>3.72</td><td>2.62×</td><td>3.81</td><td class="own"><b>2.73</b>×</td><td class="own"><b>3.84</b></td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Avg. (7 tasks)</th><td>2.35×</td><td>3.32</td><td>2.67×</td><td>3.75</td><td>2.70×</td><td>3.87</td><td class="own"><b>2.80</b>×</td><td class="own"><b>3.93</b></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="9" scope="rowgroup"><span><i>T</i> = 1</span></th></tr>
+                <tr><th class="l stick" scope="row">MT-Bench</th><td>1.79×</td><td>2.42</td><td>1.97×</td><td>2.72</td><td>2.06×</td><td>2.79</td><td class="own"><b>2.15</b>×</td><td class="own"><b>2.83</b></td></tr>
+                <tr><th class="l stick" scope="row">Alpaca</th><td>1.52×</td><td>2.16</td><td>1.72×</td><td>2.47</td><td>1.78×</td><td>2.54</td><td class="own"><b>1.80</b>×</td><td class="own"><b>2.57</b></td></tr>
+                <tr><th class="l stick" scope="row">GSM8K</th><td>2.71×</td><td>3.78</td><td>3.01×</td><td>4.26</td><td>3.19×</td><td>4.50</td><td class="own"><b>3.29</b>×</td><td class="own"><b>4.55</b></td></tr>
+                <tr><th class="l stick" scope="row">AIME24</th><td>2.41×</td><td>3.35</td><td>2.49×</td><td>3.54</td><td>2.58×</td><td><b>3.66</b></td><td class="own"><b>2.59</b>×</td><td class="own">3.65</td></tr>
+                <tr><th class="l stick" scope="row">AIME25</th><td>2.40×</td><td>3.49</td><td>2.62×</td><td>3.77</td><td>2.46×</td><td>3.85</td><td class="own"><b>2.66</b>×</td><td class="own"><b>3.96</b></td></tr>
+                <tr><th class="l stick" scope="row">HumanEval</th><td>2.89×</td><td>3.97</td><td><b>3.22</b>×</td><td>4.57</td><td>3.19×</td><td>4.63</td><td class="own">3.20×</td><td class="own"><b>4.66</b></td></tr>
+                <tr><th class="l stick" scope="row">LiveCodeBench</th><td>2.20×</td><td>3.00</td><td>2.44×</td><td>3.38</td><td>2.42×</td><td>3.47</td><td class="own"><b>2.52</b>×</td><td class="own"><b>3.49</b></td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Avg. (7 tasks)</th><td>2.23×</td><td>3.10</td><td>2.45×</td><td>3.46</td><td>2.48×</td><td>3.56</td><td class="own"><b>2.55</b>×</td><td class="own"><b>3.60</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Speedup over autoregressive decoding (AR) and mean acceptance length \(\tau\) after three epochs on each fixed training corpus. Text rows identify evaluation benchmarks. Aggregates are geometric means across benchmarks, averaged over available replicates. This table shows the Text panel of the paper's table, for the target <span class="nw">Qwen3-4B</span>.</p>
+        </div>
+        <div class="prose">
+          <p>ALR&nbsp;+&nbsp;IRA has the highest aggregate accepted length and decoding speedup across the seven text benchmarks at both temperatures. Its accepted-length gain over erase reaches 4.96% at \(T = 0\) and 4.10% at <span class="nw">\(T = 1\).</span> Under repeated A100 timing on a fixed text subset, the aggregate speed gains over erase are 4.62% at \(T = 0\) and 3.89% at <span class="nw">\(T = 1\).</span></p>
+          <p>A control on the same corpus keeps the training recipe and corpus anchors fixed, separating label construction from the use of the gate. Rollout-conditioned labels improve aggregate accepted length under both choices of survival weighting, and survival weighting helps corpus-conditioned labels but adds little to rollout-conditioned labels at either decoding temperature. At <span class="nw">\(T = 0\),</span> the aggregate MAT is 3.586 for corpus labels without the gate and 3.758 for erase, against 3.886 for rollout labels with the gate and 3.884 for ALR, which omits it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="cost">
+      <div class="wrap">
+        <h2>One Epoch Exceeds the Best Erase Schedules</h2>
+        <div class="prose">
+          <p>The comparison below pairs training time with accepted length for one-epoch ALR and ALR&nbsp;+&nbsp;IRA and for C, the best erase schedule measured on each vision-language corpus, so it accounts for target-rollout compute alongside data exposure. A single epoch of ALR&nbsp;+&nbsp;IRA exceeds the best erase schedule on both corpora, while costing less than two epochs of erase. On ALLaVA, it achieves this higher accepted length in 41% less training time than the best erase schedule.</p>
+        </div>
+        <div class="split">
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="One-epoch training cost table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Method</th><th scope="col">Epochs</th><th scope="col">Time/C</th><th scope="col">\(\tau\)</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="group"><th colspan="4" scope="rowgroup"><span>ALLaVA</span></th></tr>
+                  <tr><th class="l stick" scope="row">Erase</th><td>1</td><td>0.33</td><td>3.533 <small class="muted">±0.006</small></td></tr>
+                  <tr><th class="l stick" scope="row">ALR</th><td>1</td><td>0.42</td><td>3.649 <small class="muted">±0.014</small></td></tr>
+                  <tr class="ours"><th class="l stick" scope="row">ALR + IRA</th><td>1</td><td>0.59</td><td><b>3.728</b> <small class="muted">±0.005</small></td></tr>
+                  <tr><th class="l stick" scope="row">Erase (C)</th><td>3</td><td>1.00</td><td>3.539 <small class="muted">±0.010</small></td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="4" scope="rowgroup"><span>ShareGPT4V</span></th></tr>
+                  <tr><th class="l stick" scope="row">Erase (C)</th><td>1</td><td>1.00</td><td>3.640 <small class="muted">±0.002</small></td></tr>
+                  <tr><th class="l stick" scope="row">ALR</th><td>1</td><td>1.28</td><td>3.695 <small class="muted">±0.011</small></td></tr>
+                  <tr class="ours"><th class="l stick" scope="row">ALR + IRA</th><td>1</td><td>1.77</td><td><b>3.778</b> <small class="muted">±0.003</small></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">One-epoch training and the best erase schedules C at <span class="nw">\(T = 0\).</span> ALR uses <span class="nw">\(R = 4\),</span> and ALR&nbsp;+&nbsp;IRA uses <span class="nw">\(R = 14\).</span> Mean ± SD.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/cost.webp" data-zoom>
+              <img src="assets/cost.webp" width="1400" height="644" loading="lazy" alt="Line plot of MAT against training time relative to C on ALLaVA. Erase sits at about 3.53 at a relative time of 0.33, 3.54 at 1.0 and 3.47 at 2.0. ALR with R = 4 rises from about 3.65 at 0.42 to 3.66 at about 1.3. ALR with R = 14 rises from about 3.66 at about 0.7 to 3.70 at 2.0. ALR + IRA rises from about 3.73 at 0.59 to 3.84 at about 1.8. A dotted horizontal line marks the MAT of C at about 3.54.">
+            </a>
+            <figcaption class="long">ALLaVA training cost at <span class="nw">\(T = 0\).</span> Points show one and three epochs, plus six for erase. Time is relative to C, whose MAT the dotted line marks.</figcaption>
+          </figure>
+        </div>
+        <div class="prose">
+          <p>ALR&nbsp;+&nbsp;IRA improves from one to three epochs, while training erase for six epochs does not close the gap. At both recorded epoch counts, ALR&nbsp;+&nbsp;IRA achieves higher accepted length than full-depth ALR in less training time. Its secondary blocks reuse features and labels from the primary rollouts, which reduces rollout computation while providing target-generated context. The trajectories suggest that recovering supervision is more effective than additional passes over the fixed corpus.</p>
+          <p>Short rollouts suffice for ALR. \(R = 4\) is the shortest tested ALR depth that is <span class="nw">non-inferior</span> to \(R = 14\) after three epochs on ALLaVA, and it trains faster than \(R = 14\) on both corpora. IRA needs the full depth because it draws secondary anchors at offsets up to \(K - 1\) inside the rollout.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="regeneration">
+      <div class="wrap">
+        <h2>Matching Regeneration on a Fixed Corpus</h2>
+        <div class="prose">
+          <p>Regenerating the corpus with the target avoids the loss of supervision. However, regeneration requires a separate generation stage before training and replaces the original responses, which may need to be kept, for example when only an audited or licensed release can be used for training. After three epochs on fixed ALLaVA, ALR&nbsp;+&nbsp;IRA comes within 0.4% of both target-regeneration references in aggregate accepted length. The two references use the same distillation loss and control supervised response length by truncation or a loss window.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Target regeneration table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method</th><th class="grp" scope="col"><span>(a) Overall</span></th><th class="grp" colspan="4" scope="col"><span>(b) COCO gain over ALR (%)</span></th></tr>
+                <tr><th scope="col">MAT&nbsp;↑</th><th scope="col">0–15</th><th scope="col">16–63</th><th scope="col">64–127</th><th scope="col">128+</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">ALR</th><td>3.696</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">ALR + IRA</th><td>3.841</td><td>+1.32</td><td>+5.60</td><td>+5.15</td><td>+3.57</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Target regeneration</span></th></tr>
+                <tr><th class="l stick" scope="row">Truncated</th><td>3.833</td><td>+1.49</td><td>+5.61</td><td>+4.51</td><td>+4.72</td></tr>
+                <tr><th class="l stick" scope="row">Loss window</th><td><b>3.856</b></td><td>+3.60</td><td>+7.21</td><td>+5.12</td><td>+5.65</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Length-matched target regeneration on the same ALLaVA prompts after three epochs at <span class="nw">\(T = 0\).</span> (a) Overall MAT with <span class="nw">Qwen3-VL-8B</span>. (b) MAT gains over ALR by round-start token offset on COCO captions.</p>
+        </div>
+        <div class="prose">
+          <p>This agreement suggests that rollout labels and in-rollout context can recover the accepted-length benefit of length-controlled regeneration without replacing the training corpus.</p>
+          <p>IRA's gain over ALR is larger at later positions in COCO captions. The truncated regeneration reference shows a related pattern: its advantage over ALR grows after the first 16 caption tokens and then levels off. Together, these patterns support exposing the drafter to the target-generated context that accumulates during decoding. The position profiles use one checkpoint of each method and group COCO verification rounds by their starting token offset.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="controls">
+      <div class="wrap">
+        <h2>IRA's Gain Concentrates Where Drafting Is Hard</h2>
+        <div class="prose">
+          <p>IRA gains beyond changing slot weights. A slot-matched control matches IRA's block count, offsets and slot weights while keeping all blocks at corpus anchors, yet performs similarly to ALR. ALR&nbsp;+&nbsp;IRA achieves 4.10% higher accepted length than this control on ALLaVA after three epochs, which supports placing anchors inside target rollouts to train the drafter on both recent target-generated context and its continuation labels.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/controls.webp" data-zoom>
+            <img src="assets/controls.webp" width="2400" height="655" loading="lazy" alt="Three panels. (a) Mean acceptance length with error bars for three drafters trained on ALLaVA: ALR at about 3.70, the slot-matched control at about 3.70 and ALR + IRA at about 3.85. (b) and (c) The acceptance gain of IRA over ALR in percent, plotted against the acceptance length of an outside drafter from 1 to 6 or more, for ALLaVA and for ShareGPT4V. On ALLaVA the gain falls from about 25% at length 1 to about 6% at length 2 and about 2% at 6 or more. On ShareGPT4V it falls from about 23% at length 1 to about 7% at length 2 and about 3% at 6 or more. The seed control stays near zero in both panels.">
+          </a>
+          <figcaption class="long">IRA controls. (a) Slot-matched control on ALLaVA at <span class="nw">\(T = 0\).</span> Error bars show sample SD across matched training replicates. (b,c) IRA's acceptance-length gain over ALR on held-out captions, grouped by an independent drafter's acceptance length, with an ALR seed control.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Panels (b) and (c) group drafting offsets in held-out captions, disjoint from the main evaluation, by the acceptance length of an independent drafter trained on the other corpus. On both corpora, IRA's gain is largest where that drafter misses the first token, whereas the seed control stays flat and the gain is smaller where it accepts five or more tokens. At first-token failures, IRA adds about 0.39 accepted tokens at each offset on both corpora, exceeding the gain from relabelling alone.</p>
+          <p>The implementation trains feature-conditioned block drafters and requires access to the target's hidden states and token distributions. Its rollouts are greedy, while the resulting drafter supports both greedy and sampled decoding.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026offpolicy,
+  title = {Recovering Off-Policy Supervision for Speculative Decoding},
+  author = {Jungseob Lee and Chanjun Park and Sugyeong Eo and Hyeonseok Moon},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2609.38795},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2609.38795},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

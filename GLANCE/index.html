@@ -1,0 +1,366 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vision Is Not Overhead: One-Pass Block Drafting for Lossless Speculative Decoding in Vision-Language Models</title>
+  <meta name="description" content="GLANCE is a one-pass block drafter for speculative decoding on an unmodified vision-language model target. Its block-diffusion head drafts a whole block in one forward pass over the target's already fused vision-language states, and the target verifies a wide candidate tree in one pass and commits exactly its greedy output. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/GLANCE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Vision Is Not Overhead: One-Pass Block Drafting for Lossless Speculative Decoding in Vision-Language Models">
+  <meta property="og:description" content="GLANCE drafts a whole block in one forward pass over the target's already fused vision-language states. The target verifies a wide candidate tree in one pass and commits exactly its greedy output. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/GLANCE/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/GLANCE/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vision Is Not Overhead: One-Pass Block Drafting for Lossless Speculative Decoding in Vision-Language Models">
+  <meta name="twitter:description" content="GLANCE drafts a whole block in one forward pass over the target's already fused vision-language states, and the target commits exactly its greedy output.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/GLANCE/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The navy that marks GLANCE in the paper's plots and the purple of the
+       frozen target in the overview figure. The two method cards take the same
+       pair, navy for the draft pass of the block head and purple for the verify
+       pass of the target. */
+    :root { --accent-a: #1f4e79; --accent-b: #826ac4; }
+    .s1 { --step: #1f4e79; --step-ink: #1f4e79; }
+    .s2 { --step: #826ac4; --step-ink: #5f49a6; }
+    /* The paper tints the GLANCE columns and rows and keeps bold for the best
+       value of a comparison, so a tinted row is not set in bold as a whole. */
+    .tbl td.own { background: var(--ours); }
+    .tbl tbody tr.ours > * { font-weight: 400; }
+    /* A group label that holds a symbol draws its rule on a block of its own,
+       which leaves the spans of the typeset symbol untouched. */
+    .tbl .grp-math { text-align: center; }
+    .tbl .grp-math > div { padding-bottom: 0.3rem; border-bottom: 1px solid var(--ink-mute); }
+    /* The accept rule reads as one line, so on a phone it shrinks to fit
+       instead of scrolling. */
+    .formula.fit .katex { font-size: min(1.1em, 3.9vw); }
+    /* A text block that follows a two-column block keeps the usual gap. */
+    .split + .prose { margin-top: 1.75rem; }
+    /* The group labels of the second table are wider than a phone, so on small
+       screens they wrap inside the visible part. */
+    @media (max-width: 47.99rem) {
+      .tbl tbody tr.group > th span { max-width: calc(100vw - 2 * var(--gutter) - 1.4rem); white-space: normal; }
+    }
+    /* On a phone each row label of that table breaks after its first part, so
+       that the pinned column leaves room for the numbers. */
+    @media screen and (max-width: 47.99rem) { .tbl .how { display: block; } }
+    /* On paper both tables are wider than the sheet, so there they are set in
+       a smaller size with closer cells. */
+    @media print {
+      .tbl { font-size: 0.78rem; }
+      .tbl th, .tbl td { padding-right: 0.3rem; padding-left: 0.3rem; }
+      .tbl tbody tr.group > th { font-size: 0.77rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><span class="name">Vision Is Not Overhead</span>: <span class="nw">One-Pass</span> Block Drafting for Lossless Speculative Decoding in <span class="nw">Vision-Language</span> Models</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Seongtae Hong<sup>1</sup>,</span>
+          <span class="author">Dongyub Jude Lee<sup>2</sup>,</span>
+          <span class="author">Chanjun Park<sup>3</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>4</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>5*</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1*</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Zoom Communications</span>
+          <span><sup>3</sup>Soongsil University</span>
+          <span><sup>4</sup>Konkuk University</span>
+          <span><sup>5</sup>Yonsei University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2609.00355" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2609.00355" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/GLANCE" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">GLANCE drafts a whole block in one forward pass over the target's already fused <span class="nw">vision-language</span> states, and the target commits exactly its greedy output.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="964" alt="Two-panel diagram of GLANCE. In the top panel, a document image with the prompt, total amount of other expenses?, enters the frozen target Qwen3-VL-8B, drawn as 36 decoder layers with layers 1, 9, 17, 25, and 33 highlighted. These layers yield a stack of fused hidden states, marked never raw visual tokens, which feeds the block head. The bottom panel shows one decoding round in three numbered parts. In the block draft, the one-pass block head (1.05B) fills a row of masked positions with The, total, amount, of, other in 1 draft pass. In the wide tree, a prefix-closed tree of budget N grows from the root b into The and A, with children total, sum, total, and value. In verify and commit, one ancestor-masked target pass accepts the path b, The, total and marks the other nodes as not accepted, and the round commits The, total, and a bonus token as the target greedy output (lossless).">
+          </a>
+          <figcaption>Overview of GLANCE. The block head (top) reads the frozen target's fused <span class="nw">vision-language</span> states at five layers, never raw visual tokens. In one round (bottom), one draft pass fills the block, the top prefixes form a candidate tree, and one target pass verifies it.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Speculative decoding accelerates generation without changing its output, but on vision-language models (VLMs) a self-reinforcing cycle holds it back. Because an autoregressive drafter pays a sequential pass for each drafted token, it must stay small and can ill afford to attend to the image at each pass. Prior work therefore compresses or hides the image, leaving the drafter weakest on the text the image determines. We present GLANCE, a one-pass block drafter that breaks this cycle on an unmodified VLM target. Its block-diffusion head drafts a whole block in one forward pass over the target's already fused vision-language states, reading the multimodal context once, however deep the draft. The target verifies a wide candidate tree in one pass and commits exactly its greedy output. In one production engine at a fixed round budget, GLANCE decodes up to 3.05 times faster than autoregressive decoding and outpaces the production <span class="nw">EAGLE3-VL</span> head on average and by about 11% on grounded tasks. An entropy law explains when drafting pays, predicting the longest accepted blocks on grounded tasks, where the target's next-token entropy is lowest. Our code is available at <a href="https://github.com/js-lee-AI/GLANCE" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>GLANCE</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>In one decoding round of GLANCE, a block head drafts a whole block of future tokens in one forward pass, and the target verifies a wide tree of those candidates in one forward pass and commits its own greedy prefix. Only the head is trained, and the target stays frozen.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Draft pass</span>
+            <h3>One-pass drafting on fused states</h3>
+            <p>GLANCE drafts with a <span class="nw">block-diffusion</span> head of 5 layers, 1.05B parameters, and block size \(B = 16\), attached to a frozen <span class="nw">Qwen3-VL-8B</span> target. The first block position holds the pending root \(b\) and the other \(B - 1\) positions are masked, so one forward pass conditioned on the cached prefix \(x\) returns a marginal \(q_j(\cdot \mid x, b)\) over the vocabulary at every offset \(j = 1, \dots, L\) with \(L = B - 1 = 15\). A candidate prefix is ranked by its plug-in score</p>
+            <p class="formula">\[\hat\pi(y_{1:\ell}) = \prod_{j \le \ell} q_j(y_j \mid x, b)\]</p>
+            <p>The head never reads raw visual tokens. Its cross-attention keys and values are the target's hidden states at five layers spread over the depth of the stack, \(\{1, 9, 17, 25, 33\}\). By the time these states exist, the target has already merged the image into its text representation, so the drafter inherits visual grounding without an encoder, an adaptor, or compressed image tokens of its own.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Verify pass</span>
+            <h3>Wide-tree verification</h3>
+            <p>A candidate tree \(S\) is a prefix-closed set of nonempty strings after the root \(b\), of depth at most \(L\) and budget \(N = |S|\). The tree builder keeps the \(N\) prefixes with the highest plug-in score, and the tree is packed into one ancestor-masked target pass, in which the row of a <span class="nw">depth-\(d\)</span> node \(y_{1:d}\) yields exactly the target's distribution \(p(\cdot \mid x \circ b \circ y_{1:d})\). With \(Y\) the target's greedy continuation, the accepted length is</p>
+            <p class="formula fit">\[A(S) = \max\{k \ge 0 : Y_{1:j} \in S \ \text{for all } j \le k\}\]</p>
+            <p>The walk commits \(Y_{1:A(S)}\) and emits the next target-greedy token from the last verified row as the new root. A weak head can only shorten the accepted prefixes, and no fallback path is needed, because every committed token is the argmax of a target row. Growing \(N\) adds verifier work inside that single pass but no draft passes. The experiments use \(N = 63\) in the Hugging Face implementation and a <span class="nw">31-node</span> tree in the production engine, where together with the root GLANCE verifies the same 32 draft tokens a round as the production head.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>Assume the target's argmax is unique at every visited prefix and its <span class="nw">top-2</span> logit gap there exceeds the numerical difference between packed and unpacked evaluation. Then, for any candidate tree, the walk commits exactly the target's greedy autoregressive sequence, token for token (Theorem&nbsp;1 of the paper, stated informally).</p>
+          <p>In fp32, GLANCE is bitwise identical to greedy decoding on all 60 audited prompts. In bf16, the target does not reproduce its own greedy output across two runs even without any drafter, because kernel choice perturbs near-ties, and GLANCE reproduces that output at least as often as a second run of the target does. The exactness guarantee concerns greedy decoding. Under sampling, every committed token is a draw from the target's own distribution, and the output distribution is preserved while byte identity is not defined.</p>
+          <p>Only the block head is trained, while the vision tower and the target stay frozen. The training rows are the target's own greedy generations on 8,000 <span class="nw">COCO-Caption2017</span> and 8,000 TextVQA prompts. The head is initialized from a released text-only block head for <span class="nw">Qwen3-8B</span> and trained for one epoch on one GPU. The recipe contains no document, infographic, or chart data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="law">
+      <div class="wrap">
+        <h2>An Entropy Law of Draftability</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Which workloads does a one-pass drafter serve best? The paper answers with one scalar, the target's next-token entropy \(H\) at the round root. The matches along a block are modeled as a survival process with a single match probability \(p_{\mathrm{m}}(H)\) that varies slowly with the offset. Taking the match logit to be affine in the entropy gives</p>
+            <p class="formula">\[\begin{aligned}\operatorname{logit} p_{\mathrm{m}}(H) &amp;= b_0 - b_1 H,\\ \mathbb{E}[a \mid H] &amp;\approx \sum_{\ell=1}^{L} p_{\mathrm{m}}^{\ell} = \frac{p_{\mathrm{m}}\,(1 - p_{\mathrm{m}}^{L})}{1 - p_{\mathrm{m}}}\end{aligned}\]</p>
+            <p>with block horizon \(L = 15\), where \(a\) is the accepted length. Here \(b_0\) is the zero-entropy intercept and \(b_1 &gt; 0\) the entropy slope, both fitted on each task's round log.</p>
+            <p>Two predictions follow. First, \(\mathbb{E}[a \mid H]\) strictly decreases in \(H\), hence any workload that systematically lowers the target's entropy yields longer accepted blocks. Grounded generation is such a workload, because it copies determinate strings such as glyphs, numbers, and answer spans from the image. Second, the law has a ceiling that grounded generation breaks.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/draftability.webp" data-zoom>
+              <img src="assets/draftability.webp" width="1400" height="1383" loading="lazy" alt="Two examples placed on a next-token entropy scale that runs from low at the top to high at the bottom. The top example, document reading with low entropy, shows a budget request summary whose row 4, Other Expense, 975.00, is highlighted, the question total amount of other expenses?, and eight drafted tokens, The total amount of other expenses is $975.00, all accepted, with the note that one draft pass commits the entire block. The bottom example, open captioning with high entropy, shows a photograph of a seaplane on a lake in front of hills, the question describe the image., and the drafted tokens A plane floating over the ocean at sunset, of which only the first three are accepted, with the note that the same pass commits only a short prefix.">
+            </a>
+            <figcaption>Draftability of grounded and open generation. On a document (top), the image pins the answer, entropy is low, and one draft pass commits the entire block. Open captioning (bottom) admits many continuations, entropy is high, and the same pass commits only a short prefix.</figcaption>
+          </figure>
+        </div>
+        <div class="prose">
+          <p>The law caps the near-certain mean at \(e^{b_0}\). If <span class="nw">near-zero-entropy</span> rounds enter, with probability \(\pi\), a verbatim-copy state whose matches persist, the mean as \(H \to 0\) becomes \(\pi L + (1 - \pi) M\), where \(M\) is the mean of the ordinary state, and it exceeds \(e^{b_0}\) once \(\pi\) passes an explicit threshold (Theorem&nbsp;2 of the paper, stated informally). The copy regime is where one-pass drafting gains the most, because a verbatim run of length \(\ell\) costs an autoregressive drafter \(\ell\) sequential passes and a block drafter one.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <h2>Head-to-Head in a Production Engine</h2>
+        <div class="prose">
+          <p>The target is <span class="nw">Qwen3-VL-8B-Instruct</span>, kept frozen. Five tasks are ordered from open-ended to grounded, namely COCO captioning, TextVQA, InfographicVQA (InfoVQA), DocVQA, and ChartQA. The last three, whose answers are read off a document or chart, are the grounded tasks, and they are the three tasks of lowest mean target entropy. Decoding is batch one and greedy, with up to 256 new tokens. Results are reported as the mean acceptance length \(\tau = \mathbb{E}[a] + 1\), so autoregressive (AR) decoding has \(\tau = 1\), and as wall-clock speedup, the ratio of the mean decode time for a token, autoregressive over speculative, with both arms measured in one engine on one GPU.</p>
+          <p>The table shows GLANCE and the production <span class="nw">EAGLE3-VL</span> head inside SGLang 0.5.6 on one RTX A6000 in bf16, with both CUDA-graph captured and both verifying a tree of 32 draft tokens a round, <span class="nw">EAGLE3-VL</span> its own <span class="nw">top-8</span> dynamic tree and GLANCE its prefix tree. Engine, GPU, and round budget are thus shared, and the one structural difference left is how the draft tokens are produced, in eight sequential passes by <span class="nw">EAGLE3-VL</span> and in one by GLANCE. This eight-pass tree decodes 18 to 33% faster than the released configuration of <span class="nw">EAGLE3-VL</span>, three passes over four draft tokens, on every task.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Production-engine comparison table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Task</th><th rowspan="2" scope="col">\(\bar{H}\)</th><th rowspan="2" scope="col">AR<br>ms/tok</th><th class="grp" colspan="3" scope="col"><span>EAGLE3-VL, eight draft passes</span></th><th class="grp" colspan="3" scope="col"><span>GLANCE, one draft pass</span></th><th rowspan="2" scope="col">GLANCE<br>faster by</th></tr>
+                <tr><th scope="col">\(\tau\) ↑</th><th scope="col">ms/tok ↓</th><th scope="col">Speedup ↑</th><th scope="col">\(\tau\) ↑</th><th scope="col">ms/tok ↓</th><th scope="col">Speedup ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Higher-entropy tasks</span></th></tr>
+                <tr><th class="l stick" scope="row">Captioning</th><td>0.47</td><td>24.72</td><td><b>3.51</b></td><td><b>11.54</b></td><td><b>2.14×</b></td><td class="own">2.92</td><td class="own">13.10</td><td class="own">1.89×</td><td>−11.9%</td></tr>
+                <tr><th class="l stick" scope="row">TextVQA</th><td>0.39</td><td>24.34</td><td><b>4.31</b></td><td><b>9.56</b></td><td><b>2.55×</b></td><td class="own">3.57</td><td class="own">10.76</td><td class="own">2.26×</td><td>−11.2%</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Lower-entropy tasks</span></th></tr>
+                <tr><th class="l stick" scope="row">InfographicVQA</th><td>0.31</td><td>24.58</td><td>3.51</td><td>11.99</td><td>2.05×</td><td class="own"><b>3.65</b></td><td class="own"><b>10.84</b></td><td class="own"><b>2.27×</b></td><td><b>+10.6%</b></td></tr>
+                <tr><th class="l stick" scope="row">DocVQA</th><td>0.15</td><td>24.91</td><td>3.68</td><td>11.67</td><td>2.14×</td><td class="own"><b>3.91</b></td><td class="own"><b>10.51</b></td><td class="own"><b>2.37×</b></td><td><b>+11.0%</b></td></tr>
+                <tr><th class="l stick" scope="row">ChartQA</th><td>0.19</td><td>24.18</td><td>4.50</td><td>8.79</td><td>2.75×</td><td class="own"><b>4.69</b></td><td class="own"><b>7.93</b></td><td class="own"><b>3.05×</b></td><td><b>+10.8%</b></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="sep"><th class="l stick" scope="row">Geometric mean</th><td></td><td></td><td></td><td></td><td>2.31×</td><td></td><td></td><td class="own"><b>2.34×</b></td><td><b>+1.3%</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">GLANCE against the production <span class="nw">EAGLE3-VL</span> head in SGLang, with engine, GPU, and a tree of 32 draft tokens shared, filled in eight passes by <span class="nw">EAGLE3-VL</span> and one by GLANCE. \(\bar{H}\) is the target's mean entropy in nats. Blue marks GLANCE.</p>
+        </div>
+        <div class="prose">
+          <p>On the three lower-entropy tasks, GLANCE is the faster system by 10.6 to 11.0% and reaches 3.05× the speed of autoregressive decoding on ChartQA. Every paired bootstrap interval excludes zero, GLANCE is faster on at least 81 of the 101 prompts of each of these tasks, and it also leads on the five-task geometric mean, by 1.3% with a 95% interval from 0.3 to 2.2%. None of the three tasks appears in GLANCE's training data.</p>
+          <p>On captioning and TextVQA, the two tasks with the highest mean entropy \(\bar{H}\), the eight-pass head leads. The product-of-marginals ranking of the draft pass accounts for this split. It is accurate when the tokens of a block are nearly determined by the image, whereas on free-running text an autoregressive drafter stays coherent by construction. The production head's lead on these two tasks also comes from its training, on 400K <span class="nw">ALLaVA-4V</span> samples against 16K for GLANCE. With an <span class="nw">EAGLE-3</span> head and a GLANCE head trained on one corpus and run under the same tree, GLANCE is faster on all five tasks, by 4.5% on captioning, 14.9% on TextVQA, and 16.1 to 25.7% on the three grounded tasks.</p>
+          <p>The measurements are at batch one, the regime in which decoding is bound by memory bandwidth and speculative decoding is deployed for latency. Serving at large batch sizes, which changes the cost of verification, is not measured.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="acceptance">
+      <div class="wrap">
+        <h2>Acceptance Against Released Drafters</h2>
+        <div class="prose">
+          <p>The table reports the acceptance length of every drafter released for these targets, each at its own operating point. Among trained heads, GLANCE accepts the longest blocks on all five tasks. Classic two-model speculation with a 4B draft accepts more on four of the five tasks, but a draft half the size of the target costs about half a target pass for each drafted token, so it slows decoding on every task.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Acceptance length table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method <span class="how muted">(draft passes a round)</span></th><th rowspan="2" scope="col">Params</th><th class="grp-math" colspan="5" scope="col"><div>Acceptance length \(\tau\) ↑</div></th><th class="l" rowspan="2" scope="col">Lossless</th></tr>
+                <tr><th scope="col">Captioning</th><th scope="col">TextVQA</th><th scope="col">InfoVQA</th><th scope="col">DocVQA</th><th scope="col">ChartQA</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Qwen3-VL-8B, training-free and two-model drafting</span></th></tr>
+                <tr><th class="l stick" scope="row">n-gram lookup <span class="muted">(0)</span></th><td>0</td><td>1.29</td><td>2.49</td><td>2.53</td><td>3.30</td><td>2.57</td><td class="l">✓</td></tr>
+                <tr><th class="l stick" scope="row">Classic SD, <span class="how">Qwen3-VL-4B <span class="muted">(8)</span></span></th><td>4.4B</td><td><b>3.53</b></td><td><b>3.79</b></td><td><b>3.95</b></td><td><b>4.39</b></td><td><b>4.47</b></td><td class="l">✓</td></tr>
+                <tr><th class="l stick" scope="row">Classic SD, <span class="how">Qwen3-1.7B text-only <span class="muted">(8)</span></span></th><td>2.0B</td><td>1.49</td><td>1.42</td><td>1.90</td><td>1.68</td><td>2.12</td><td class="l">✓</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Qwen3-VL-8B, trained draft heads</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE3-VL, <span class="how">production <span class="muted">(5)</span></span></th><td>0.40B</td><td>2.13</td><td>2.66</td><td>2.48</td><td>2.56</td><td>2.92</td><td class="l">✓</td></tr>
+                <tr><th class="l stick" scope="row">EAGLE-2, <span class="how">ViSpec codebase <span class="muted">(3)</span></span></th><td>0.23B</td><td>2.41</td><td>2.45</td><td>2.38</td><td>2.54</td><td>2.89</td><td class="l">✓<sup>†</sup></td></tr>
+                <tr><th class="l stick" scope="row">ViSpec, <span class="how">official recipe <span class="muted">(3)</span></span></th><td>0.31B</td><td>2.45</td><td>2.43</td><td>2.45</td><td>2.46</td><td>2.95</td><td class="l">✓<sup>†</sup></td></tr>
+                <tr><th class="l stick" scope="row">Medusa, <span class="how">ViSpec codebase <span class="muted">(1)</span></span></th><td>0.08B</td><td>1.51</td><td>1.52</td><td>1.47</td><td>1.53</td><td>1.61</td><td class="l">✓<sup>†</sup></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">GLANCE <span class="muted">(1)</span></th><td>1.05B</td><td><b>3.09</b></td><td><b>3.46</b></td><td><b>3.75</b></td><td><b>3.76</b></td><td><b>5.12</b></td><td class="l">✓<sup>†</sup></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Qwen3-VL-8B, matched training with one corpus, target, batch, schedule, and framework</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 head, <span class="how">depth-3 chain <span class="muted">(3)</span></span></th><td>0.40B</td><td>1.62</td><td>1.59</td><td>1.55</td><td>1.58</td><td>1.87</td><td class="l">✓</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">GLANCE, <span class="how">budget-63 tree <span class="muted">(1)</span></span></th><td>1.05B</td><td><b>4.05</b></td><td><b>3.97</b></td><td><b>3.90</b></td><td><b>4.13</b></td><td><b>7.44</b></td><td class="l">✓<sup>†</sup></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Qwen3-VL-8B, GLANCE retrained on ViSpec's corpus</span></th></tr>
+                <tr class="ours"><th class="l stick" scope="row">GLANCE, <span class="how">1 epoch <span class="muted">(1)</span></span></th><td>1.05B</td><td>3.02</td><td>3.44</td><td>3.75</td><td>3.78</td><td>5.02</td><td class="l">✓<sup>†</sup></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">GLANCE, <span class="how">21 epochs <span class="muted">(1)</span></span></th><td>1.05B</td><td>3.04</td><td>3.49</td><td>3.78</td><td>3.85</td><td>5.07</td><td class="l">✓<sup>†</sup></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>ViSpec's home target Qwen2.5-VL-7B</span></th></tr>
+                <tr><th class="l stick" scope="row">ViSpec, <span class="how">released head <span class="muted">(3)</span></span></th><td>0.35B</td><td>3.34</td><td><b>3.26</b></td><td>3.21</td><td>3.04</td><td>3.59</td><td class="l">✓<sup>†</sup></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">GLANCE <span class="muted">(1)</span></th><td>1.23B</td><td><b>4.00</b></td><td>2.61</td><td><b>3.47</b></td><td><b>3.12</b></td><td><b>4.72</b></td><td class="l">✓<sup>†</sup></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Acceptance length of released drafters and of GLANCE, each at its own operating point, GLANCE with the <span class="nw">budget-63</span> tree. Params counts drafter weights. Under Lossless, ✓ marks exact acceptance and † output audited bitwise identical to greedy decoding. Blue marks GLANCE.</p>
+        </div>
+        <div class="prose">
+          <p>The two tables run the same GLANCE head, the production-engine table in SGLang with images at native resolution and a tree of 32 draft tokens, this one in the Hugging Face implementation at 896 pixels with the <span class="nw">budget-63</span> tree, so their acceptance lengths differ.</p>
+          <p>The ViSpec codebase isolates what its vision adaptor adds. Trained without the adaptor, the head is exactly the <span class="nw">EAGLE-2</span> drafter, and the two heads differ by at most 0.08 in acceptance length on any task, so the target's fused states, which both heads read, already carry what the adaptor's compressed image tokens add.</p>
+          <p>Four controls separate the architecture from its training. First, trained from scratch with one <span class="nw">26K-row</span> corpus, target, global batch, schedule, and framework, GLANCE decodes faster than an <span class="nw">EAGLE-3</span> head on all five tasks under the shared tree of the production-engine comparison. This corpus, unlike the primary recipe, contains document and chart rows. Second, retrained on ViSpec's own <span class="nw">68K-row</span> corpus, at one epoch and at ViSpec's twenty-one, GLANCE stays within one percent of its acceptance under the primary recipe, pooled over the five tasks. Third, on ViSpec's home target <span class="nw">Qwen2.5-VL-7B</span>, a GLANCE head trained on that target accepts longer blocks than the released ViSpec head on four of the five tasks. Fourth, the released text head that GLANCE starts from, run unchanged, trails the production head on all five tasks of the production-engine table, by 15% on the geometric mean, and the training lengthens its accepted blocks by 17 to 21%, which turns that deficit into GLANCE's lead.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="wrap">
+        <h2>Where the Acceptance Comes From</h2>
+        <div class="prose">
+          <p>GLANCE's head has 2.6× the parameters of the <span class="nw">EAGLE3-VL</span> head, so a larger head might explain the gains. Panel&nbsp;(a) measures what the tree adds by running the identical head as a <span class="nw">width-1</span> chain. The <span class="nw">budget-63</span> tree accepts between 1.45 and 1.49× the chain's length on every task, a nearly constant factor, as the law anticipates. The tree also decodes 1.36× faster than the chain in wall-clock time, net of verifying a wider tree. In SGLang, a GLANCE round is 4 to 7% shorter than an <span class="nw">EAGLE3-VL</span> round on every task, so the larger head drafts all fifteen offsets in one pass for less than the small head pays for eight.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/sources.webp" data-zoom>
+            <img src="assets/sources.webp" width="2400" height="739" loading="lazy" alt="Three panels over the tasks Caption, TextVQA, InfoVQA, DocVQA, and ChartQA. Panel (a) is a bar chart of acceptance length for the identical head run as a width-1 chain and as a budget-63 tree. The chain bars rise from about 2.0 on Caption to about 3.5 on ChartQA, and the tree bars from about 3.0 to about 5.2, higher than the chain on every task. Panel (b) is a bar chart of acceptance length when the head reads text-only states or fused vision-language states. The fused bars are higher on every task, about 2.9 against 2.8 on Caption, about 3.6 against 2.9 on DocVQA, and about 4.8 against 4.0 on ChartQA. Panel (c) is a line plot of speedup over autoregressive decoding against the verifier budget N at 15, 31, 47, and 63. Every task rises from 15 to 31 and then flattens, with ChartQA highest, from about 3.1 to about 3.4, and Caption lowest, from about 1.9 to about 2.05.">
+          </a>
+          <figcaption>Sources of GLANCE's acceptance on <span class="nw">Qwen3-VL-8B</span>. (a) The identical head run as a <span class="nw">width-1</span> chain and as a <span class="nw">budget-63</span> tree. (b) The head reading the target's fused states or a text-only language model's states, at budget 31. (c) Speedup against the verifier budget \(N\).</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Panel&nbsp;(b) replaces the target's fused states with those of a text-only <span class="nw">Qwen3-8B</span>, which never sees the image and whose states the head was initialized on. Acceptance falls on every task, and it falls most on grounded ones, since the text-only states retain 97% of GLANCE's acceptance on captioning but only 80% on DocVQA. Zeroing the conditioning states collapses \(\tau\) to 1.11, which shows that the head drafts from the target's context.</p>
+          <p>Panel&nbsp;(c) sweeps the verifier budget. Speedup rises from \(N = 15\) to 31 on every task and then flattens. Width pays the most on ChartQA, the task with the longest accepted blocks.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="tests">
+      <div class="wrap">
+        <h2>Testing the Entropy Law</h2>
+        <div class="prose">
+          <p>Panel&nbsp;(a) shows GLANCE's accepted length falling with entropy on all five tasks, with grounded tasks accepting more at nearly every entropy level. Pooled over the 7,751 rounds of captioning, TextVQA, and DocVQA, the law has \(b_0 = 0.96\) and \(b_1 = 0.63\), and the slope steepens with grounding, from 0.46 on captioning to 1.71 on ChartQA. Isotonic fits explain at least 96% of the variance of the ten entropy-decile means on every task.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/law.webp" data-zoom>
+            <img src="assets/law.webp" width="2400" height="742" loading="lazy" alt="Three panels. Panel (a) is a line plot of accepted length against next-token entropy in nats on a log scale, by entropy decile, for Caption, TextVQA, InfoVQA, DocVQA, and ChartQA. Every curve falls as entropy grows, from between about 2.5 and 7 near zero entropy to between about 1 and 2 at about 1 nat, and ChartQA is highest over most of the range. Panel (b) is a bar chart of the acceptance gain from the correct image in percent with 95% bootstrap intervals, about 3.5 on Caption, 6.8 on TextVQA, and 11.7 on DocVQA. Panel (c) is a bar chart of the law's cap against the measured floor of accepted length. The measured floor is higher on every task, about 2.5 against 2.3 on Caption, 3.2 against 2.5 on TextVQA, 4.4 against 3.2 on InfoVQA, 5.2 against 3.4 on DocVQA, and 6.9 against 4.5 on ChartQA.">
+          </a>
+          <figcaption>Tests of the entropy law on <span class="nw">Qwen3-VL-8B</span>. (a) Accepted length against the target's next-token entropy, by entropy decile. (b) Acceptance gain from the correct over a mismatched image, with 95% bootstrap intervals. (c) The fitted law's cap \(e^{b_0}\) against the measured lowest-decile mean.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>To test whether the image itself is responsible, the image alone is varied. The same prompts are decoded with the correct and with a mismatched image along a shared teacher-forced trajectory. Panel&nbsp;(b) shows that the correct image lengthens accepted blocks on every task, and more so as grounding increases. The correct image also lowers the target's mean entropy along that trajectory, from 0.72 to 0.26 nats on DocVQA, and once entropy is held fixed the remaining image effect is no longer positive. Together with the fused-state ablation, this places the image's contribution in the entropy channel.</p>
+          <p>Panel&nbsp;(c) compares the cap \(e^{b_0}\) with the measured mean of \(a\) in each task's lowest-entropy decile. Every floor lies above its cap, and the excess grows with grounding, reaching 5.23 against 3.41 on DocVQA. On ChartQA, 11.5% of all rounds accept eight or more tokens.</p>
+          <p>The law keeps its form under a change of drafter, target, and modality, with a positive slope in every case. Two-model drafts on <span class="nw">Qwen2.5-VL-7B</span> and <span class="nw">Qwen2-VL-7B</span> fit at \(b_1 = 0.67\) and 0.40, and beyond vision the slope stays positive on speech recognition, chat, code, and a non-Qwen backbone. The characterization of draftability is stated for targets that feed vision as a token prefix, which covers the <span class="nw">Qwen-VL</span> family studied here.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026glance,
+  title = {Vision Is Not Overhead: One-Pass Block Drafting for Lossless Speculative Decoding in Vision-Language Models},
+  author = {Jungseob Lee and Seongtae Hong and Dongyub Jude Lee and Chanjun Park and Jaehyung Seo and Sugyeong Eo and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2609.00355},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2609.00355},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

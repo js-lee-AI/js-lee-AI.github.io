@@ -1,0 +1,355 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distilling Directional Verification</title>
+  <meta name="description" content="A teacher may recall a relation in one direction while failing to generate the answer in the reverse direction. In directional label distillation, frozen teachers score candidate answers in the direction they know, and the best-scoring candidate becomes the student's training target. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/directional-verification/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Distilling Directional Verification">
+  <meta property="og:description" content="In directional label distillation, frozen teachers score candidate answers in the direction they know, and the best-scoring candidate becomes the student's training target. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/directional-verification/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/directional-verification/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Distilling Directional Verification">
+  <meta name="twitter:description" content="Frozen teachers score candidate answers in the direction they know, and the best-scoring candidate becomes the student's training target.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/directional-verification/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Child blue and parent teal, taken from the overview figure. The two
+       teacher cards take the purple of its frozen teachers, and the two
+       student cards take the orange of its answer slots. */
+    :root { --accent-a: #0043ca; --accent-b: #309ca1; }
+    .s1 { --step: #8250b2; --step-ink: #6b34a6; }
+    .s2 { --step: #c95909; --step-ink: #a94600; }
+    /* The paper tints the rows of the proposed labels and keeps their numbers
+       at regular weight, and it indents the variants listed under them. */
+    .tbl tbody tr.ours > td { font-weight: 400; }
+    .tbl th.sub { padding-left: 1.7rem; }
+    /* On a phone each row label breaks after its first part, so that the
+       pinned column leaves room for the numbers. */
+    @media screen and (max-width: 47.99rem) { .tbl .how { display: block; } }
+    /* On paper the main table is set smaller and tighter, so that all seven
+       columns stay inside the text width. */
+    @media print {
+      #results .tbl { font-size: 0.78rem; }
+      #results .tbl td { padding-right: 0.3rem; padding-left: 0.3rem; }
+    }
+    /* A formula is the widest thing in its card. On narrow cards its size
+       follows the screen, so it stays whole without scrolling sideways. */
+    .step .formula .katex { font-size: min(1.1em, 3.9vw); }
+    @media (min-width: 48rem) { .step .formula .katex { font-size: min(1.1em, 2.1vw); } }
+    /* The contrast score is wider than a phone, so there it breaks after
+       the minus sign. */
+    .formula.breaks .katex { white-space: normal; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">Distilling <span class="name">Directional Verification</span></h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>2</sup>,</span>
+          <span class="author">Seongtae Hong<sup>1</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1</sup>,</span>
+          <span class="author">Chanjun Park<sup>3</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>4†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Yonsei University Mirae Campus</span>
+          <span><sup>3</sup>Soongsil University</span>
+          <span><sup>4</sup>Konkuk University</span>
+        </p>
+        <p class="notes"><span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2610.00997" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2610.00997" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/directional-verification" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A teacher that cannot generate a reverse answer can still score candidates in the direction it knows, and the <span class="nw">best-scoring</span> candidate becomes the student's training target.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="894" alt="Three-panel diagram. Panel a, child-to-parent scoring, shows a candidate pool holding Paulina Rubio, Diego Luna, and further names, and the parent query Susana Dosamantes. Four frozen teachers each score the query parent as the continuation of a candidate's prompt, for example the prompt Paulina Rubio's parent is with the scored continuation Susana Dosamantes. Panel b, pseudo-label selection, shows a table that holds one score from each of the four teachers for each candidate. The scores are averaged over teachers, and the candidate with the highest mean score, Paulina Rubio, becomes the selected pseudo-label. Panel c, parent-to-child distillation, shows the training pair from Susana Dosamantes to Paulina Rubio training a masked diffusion student that restores a masked token of the answer. At teacher-free inference the prompt Susana Dosamantes's child is yields the output Paulina Rubio.">
+          </a>
+          <figcaption class="long">Directional label distillation with four teacher channels. Frozen teachers score the same query parent after each candidate child (a). The candidate with the highest mean teacher score becomes the pseudo-label (b). A masked diffusion student learns to reconstruct masked tokens of the selected answer and answers reverse queries without teachers at inference (c). Blue and teal mark child and parent names.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Knowledge distillation aims to transfer the factual knowledge of large language models to smaller models for efficient deployment. Yet a teacher may recall a relation in one direction while failing to generate the answer in the reverse direction. Distillation from its generated answers can therefore propagate this directional limitation to the student. The same teacher can nevertheless recognize such an answer by scoring the relation in the direction it knows. We introduce directional label distillation, in which frozen teachers score candidate answers in that known direction and the best-scoring candidate becomes the student's training target. On facts about parents and their children, known-direction scoring yields more accurate labels than scoring the requested direction, even after tuned corrections for name priors. With prior-corrected scores, the better direction depends on the facts rather than the template, and reverses on mined facts whose notable entity is the parent rather than the child. With the evaluated children's forward facts withheld, students trained on known-direction labels improve open-ended accuracy on their trained queries by 13 to 15 points over students trained on prior-corrected reverse labels. After generated answers are matched to a fixed name list by lexical similarity, students reproduce nearly all selected labels. Their accuracy largely follows label quality. The label advantage holds on unscreened queries and when candidates are retrieved without inserting correct answers. Our findings show that directional verification mitigates the transfer of errors from teacher-generated answers to students by providing more accurate training targets. Code is available at <a href="https://github.com/js-lee-AI/directional-verification" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr><span class="nw">directional-verification</span></a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Directional Label Distillation</h2>
+        <div class="prose">
+          <p>Given a parent query \(p_i\), the student must name a true child. Frozen teachers select a target \(\hat c_i\) from a fixed name inventory \(\mathcal I\), without using the recorded answer for selection. Each candidate child is scored in the child-to-parent direction, which the paper calls the known direction, and the student is then trained to answer in the parent-to-child direction.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Step 1</span>
+            <h3>Score candidates in the known direction</h3>
+            <p>Teacher \(T_r\) evaluates the query parent's probability after <code>{child}'s parent is</code> for each candidate child \(c\). The known-direction score averages the parent's token log probabilities.</p>
+            <p class="formula">\[\kappa_r(p_i, c) = \frac{1}{|\operatorname{tok}_r(p_i)|} \log P_{T_r}\!\left(p_i \mid t_{\mathrm{parent}}(c)\right)\]</p>
+            <p>Here \(t_{\mathrm{parent}}(c)\) denotes this prompt and \(|\operatorname{tok}_r(p_i)|\) is the number of parent tokens. The parent continuation stays fixed across candidates, while the child context changes. Each teacher–template pair defines a scoring channel.</p>
+          </li>
+          <li class="step s1">
+            <span class="step-label">Step 2</span>
+            <h3>Select the pseudo-label</h3>
+            <p>For the screened cohort, <span class="nw">Qwen3-8B</span>, <span class="nw">OLMo-2-7B</span>, and <span class="nw">Mistral-7B-v0.3</span> independently scan the full inventory using known-direction scores. The union of each teacher's eight highest-scoring candidates forms the candidate pool \(\mathcal C_i\), and <span class="nw">Llama-3.1-8B-Instruct</span> scores this pool without adding candidates.</p>
+            <p>The four main-template scores are averaged, and the highest-scoring candidate other than the queried parent becomes the training label.</p>
+            <p class="formula">\[\hat c_i = \operatorname*{arg\,max}_{c \in \mathcal C_i,\ c \ne p_i} \frac{1}{4} \sum_{r=1}^{4} \kappa_r(p_i, c)\]</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Step 3</span>
+            <h3>Train the student on the selected pairs</h3>
+            <p>Reverse training pairs \((p_i, \hat c_i)\) supervise a student as completions of <code>{parent}'s child is</code>, while forward examples complete <code>{child}'s parent is</code> with a parent name. In both, the prompt stays visible and only the answer name is scored.</p>
+            <p>Because any-order masked training has been proposed as a remedy for reversal failures, the main students are masked diffusion models (MDMs) initialized from <span class="nw">Qwen3-0.6B</span> or <span class="nw">Qwen3-4B</span>. The answer occupies ten slots, of which a uniformly sampled number from one to ten is masked and scored.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Step 4</span>
+            <h3>Answer reverse queries without teachers</h3>
+            <p>At inference the teachers are discarded, and the MDM fills one slot at a time in confidence order over ten model passes. Its open string is evaluated together with an inventory-matched answer obtained by lexical postprocessing.</p>
+            <p>An autoregressive (AR) student trained on the same labels provides a second prediction objective. To isolate the effect of label quality, the main student comparisons exclude child-to-parent training examples for the evaluated relations.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The labels of the known direction are compared with labels from reverse scores, which evaluate the requested continuation. Writing \(\ell_r(y \mid t)\) for the mean continuation-token log probability of \(y\) after prompt \(t\), the reverse score of a candidate is \(\ell_r(c \mid t_{\mathrm{child}}(p_i))\), where \(t_{\mathrm{child}}(p_i)\) is <code>{parent}'s child is</code>. This score also rewards names that are probable on their own, so a candidate's context-only score is subtracted.</p>
+        </div>
+        <p class="formula breaks">\(\displaystyle s_r^{\lambda}(p_i, c) = {\ell_r(c \mid t_{\mathrm{child}}(p_i))} - {\lambda\, \ell_r(c \mid \texttt{The child is})}\)</p>
+        <div class="prose">
+          <p>The domain-context (DC) reverse score sets \(\lambda = 1\). Summed-token versions replace the means with sums, because candidate children differ in token length whereas the parent continuation of the known direction is fixed within a query. Tuned reverse scores choose \(\lambda\) from a grid and may replace the context-only term with a Monte Carlo estimate of the candidate's marginal log probability after unrelated parents. Their form and \(\lambda\) are tuned with gold labels on other query sets and then transferred.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Students Trained on Directional Labels</h2>
+        <div class="prose">
+          <p>The corpus contains 10,505 Wikidata parent–child pairs. On the screened cohort, a <span class="nw">Qwen3-8B</span> screen keeps a fact when its best true-parent score exceeds every distractor score, and 1,500 of the retained pairs become the reverse-label training set, with the candidate pools acquired as in Step&nbsp;2 above. The unscreened cohort contains 512 new parent queries without a forward screen. Each query has two direction-independent lists of 64 names, with uniformly sampled or lexically similar distractors, and both lists include the recorded answer.</p>
+          <p>The evaluated children's forward facts are withheld from training. The table groups its rows by three evaluation sets, the acquired pools on the screened cohort's 1,390 exposure-free queries, whose parent appears in no retained forward example, and the uniform and lexical lists on the unscreened cohort's 512 queries. The two indented rows are further known-direction label sets, a mean of Llama's two template scores and an eight-channel variant that uses two templates for each teacher and soft agreement.</p>
+          <p>Open accuracy uses accent- and case-normalized full-name substring matching against any true child of the query parent, without bare-surname credit. Whole-answer accuracy requires the entire normalized output to equal a true child's name. Inventory-matched accuracy first selects a name by lexical similarity and then requires exact membership in the query parent's true-child set.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Student results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Label source</th><th rowspan="2" scope="col">\(x\)</th><th class="grp" colspan="3" scope="col"><span>Accuracy against true children</span></th><th class="grp" colspan="2" scope="col"><span>Reproduces label</span></th></tr>
+                <tr><th scope="col">Open</th><th scope="col">Whole</th><th scope="col">Matched</th><th scope="col">String</th><th scope="col">Inventory</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="7" scope="rowgroup"><span>Acquired pools</span></th></tr>
+                <tr><th class="l stick" scope="row">Reverse, <span class="how">mean token</span></th><td>53.60</td><td>47.17 <span class="muted">± 1.29</span></td><td>47.00 <span class="muted">± 1.27</span></td><td>53.14 <span class="muted">± 0.41</span></td><td>79.59 <span class="muted">± 1.74</span></td><td>97.67 <span class="muted">± 0.30</span></td></tr>
+                <tr><th class="l stick" scope="row">DC reverse, <span class="how">mean token</span></th><td>54.82</td><td>49.26 <span class="muted">± 0.08</span></td><td>49.06 <span class="muted">± 0.07</span></td><td>53.93 <span class="muted">± 0.48</span></td><td>90.36 <span class="muted">± 0.29</span></td><td>97.65 <span class="muted">± 0.79</span></td></tr>
+                <tr><th class="l stick" scope="row">DC reverse, <span class="how">summed token</span></th><td>75.18</td><td>63.26 <span class="muted">± 1.30</span></td><td>63.14 <span class="muted">± 1.37</span></td><td>73.98 <span class="muted">± 0.23</span></td><td>79.98 <span class="muted">± 1.35</span></td><td>97.39 <span class="muted">± 0.51</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Known direction, <span class="how">mean token</span></th><td>90.72</td><td>78.03 <span class="muted">± 2.86</span></td><td>77.75 <span class="muted">± 2.91</span></td><td>88.94 <span class="muted">± 0.46</span></td><td>84.56 <span class="muted">± 3.02</span></td><td>97.70 <span class="muted">± 0.61</span></td></tr>
+                <tr><th class="l stick sub" scope="row">Llama two-template <span class="how">mean</span></th><td>90.29</td><td>75.11 <span class="muted">± 3.49</span></td><td>74.87 <span class="muted">± 3.42</span></td><td>88.23 <span class="muted">± 0.76</span></td><td>81.61 <span class="muted">± 3.94</span></td><td>97.24 <span class="muted">± 0.91</span></td></tr>
+                <tr><th class="l stick sub" scope="row">Eight-channel <span class="how">agreement</span></th><td>91.58</td><td>79.09 <span class="muted">± 0.80</span></td><td>78.78 <span class="muted">± 0.59</span></td><td>89.78 <span class="muted">± 0.07</span></td><td>84.96 <span class="muted">± 0.92</span></td><td>97.67 <span class="muted">± 0.18</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="7" scope="rowgroup"><span>Uniform lists</span></th></tr>
+                <tr><th class="l stick" scope="row">DC reverse, <span class="how">summed token</span></th><td>73.44</td><td>71.88 <span class="muted">± 0.59</span></td><td>71.88 <span class="muted">± 0.59</span></td><td>73.24 <span class="muted">± 0.00</span></td><td>97.33 <span class="muted">± 0.11</span></td><td>99.74 <span class="muted">± 0.11</span></td></tr>
+                <tr><th class="l stick" scope="row">Tuned reverse, <span class="how">transferred</span></th><td>74.61</td><td>72.20 <span class="muted">± 0.81</span></td><td>72.07 <span class="muted">± 0.78</span></td><td>74.35 <span class="muted">± 0.11</span></td><td>96.81 <span class="muted">± 1.27</span></td><td>99.61 <span class="muted">± 0.20</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Known direction, <span class="how">mean token</span></th><td>87.89</td><td>85.29 <span class="muted">± 0.56</span></td><td>85.22 <span class="muted">± 0.63</span></td><td>87.50 <span class="muted">± 0.20</span></td><td>96.81 <span class="muted">± 0.60</span></td><td>99.48 <span class="muted">± 0.11</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="7" scope="rowgroup"><span>Lexical lists</span></th></tr>
+                <tr><th class="l stick" scope="row">DC reverse, <span class="how">summed token</span></th><td>55.86</td><td>54.49 <span class="muted">± 0.70</span></td><td>54.49 <span class="muted">± 0.70</span></td><td>55.79 <span class="muted">± 0.11</span></td><td>97.07 <span class="muted">± 0.68</span></td><td>99.67 <span class="muted">± 0.30</span></td></tr>
+                <tr><th class="l stick" scope="row">Tuned reverse, <span class="how">transferred</span></th><td>57.23</td><td>55.66 <span class="muted">± 0.59</span></td><td>55.60 <span class="muted">± 0.49</span></td><td>57.10 <span class="muted">± 0.23</span></td><td>97.59 <span class="muted">± 0.69</span></td><td>99.87 <span class="muted">± 0.23</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Known direction, <span class="how">mean token</span></th><td>71.29</td><td>69.86 <span class="muted">± 0.45</span></td><td>69.79 <span class="muted">± 0.56</span></td><td>71.09 <span class="muted">± 0.20</span></td><td>97.59 <span class="muted">± 0.69</span></td><td>99.80 <span class="muted">± 0.20</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">MDM-0.6B</span> students trained on selected reverse labels (%, three-seed mean ± sample SD). \(x\) is label accuracy, and the last two columns give the share of outputs that reproduce the selected label as a whole string or after inventory matching. Blue marks the primary known-direction labels.</p>
+        </div>
+        <div class="prose">
+          <p>On the screened cohort's exposure-free queries, known-direction labels improve open accuracy by 14.77 points over summed-token DC labels, the most accurate reverse labels without a tuned coefficient. On the unscreened cohort, the gains are 13.09 to 15.36 points over summed DC and transferred tuned-reverse labels. These gains hold in every paired seed and under whole-answer evaluation, indicating that they do not depend on extra text around a correct name.</p>
+          <p>After inventory matching, every student returns its selected label for more than 97% of queries on average over seeds, despite large differences in label accuracy. Student accuracy therefore follows label accuracy, and better labels account for most of the student gain.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="direction">
+      <div class="wrap">
+        <h2>Scoring Direction Against Aggregation Rules</h2>
+        <div class="prose">
+          <p>To separate the effects of aggregation and scoring direction, six aggregation rules are compared on the screened cohort with the same four teachers and acquired pools. The rules are raw-score, z-score, and probability means, Borda, reciprocal-rank fusion (RRF), and soft agreement, which estimates channel weights from how consistently the channels support the same candidates, without using gold answers. An eight-channel variant uses two templates for each teacher and soft agreement.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/aggregation.webp" data-zoom>
+            <img src="assets/aggregation.webp" width="2400" height="551" loading="lazy" alt="Two panels. Panel a shows the label accuracy of three scores under six aggregation rules, raw mean, z-score mean, probability mean, Borda, RRF, and soft agreement, with four teachers and the same pool. The known direction lies between about 89 and 91 percent under every rule, summed reverse between about 72 and 73 percent, and summed DC reverse between about 74 and 76 percent. The known-direction gains over summed DC are +15.1, +14.1, +16.7, +12.5, +13.1, and +15.9 points. Panel b shows the gain of eight-channel agreement over each simpler rule in percentage points with 95 percent intervals. The gains over the raw, z-score, and probability means of the same eight vectors are below 0.5 points, the gains over Borda and RRF are about 1.6 and 1.5 points, and the gain over the two-vector Llama raw mean is about 1 point.">
+          </a>
+          <figcaption>Label accuracy on the 1,500 acquired pools. (a) Scoring directions under six aggregation rules. (b) Eight-channel agreement gains over simpler rules on the same vectors and a two-vector Llama mean, with paired parent-cluster 95% intervals.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Known-direction labels exceed summed DC labels by 12.47 to 16.73 points under all six rules, whereas the rules differ by at most 2.33 points within a score form. On the same eight score vectors, agreement performs on par with simple score means, so direction accounts for the label advantage. Because known-direction scans retrieved these pools, the comparison conditions on those candidates, a restriction removed by the unscreened lists and full-inventory scans.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="priors">
+      <div class="wrap">
+        <h2>Name Priors and Reverse Errors</h2>
+        <div class="prose">
+          <p>A reverse score evaluates a different continuation for each candidate, mixing relational evidence with how probable a name is on its own. The stored scores for the Susana Dosamantes query of the overview figure show this mixture. Among its 17 candidates, Selena Gomez is the most probable name on its own, above the recorded child Paulina Rubio. Scoring the requested direction selects Diego Luna, whose name is more probable than the true child's, and subtracting the prior moves the choice to Odiseo Bichir, whose name is less probable. The known direction scores the same parent continuation after every candidate and ranks the true child first.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/priors.webp" data-zoom>
+            <img src="assets/priors.webp" width="2400" height="481" loading="lazy" alt="Three line plots of label accuracy against the low, middle, and high tercile of the true child's context-only name score, for the acquired pool with 1,346 queries and the unscreened uniform and lexical lists with 512 queries each. The known direction with mean tokens reaches 95.1, 92.2, and 93.5 percent on the acquired pool, 90.6, 82.4, and 90.6 on the uniform lists, and 75.4, 63.5, and 74.9 on the lexical lists. DC reverse with summed tokens falls from the low to the high tercile, from 89.8 to 57.5, from 86.5 to 63.7, and from 74.9 to 39.2. Reverse with summed tokens rises, from 61.7 to 82.4, from 49.7 to 69.6, and from 40.4 to 53.8.">
+          </a>
+          <figcaption>Label accuracy by tercile of the true child's context-only name score. Reverse and DC reverse sum token scores, and the known direction uses mean tokens. For acquired pools, this analysis excludes queries whose true child is absent from the candidates.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Across queries, summed reverse accuracy rises with the true child's prior, and over 90% of its errors select a name with a higher prior than the true child. Subtracting the prior over-corrects, so summed DC is accurate for low-prior children but loses more than 30 points for high-prior children on the acquired pool. Known-direction accuracy is similar in the low- and high-prior strata. Its advantage over summed DC thus grows with the prior, whereas continuation-length strata show no comparable increase.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="comparators">
+      <div class="wrap">
+        <h2>Stronger Comparators and Sentence Direction</h2>
+        <div class="prose">
+          <p>Because reverse errors follow name priors, the correction is fitted rather than fixed at one, using gold labels on other cohorts before transferring it. The known direction receives no such supervision, but scores every candidate, costing one teacher call for each candidate against one completion for a generated label. Tuned reverse scores improve on summed DC, yet the known direction still leads the transferred tuned scores by 10.07 to 14.06 points in the three cohorts, and tuning on each cohort's own gold labels leaves a similar gap. Teacher generation is a far weaker label source, because greedy and sampled completions of the raw prompt <code>{parent}'s child is</code> rarely name a true child, and mapping them onto the candidate list recovers few correct labels. Teacherless surname and trigram rules exploit name cues yet also trail the known direction in every cohort.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/comparators.webp" data-zoom>
+            <img src="assets/comparators.webp" width="2400" height="709" loading="lazy" alt="Two panels. Panel a shows the label accuracy of nine label sources on the acquired pools and on the uniform and lexical unscreened lists. In that order of cohorts, the known direction reaches 90.72, 87.89, and 71.29 percent, tuned reverse with its own lambda 81.80, 76.37, and 58.79, transferred tuned reverse 80.65, 74.61, and 57.23, summed DC reverse 75.18, 73.44, and 55.86, the surname rule 72.73, 56.05, and 45.12, summed reverse 71.80, 60.16, and 46.88, the trigram rule 65.47, 63.48, and 33.20, inverted generation 25.76, 16.99, and 16.80, and the best generation rule 17.05, 4.10, and 2.73. Panel b shows child-to-parent sentence accuracy minus parent-to-child sentence accuracy in points. On corpus facts the difference is +14.5 and +15.4 for parent queries on uniform and lexical lists and +11.5 and +5.9 for child queries. On notable-parent facts it is −3.7 and −6.8 for parent queries and −8.2 and −8.7 for child queries.">
+          </a>
+          <figcaption>Stronger comparators and sentence direction. (a) Label accuracy on the acquired pools and the uniform and lexical unscreened lists. (b) Child-to-parent sentence accuracy minus parent-to-child sentence accuracy on corpus facts and mined facts with a notable parent.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The unscreened lists are built without teacher scores and include the recorded answer. The known direction leads every tested reverse scorer in both pools, indicating that its advantage does not depend on known-direction retrieval. In full-inventory scans on 512 unscreened queries without inserted answers, known-direction scoring improves candidate coverage and retains a <span class="nw">25.59-point</span> advantage over summed DC when both rules use the same union pool. These results show gains in both retrieval and selection, while candidate coverage still limits accuracy.</p>
+          <p>Panel (b) compares the two sentence directions for parent and child queries. The child-to-parent (C→P) sentence conditions on the child and the parent-to-child (P→C) sentence on the parent. On the unscreened corpus facts, where every child has an English Wikipedia article, the C→P sentence wins for parent and child queries alike. On 1,024 newly mined Wikidata facts whose parent has an English article and at least 20 sitelinks and whose child has no English article, the P→C sentence wins on both lists for both query sides, and the mean difference across facts shifts by 18.68 points toward P→C. With prior-corrected direct scores, the better sentence is therefore the same for both query sides within a fact set, and it switches between the two fact sets, whose notable entities differ. Era and name distribution also differ, so the comparison identifies the switch between fact sets rather than a single controlled cause.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="controls">
+      <div class="wrap">
+        <h2>Supporting Controls</h2>
+        <div class="prose">
+          <p>The controls below use default exposure, which retains every true forward pair, and cover all 1,500 trained queries. Panel (a) trains <span class="nw">MDM-4B</span> students on reverse labels that range from random labels to a gold-reverse oracle. Panel (b) trains students without reverse labels, including a <span class="nw">Qwen3-8B</span> AR student, and its warm-start students train only the forward stage.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Default-exposure controls table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Labels or control</th><th scope="col">\(x\)</th><th scope="col">Open</th><th scope="col">Matched</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(a) Reverse labels, MDM-4B</span></th></tr>
+                <tr><th class="l stick" scope="row">Random</th><td>14.13 <span class="muted">± 0.42</span></td><td>13.11 <span class="muted">± 0.47</span></td><td>13.91 <span class="muted">± 0.49</span></td></tr>
+                <tr><th class="l stick" scope="row">Self-ranked</th><td>22.60</td><td>21.38 <span class="muted">± 0.21</span></td><td>22.64 <span class="muted">± 0.08</span></td></tr>
+                <tr><th class="l stick" scope="row">Single teacher</th><td>81.13</td><td>75.22 <span class="muted">± 0.37</span></td><td>80.51 <span class="muted">± 0.20</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Agreement (8)</th><td>91.53</td><td>84.33 <span class="muted">± 1.62</span></td><td>90.73 <span class="muted">± 0.24</span></td></tr>
+                <tr><th class="l stick" scope="row">Gold</th><td>100.00</td><td>92.00 <span class="muted">± 2.07</span></td><td>98.91 <span class="muted">± 0.04</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(b) No reverse labels</span></th></tr>
+                <tr><th class="l stick" scope="row">Warm start <span class="how muted">(MDM-4B)</span></th><td></td><td>1.58 <span class="muted">± 0.14</span></td><td>39.56 <span class="muted">± 3.00</span></td></tr>
+                <tr><th class="l stick" scope="row">MLM-U <span class="how muted">(MDM-4B)</span></th><td></td><td>1.82 <span class="muted">± 0.53</span></td><td>28.16 <span class="muted">± 6.93</span></td></tr>
+                <tr><th class="l stick" scope="row">Warm start <span class="how muted">(AR-8B)</span></th><td></td><td>2.02 <span class="muted">± 0.14</span></td><td>37.31 <span class="muted">± 0.73</span></td></tr>
+                <tr><th class="l stick" scope="row">Identity bridge <span class="how muted">(AR-8B)</span></th><td></td><td>1.31 <span class="muted">± 0.27</span></td><td>44.38 <span class="muted">± 1.20</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Default-exposure student controls on all 1,500 trained queries (%, three-seed mean ± sample SD). (a) <span class="nw">MDM-4B</span> students trained on reverse labels with label accuracy \(x\). (b) Students trained without reverse labels. Blue marks eight-channel agreement labels.</p>
+        </div>
+        <div class="prose">
+          <p>In panel (a), matched accuracy stays within about one point of label accuracy from random to gold labels. In panel (b), format adaptation, masked language modeling with a uniformly sampled mask count (<span class="nw">MLM-U</span>), and identity-bridge data all leave open accuracy below 3%. Reverse-label supervision drives the improvement in these controls. <span class="nw">MLM-U</span> directly tests the proposed any-order remedy for reversal failures, yet leaves these reverse queries largely unanswered.</p>
+          <p>On queries whose parent and recorded child have different last names, known-direction labels remain far more accurate than summed-DC labels in all three cohorts, and students trained on them outperform summed-DC students by 22 to 29 points on average, with a gain in every seed. These gains therefore do not require the parent and recorded child to share a surname.</p>
+          <p>The study covers one relation over a fixed name inventory, which allows candidate sets, forward exposure, and evaluation to be controlled exactly. Relations with open-ended answers will need other ways to propose candidates. Scoring also costs one teacher call per candidate, so a larger inventory needs a cheaper proposal stage in front of the scorer.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026directional,
+  title = {Distilling Directional Verification},
+  author = {Jungseob Lee and Sugyeong Eo and Seongtae Hong and Seungyoon Lee and Chanjun Park and Jaehyung Seo and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2610.00997},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2610.00997},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

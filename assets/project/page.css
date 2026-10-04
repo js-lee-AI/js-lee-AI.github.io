@@ -424,6 +424,17 @@ figcaption.long,
   margin: 0;
 }
 
+/* A wide table inside the pair scrolls in its own frame instead of widening the column. */
+.split > * {
+  min-width: 0;
+}
+
+/* Between two runs of text the pair keeps the gap that a single figure has there. */
+.prose + .split,
+.split + .prose {
+  margin-top: 1.75rem;
+}
+
 /* ---------- Method steps ---------- */
 
 .steps.cols-3 {
@@ -572,7 +583,8 @@ code {
   text-align: center;
 }
 
-.tbl .grp span {
+/* Only the label wrapper gets the rule, so a typeset formula inside the label keeps its own spans. */
+.tbl .grp > span {
   display: block;
   padding-bottom: 0.3rem;
   border-bottom: 1px solid var(--ink-mute);
@@ -967,13 +979,15 @@ html:has(dialog[open]) {
 /* ---------- Small screens ---------- */
 
 @media (max-width: 47.99rem) {
+  /* The single column may be narrower than its widest formula or table,
+     which then scrolls inside its own frame. */
   .steps {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .fig-pair,
   .split {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   figcaption,
@@ -1059,6 +1073,7 @@ html:has(dialog[open]) {
   .links,
   .copy,
   .more,
+  .footer,
   .scroll-hint,
   .table-block.wide .scroll-hint,
   .table-block.scrolls .scroll-hint {
@@ -1084,8 +1099,25 @@ html:has(dialog[open]) {
     padding-left: 0.16rem;
   }
 
+  /* A wide table is set smaller on paper, so that its last column stays
+     inside the frame and the sheet is not scaled down to hold it. */
+  .table-block.wide .tbl:not(.dense) {
+    font-size: 0.74rem;
+  }
+
+  .table-block.wide .tbl:not(.dense) th,
+  .table-block.wide .tbl:not(.dense) td {
+    padding-right: 0.3rem;
+    padding-left: 0.3rem;
+  }
+
   .title .name {
     background: none;
     color: var(--accent-a);
+  }
+
+  /* A section heading stays on the same sheet as the text it introduces. */
+  .section h2 {
+    break-after: avoid;
   }
 }

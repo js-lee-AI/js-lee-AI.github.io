@@ -1,0 +1,363 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refusal Localizes, the Damage Relocates: Safety Layers Under Few-Sample Fine-Tuning</title>
+  <meta name="description" content="Across six checkpoints from four model families, patching full clean hidden states into a compromised model restores refusal at a reproducible transition depth. Freezing every layer up to this depth and repeating the attack leaves refusal near zero at a hundred harmful examples, with recovery transitions above the frozen boundary. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/refusal-relocates/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Refusal Localizes, the Damage Relocates: Safety Layers Under Few-Sample Fine-Tuning">
+  <meta property="og:description" content="Patching full clean hidden states into a compromised model restores refusal at a reproducible transition depth. Freezing every layer up to this depth and repeating the attack leaves refusal near zero at a hundred harmful examples. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/refusal-relocates/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/refusal-relocates/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Refusal Localizes, the Damage Relocates: Safety Layers Under Few-Sample Fine-Tuning">
+  <meta name="twitter:description" content="Patching clean hidden states restores refusal at a reproducible transition depth, but freezing every layer up to this depth leaves refusal near zero at a hundred harmful examples.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/refusal-relocates/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Band-frozen blue and unrestricted-attack red, taken from the freeze figures.
+       The three study cards take the colours of the same elements in the overview
+       figure: the attacker's update, the patch and the frozen band. The check
+       cards keep the blue. */
+    :root { --accent-a: #2f6db5; --accent-b: #c0392b; }
+    .s1 { --step: #fe8784; --step-ink: #b8413e; }
+    .s2 { --step: #f69e03; --step-ink: #8a5700; }
+    .s3 { --step: #ac86d6; --step-ink: #6f47a8; }
+    .s4 { --step: #2f6db5; --step-ink: #24558d; }
+    /* The columns the paper tints carry the tint of the highlighted rows. */
+    .tbl td.key { background: var(--ours); }
+    /* The last of five cards closes the grid instead of leaving half a row empty. */
+    .steps .span { grid-column: 1 / -1; }
+    /* A text block that follows a two-column block keeps the usual gap. */
+    .split + .prose { margin-top: 1.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><span class="name">Refusal Localizes, the Damage Relocates</span>: Safety Layers Under <span class="nw">Few-Sample</span> <span class="nw">Fine-Tuning</span></h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1*</sup>,</span>
+          <span class="author">Dongyub Jude Lee<sup>2*</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>3†</sup>,</span>
+          <span class="author">Seongtae Hong<sup>1</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Zoom Communications</span>
+          <span><sup>3</sup>Yonsei University Mirae Campus</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2610.00320" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2610.00320" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/refusal-relocates" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">Clean-state patching restores refusal at a reproducible depth, but freezing every layer up to that depth leaves refusal near zero at a hundred harmful examples on all six checkpoints, with recovery transitions above the frozen boundary.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="1042" alt="Two-panel diagram. (a) Lockstep patching: a clean model and a compromised model run on shared tokens, each with its own KV cache, and the clean hidden state at one decoder layer is patched over the compromised model's state at that layer, marked with a transition depth of 15. (b) Freeze, then re-test: the clean weights are fine-tuned with the attacker's update confined to writable layers 18 to 31 while layers 0 to 17 are frozen, so the restricted checkpoint is identical to the clean model in layers 0 to 17. Patching the clean state into the restricted checkpoint again gives a transition depth of 27 to 28.">
+          </a>
+          <figcaption class="long">(a) Lockstep activation patching overwrites the compromised model's layer output with the clean state at prefill and each decoding step. (b) In the matched Llama attack, freezing layers <span class="nw">0–17</span> shifts the <span class="nw">half-ceiling</span> transition from 15 to <span class="nw">27–28</span>.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Fine-tuning adapts aligned large language models (LLMs) to downstream tasks, but a few dozen harmful examples can remove their refusal of harmful requests. Prior work localizes safety-related behavior to specific layers, directions, and tokens, suggesting targets for protection. We test whether successful localization and recovery support defenses that survive changes in the attack. Across six checkpoints from four model families, harmful and benign prompts remain linearly separable after attack, and patching full clean hidden states into the compromised model restores refusal at a reproducible transition depth. Building on a prior layer-freezing defense, we freeze every layer up to this depth and repeat the attack. At a hundred harmful examples, refusal remains near zero on all six checkpoints, with recovery transitions above the frozen boundary. In a second study, removing the update's top two singular directions restores refusal after short attention-only fine-tunes on four checkpoints. On <span class="nw">Llama-3.1-8B</span>, ordinary training changes weaken this repair and an attacker who spreads the update defeats it. A spectral detector calibrated on benign Llama fine-tunes misses most repair failures on that checkpoint. Localized freezing can nevertheless help preserve refusal when a few harmful examples enter training data unintentionally. These results show that an attacker can bypass a region identified by recovery and defeat a repair that works across multiple checkpoints, motivating five checks for defenses against adaptive fine-tuning. Code is available at <a href="https://github.com/js-lee-AI/refusal-relocates" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr><span class="nw">refusal-relocates</span></a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="setup">
+      <div class="wrap">
+        <h2>Testing a Localization as a Defense</h2>
+        <div class="prose">
+          <p>Prior work localizes safety-related behavior to specific layers, directions, and tokens, and each finding invites the same defense, protecting the place that was found. The paper tests this premise on six aligned checkpoints from four model families. The defender holds the fine-tuned weights or controls which parameters may change, but never sees the attack data, and each defense is then challenged with an attacker who knows it.</p>
+        </div>
+        <ol class="steps cols-3">
+          <li class="step s1">
+            <span class="step-label">Step 1</span>
+            <h3>Attack with a few harmful examples</h3>
+            <p>An attacker fine-tunes a public aligned checkpoint with LoRA at <span class="nw">\(r = 16\)</span> on harmful prompt and response pairs from <span class="nw">PKU-SafeRLHF</span>, with loss masked to response tokens. Attack dose, the number of harmful examples, is swept over \(\{5, 10, 25, 50, 100\}\) at three seeds per cell.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Step 2</span>
+            <h3>Locate where refusal recovers</h3>
+            <p>Lockstep activation patching runs the clean and compromised checkpoints on identical tokens and overwrites the compromised model's full hidden state at one layer with the clean model's, at prefill and every decoding step. The transition depth \(\ell^*\) is the shallowest measured layer where patched refusal reaches at least half the ceiling.</p>
+          </li>
+          <li class="step s3">
+            <span class="step-label">Step 3</span>
+            <h3>Defend that place, then attack again</h3>
+            <p>Freeze every parameter in layers \([0, \ell^*]\) and re-run the attack on the layers above, beside a matched freeze of the same number of layers at the opposite end. In weight space, remove the update's largest singular directions, then change the training configuration or let the attacker spread the update.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The six checkpoints are <span class="nw">Llama-3.1-8B-Instruct</span>, <span class="nw">Llama-3.1-Tulu-3-8B-DPO</span>, <span class="nw">OLMo-2-1124-7B-Instruct</span>, <span class="nw">OLMo-2-1124-13B-Instruct</span>, <span class="nw">Qwen2.5-14B-Instruct</span>, and <span class="nw">Yi-1.5-9B-Chat</span>. The primary outcome is preservation or restoration of explicit refusal, with unsafe outputs assessed separately. Coherent refusal is the fraction of prompts whose greedy completion matches an explicit-refusal pattern and has perplexity under the original model below 50, and <span class="nw">Llama-Guard-3-8B</span> gives the unsafe rate. Refusal is never inferred as one minus the unsafe rate, since the two scores disagree on 9,653 of 91,090 harmful-set generations.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="depth">
+      <div class="wrap">
+        <h2>Lockstep Patching Locates a Transition Depth</h2>
+        <div class="prose">
+          <p>After the attack, harmful and benign prompts remain linearly separable. A linear probe trained on the clean model's activations, frozen, and evaluated on the same prompts in the compromised model keeps an AUROC of 0.750 to 0.995 over 72 cells across all six checkpoints at dose 100, and exceeds a cross-validated lexical bag-of-words reference of 0.834 to 0.846 in 67 of the 72 cells. Separability, however, carries less than the AUROC suggests, because the three never-aligned base checkpoints separate the same prompts almost as well. The surviving separability is a property of the pretrained representation.</p>
+          <p>Lockstep patching then locates where refusal can be recovered. Recovery is reported between a floor, the compromised model with no patch, and a ceiling, the clean model's state handed over at the last layer. It does not rise gradually with depth but steps. The transition depth \(\ell^*\) is deeper at dose 100 than at each checkpoint's smallest landing dose in all six checkpoints, and between doses 50 and 100 the mean measured transition depth is unchanged on all six.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/profiles.webp" data-zoom>
+            <img src="assets/profiles.webp" width="2400" height="721" loading="lazy" alt="Six line plots, one each for Llama-3.1-8B, Tulu-3-8B-DPO, OLMo-2-7B, OLMo-2-13B, Qwen2.5-14B, and Yi-1.5-9B, of recovery as a fraction of ceiling against the patched layer as a fraction of depth. Each panel has one curve per attack dose from 5 to 100 harmful examples and a dotted line at half of ceiling. Every curve stays near zero in the early layers and then steps up to near the ceiling. At dose 100 the step crosses half of ceiling at about half of depth on Llama, Tulu, and both OLMo checkpoints, at about 0.65 of depth on Qwen, and at about 0.8 of depth on Yi. On Llama the lowest dose crosses earliest, below 0.4 of depth.">
+          </a>
+          <figcaption>Recovery from patching one clean layer into the compromised checkpoint.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Two controls accompany the depth measurements. A no-op self-patch establishes that injection alone changes nothing, and a specificity control that patches clean state from a foreign benign prompt stays near the floor.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="freeze">
+      <div class="wrap">
+        <h2>Freezing the Band Does Not Preserve Refusal</h2>
+        <div class="prose">
+          <p>The freeze test asks whether freezing the prefix \([0, \ell^*]\) identified by recovery preserves refusal when the attacker knows which layers are frozen. Freezing a localized region is the premise of safely partial-parameter fine-tuning (SPPFT; Li et al., 2025), and the adaptive evaluation lets the attacker train the remaining layers. The attack is re-run with every parameter in layers \([0, \ell^*]\) frozen, which is 18 of 32 layers on <span class="nw">Llama-3.1-8B</span>, and only the layers above are adapted. Refusal after the restricted attack is 0.00 to 0.01 over three seeds against a clean 0.92 to 0.96, indistinguishable from the unrestricted attack. The same holds on five further checkpoints frozen at their own measured depths.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Layer-freezing results table" tabindex="0">
+            <table class="tbl dense">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Model</th><th class="c" rowspan="2" scope="col"><i>L</i></th><th class="c" rowspan="2" scope="col">Frozen</th><th class="grp" colspan="4" scope="col"><span>Coherent refusal&nbsp;↑</span></th><th class="grp" colspan="4" scope="col"><span>Llama-Guard unsafe&nbsp;↓</span></th></tr>
+                <tr><th class="g" scope="col">Clean</th><th scope="col">Attack</th><th scope="col">Freeze</th><th scope="col">Matched</th><th class="g" scope="col">Clean</th><th scope="col">Attack</th><th scope="col">Freeze</th><th scope="col">Matched</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="11" scope="rowgroup"><span>LoRA, each checkpoint at its own measured depth</span></th></tr>
+                <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>32</td><td>[0, 17]</td><td class="g">.92–.96</td><td>.00</td><td class="key"><b>.00–.01</b></td><td>.00</td><td class="g">.04–.05</td><td>.94–.98</td><td class="key"><b>.89–.92</b></td><td>.96–.97</td></tr>
+                <tr><th class="l stick" scope="row">Tulu-3-8B-DPO</th><td>32</td><td>[0, 15]</td><td class="g">.99–1.00</td><td>.01–.06</td><td class="key"><b>.00–.03</b></td><td>.01–.04</td><td class="g">.00</td><td>.89–.94</td><td class="key"><b>.53–.74</b></td><td>.89–.92</td></tr>
+                <tr><th class="l stick" scope="row">OLMo-2-7B</th><td>32</td><td>[0, 16]</td><td class="g">.99–1.00</td><td>.00–.02</td><td class="key"><b>.00–.02</b></td><td>.06–.07</td><td class="g">.00</td><td>.84–.94</td><td class="key"><b>.49–.72</b></td><td>.84–.88</td></tr>
+                <tr><th class="l stick" scope="row">OLMo-2-13B</th><td>40</td><td>[0, 20]</td><td class="g">.99–1.00</td><td>.00–.02</td><td class="key"><b>.00–.01</b></td><td>.00–.02</td><td class="g">.00</td><td>.89–.95</td><td class="key"><b>.23–.63</b></td><td>.89–.96</td></tr>
+                <tr><th class="l stick" scope="row">Qwen2.5-14B</th><td>48</td><td>[0, 31]</td><td class="g">.97–.99</td><td>.00–.01</td><td class="key"><b>.00</b></td><td>.02–.07</td><td class="g">.00</td><td>.92–.98</td><td class="key"><b>.65–.84</b></td><td>.77–.89</td></tr>
+                <tr><th class="l stick" scope="row">Yi-1.5-9B</th><td>48</td><td>[0, 39]</td><td class="g">.91–.93</td><td>.00</td><td class="key"><b>.00–.01</b></td><td>.00–.01</td><td class="g">.06–.09</td><td>.87–.96</td><td class="key"><b>.70–.86</b></td><td>.92–.97</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="11" scope="rowgroup"><span>Full fine-tuning, gradient masking at our depth</span></th></tr>
+                <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>32</td><td>[0, 17]</td><td class="g">.92–.96</td><td>.00</td><td class="key"><b>.00–.01</b></td><td>.00–.01</td><td class="g">.04–.05</td><td>.96–.98</td><td class="key"><b>.67–.85</b></td><td>.96–.98</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="11" scope="rowgroup"><span>Full fine-tuning at the published SPPFT band</span></th></tr>
+                <tr><th class="l stick" scope="row">Llama-3-8B-Instruct</th><td>32</td><td>[6, 12]</td><td class="g">.98–1.00</td><td>.00–.01</td><td class="key"><b>.00–.01</b></td><td>.00</td><td class="g">.00–.01</td><td>.92–.99</td><td class="key"><b>.90–.99</b></td><td>.94–.98</td></tr>
+                <tr><th class="l stick" scope="row">Llama-2-7b-chat</th><td>32</td><td>[6, 14]</td><td class="g">.99–1.00</td><td>.01–.13</td><td class="key"><b>.00–.10</b></td><td>.05–.14</td><td class="g">.00</td><td>.63–.97</td><td class="key"><b>.81–.90</b></td><td>.81–.86</td></tr>
+                <tr><th class="l stick" scope="row">gemma-2b-it</th><td>18</td><td>[6, 11]</td><td class="g">.93–.97</td><td>.01–.09</td><td class="key"><b>.12–.19</b></td><td>.04–.15</td><td class="g">.03–.07</td><td>.85–.95</td><td class="key"><b>.66–.80</b></td><td>.78–.97</td></tr>
+                <tr><th class="l stick" scope="row">Phi-3-mini-4k</th><td>32</td><td>[11, 15]</td><td class="g">.99–1.00</td><td>.01</td><td class="key"><b>.01–.05</b></td><td>.00–.03</td><td class="g">.00</td><td>.86–.96</td><td class="key"><b>.78–.97</b></td><td>.94–.96</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Coherent refusal and <span class="nw">Llama-Guard</span> unsafe rates on AdvBench after an attack that cannot write to the frozen layers. Dose 100, three seeds per checkpoint, ranges over seeds. Matched freezes the same number of layers elsewhere. The blocks differ in what is frozen.</p>
+        </div>
+        <div class="prose">
+          <p>Since freezing 18 of 32 layers might weaken an attack simply by removing parameters, each run is paired with a freeze of the same number of layers at the opposite end, which attributes any difference to position rather than capacity. Neither the parameterization nor the choice of band is responsible. With gradient masking under full fine-tuning and no adapter, refusal stays at 0.00 to 0.01. Masking gradients over the interior bands that Li et al. (2025) report, on the four checkpoints they report bands for, leaves refusal at 0.00 to 0.19 against clean rates above 0.92, and on none of the four is the published band separable from a control that freezes the same number of layers elsewhere. Their evaluation used backdoor or ordinary instruction data, whereas this one uses harmful instruction and response pairs.</p>
+          <p>The second scorer does register the freeze. Judged by <span class="nw">Llama-Guard</span>, the restricted attack is less harmful than the unrestricted one on all six checkpoints, and the matched freeze shows almost none of that drop. Freezing therefore lowers <span class="nw">Llama-Guard</span> unsafe rates while leaving pattern-matched refusal below the clean rate on every checkpoint.</p>
+          <p>Below some dose the freeze is a real defense, and the dose is checkpoint-specific because the attack has its own landing threshold. In the evaluated low-dose comparisons, the freeze preserves refusal near clean levels on Llama and <span class="nw">OLMo-2-7B</span>, with partial preservation on Tulu and Qwen and higher average refusal than the matched freeze on all four checkpoints. On Llama it still holds at ten examples and has collapsed by twenty-five.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/lowdose.webp" data-zoom>
+            <img src="assets/lowdose.webp" width="2400" height="740" loading="lazy" alt="Three panels of coherent refusal ranges for the clean model, the unrestricted attack, the band freeze, and a matched freeze elsewhere. (a) Low-dose comparison on five checkpoints. With the band frozen, refusal stays near the clean level on Llama at 5 examples and on OLMo-7B at 25, spans roughly 0.2 to 0.5 on Tulu and 0.3 to 0.6 on Qwen at 25, and is about 0.85 to 0.93 on Yi at 10, where the matched freeze is nearly as high. The unrestricted attack stays below 0.2 everywhere. (b) Llama-3.1-8B against the number of harmful examples: the band freeze stays above 0.8 at 5 and 10 examples and is near zero at 25 and 100. (c) Mixed adapter: the band freeze holds roughly 0.74 to 0.92 at a 5% harmful fraction, about 0.1 at 15%, and near zero at 35%.">
+          </a>
+          <figcaption class="long">Coherent refusal on AdvBench, bars spanning the seeds that pass the gate. (a) The evaluated <span class="nw">low-dose</span> comparisons. (b) <span class="nw">Llama-3.1-8B</span> with layers \([0,17]\) frozen against dose, and (c) against the harmful fraction of a mixed adapter.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Against a mixed adapter that is only 5% harmful, the freeze holds refusal at 0.74 to 0.92 while the adapter still learns its task. By 15% it is down to 0.08 to 0.14, so the range is set by a fraction the attacker chooses. The freeze therefore protects a customer whose data is a few percent harmful by accident and not anyone who chooses the fraction.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="relocation">
+      <div class="wrap">
+        <h2>Where the Damage Goes When the Band Is Denied</h2>
+        <div class="prose">
+          <p>To see what the restricted attack did instead, the lockstep sweep is re-run on the restricted checkpoint. Below the boundary the two checkpoints are bit-identical and a patch there is a no-op. On <span class="nw">Llama-3.1-8B</span> the boundary is swept across a ladder of frozen prefixes, with lockstep re-run at each rung on three seeds. The ladder's own unrestricted arm puts the band at layer 15, one grid step below the dose sweep's 17, and \([0,17]\) denies it under either estimate.</p>
+          <p>The damage does not track the boundary, and it does not sit at the top of the writable region either. With \([0, 5]\) frozen, \(\ell^*\) stays at 15 on all three seeds. A boundary that covers the band moves \(\ell^*\), and the move is then large and upward. At \([0, 17]\) recovery stays flat through layers 18, 21 and 24 on all three seeds, and the transition is at layer 27 or 28. At \([0, 23]\) it is at 29 or 30, and at \([0, 27]\) it is at 30 or above.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/relocation.webp" data-zoom>
+            <img src="assets/relocation.webp" width="2400" height="853" loading="lazy" alt="Three panels. (a) Heat map of recovery on Llama, one row per frozen prefix and one column per patched layer from 12 to 30. With no freeze or with [0,5] frozen, recovery is about 0.9 at layer 15. With [0,17] frozen it stays at or below 0.06 through layer 24 and reaches 0.87 at layer 28. With [0,23] frozen it reaches 0.96 at layer 30. (b) Heat map for six checkpoints at the five layers above each frozen boundary. Llama stays at or below 0.05, while Tulu and OLMo-7B pass 0.7 two layers above the boundary. (c) Ranges of refusal after attack with two or one writable layers left. The band freeze stays near zero on Llama, Tulu, Qwen and Yi and is higher on the two OLMo checkpoints.">
+          </a>
+          <figcaption class="long">(a, b) Recovery rescaled from the attacked floor to the clean ceiling. Gray cells are frozen; outlines mark the first measured layer with at least <span class="nw">half-range</span> recovery in all seeds. (c) Thick and thin bars leave two or one writable layers.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>One frozen boundary is also evaluated on each of the five further checkpoints, with <span class="nw">one-layer</span> sampling near the boundary. On none does the freeze restore refusal, which stays at 0.00 to 0.04. The first writable layer recovers well under half of ceiling everywhere, and the transition lands two layers above the boundary on Tulu and <span class="nw">OLMo-2-7B</span>, two or three on <span class="nw">OLMo-2-13B</span>, four on <span class="nw">Yi-1.5-9B</span> and four to nine on <span class="nw">Qwen2.5-14B</span>, against ten or more on Llama.</p>
+          <p>Pushing the boundary to the last two layers, or the last one, is where the checkpoints differ. Refusal still ends at 0.00 to 0.13 on Llama, Tulu, <span class="nw">Qwen2.5-14B</span> and <span class="nw">Yi-1.5-9B</span>, while on <span class="nw">OLMo-2-7B</span> and <span class="nw">OLMo-2-13B</span> it holds at 0.33 to 0.96, higher with one writable layer left than with two. Four writable layers at the bottom of the network take refusal to 0.00 to 0.32 on all six checkpoints and leave <span class="nw">Llama-Guard</span> unsafe at 0.50 to 0.95, so any interior band that leaves the bottom four writable leaves room for a measured attack. The transition depth \(\ell^*\) localizes the tested attack without establishing a fixed defensive site.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="repair">
+      <div class="wrap">
+        <h2>Energy-Ranked Repair Depends on the Attack Regime</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Energy-ranked truncation removes the update's largest singular directions. Removing the top two returns refusal to 0.76 to 1.00 wherever the attack landed, on four checkpoints over three seeds and five doses, and removing two random directions instead never takes refusal above 0.26. The random removals are not matched for removed energy, so this comparison does not isolate a direction-specific effect.</p>
+            <p>That result was produced under one attack configuration, LoRA on the four attention projections only, stopped after three epochs, and neither choice is part of the threat model. On <span class="nw">Llama-3.1-8B</span>, two ordinary changes weaken top-two removal. On the same 50 AdvBench prompts, widening the adapter to all seven projections takes relative repair, repaired refusal as a fraction of clean refusal, from 0.99 down to 0.74, and training eight epochs instead of three takes it to 0.35. Neither change is an attack on the defense.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/repair.webp" data-zoom>
+              <img src="assets/repair.webp" width="1400" height="1205" loading="lazy" alt="Two panels. Top: ranges of coherent refusal after removing the top one, the top two, the top four, or two random singular directions of the update, for Llama, Tulu, OLMo-7B, and Qwen. Removing the top two gives about 0.76 to 1.00 on Llama and 1.00 on the other three, removing the top one spans almost the whole range on Llama, and removing two random directions stays below about 0.3. Bottom: refusal after top-two removal on Llama-3.1-8B against attack epochs. With all seven projections adapted it falls from about 0.85 at one epoch to about 0.34 at eight epochs, while the attention-only configuration stays near 0.9 at three and five epochs.">
+            </a>
+            <figcaption>Coherent refusal after singular-direction removal: four checkpoints, 3 seeds, 5 doses (top); top-two removal by epoch on <span class="nw">Llama-3.1-8B</span> (bottom).</figcaption>
+          </figure>
+        </div>
+        <div class="prose">
+          <p>An adaptive attack then defeats top-two removal. On <span class="nw">Llama-3.1-8B</span>, adding a concentration penalty \(\lambda \sum_{\text{modules}} \sigma_1^2 / \sum_i \sigma_i^2\) spreads the update across the rank budget and reduces relative top-two repair to 0.000. Before removal, refusal is 0.00 to 0.02 and <span class="nw">Llama-Guard</span> unsafe is 0.96 to 0.98. After removal, refusal is 0.00 and unsafe remains 0.94 to 0.98. The spread attack has a similar update norm to the projected control, whose two landed seeds reach 0.72 to 0.94 refusal after top-two removal.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Adaptive attack table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col"></th><th scope="col">Standard<br><span class="muted">5 ep</span></th><th scope="col">Spread<br><span class="muted">\(\lambda = 1\)</span></th><th scope="col">Projected<br><span class="muted">\(k = 2\)</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">\(\lVert \Delta W \rVert_F\)</th><td>.607–.623</td><td class="key">.228–.229</td><td class="key">.222–.226</td></tr>
+                <tr><th class="l stick" scope="row">Part. ratio</th><td>4.47–4.73</td><td class="key">15.6</td><td class="key">5.99–6.00</td></tr>
+                <tr><th class="l stick" scope="row">Top-2 energy</th><td>.597–.607</td><td class="key">.149</td><td class="key">.407–.408</td></tr>
+                <tr><th class="l stick" scope="row">Refusal, no repair</th><td>.00</td><td class="key">.00–.02</td><td class="key">.02–.06</td></tr>
+                <tr><th class="l stick" scope="row">LG unsafe, no repair</th><td>.96–.98</td><td class="key">.96–.98</td><td class="key">.88–.90</td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Refusal, after top-2</th><td>.26–.66</td><td class="key">.00</td><td class="key">.72–.94</td></tr>
+                <tr><th class="l stick" scope="row">LG unsafe, after top-2</th><td>.26–.62</td><td class="key">.94–.98</td><td class="key">.06–.26</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Three <span class="nw">dose-100</span> attacks on <span class="nw">Llama-3.1-8B</span>, evaluated on the same 50 AdvBench prompts. Ranges cover three training seeds, except two landed seeds for the projected attack. Norm and spectral statistics average adapted modules.</p>
+        </div>
+        <div class="prose">
+          <p>The rows give the update norm, the participation ratio, the top-two energy fraction, and coherent refusal and <span class="nw">Llama-Guard</span> (LG) unsafe before and after top-two removal. For singular values \(s_j\), each module's participation ratio is \((\sum_j s_j^2)^2 / \sum_j s_j^4\).</p>
+          <p>To test whether the spectrum warns of repair failure, a detector is calibrated on 75 benign LoRA fine-tunes of <span class="nw">Llama-3.1-8B</span>, scoring every adapter by participation ratio normalized by rank. The spread attacker is perfectly separable, at 0.973 against a benign maximum of 0.554. At a threshold calibrated to a 5% false-positive budget on benign Llama adapters, however, the detector flags only 3 of 14 top-two repair failures on <span class="nw">Llama-3.1-8B</span>, missing ten ordinary fine-tunes and one projected attack.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="checks">
+      <div class="wrap">
+        <h2>What a Localization Must Survive</h2>
+        <div class="prose">
+          <p>Each failure above has a cheap check. The paper distills them into five checks that a localization must pass before it supports a defense.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s4">
+            <span class="step-label">Check 1</span>
+            <h3>Tell the attacker</h3>
+            <p>Both layer freezing and top-two repair reach 0.00 refusal under adaptive attack.</p>
+          </li>
+          <li class="step s4">
+            <span class="step-label">Check 2</span>
+            <h3>Report a range</h3>
+            <p>The Llama freeze holds at five harmful examples and fails by one hundred.</p>
+          </li>
+          <li class="step s4">
+            <span class="step-label">Check 3</span>
+            <h3>Score the benign set</h3>
+            <p>One repair arm reaches 0.98 refusal at 0.66 over-refusal.</p>
+          </li>
+          <li class="step s4">
+            <span class="step-label">Check 4</span>
+            <h3>Clear a matched null</h3>
+            <p>Norm-matched shrinkage reproduces the Safe <span class="nw">LoRA-style</span> projection's repair against the adaptive attacks.</p>
+          </li>
+          <li class="step s4 span">
+            <span class="step-label">Check 5</span>
+            <h3>Give the defender an observable</h3>
+            <p>The detector flags only 3 of 14 top-two repair failures on <span class="nw">Llama-3.1-8B</span> at a threshold calibrated to a 5% false-positive budget on benign adapters from that checkpoint.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The paper states the limits of these results. Single-layer patching bounds the damage from above only. The full boundary ladder covers one checkpoint, and the sweep across checkpoints is one rung per checkpoint. Cross-model claims rest on four lineages, and dose never exceeds 100. Every attack is next-token supervised fine-tuning on <span class="nw">PKU-SafeRLHF</span> pairs, and the adaptive weight-space attacks, projection arm and detector are evaluated on <span class="nw">Llama-3.1-8B</span>. A parameter freeze can help at low harmful-data fractions, and the paper recommends reporting the dose at which it fails alongside the range where it helps.</p>
+          <p>Because the attack methods could also be misused to weaken model safeguards, <span class="nw">de-aligned</span> checkpoints and adapters are excluded from release.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026refusal,
+  title = {Refusal Localizes, the Damage Relocates: Safety Layers Under Few-Sample Fine-Tuning},
+  author = {Jungseob Lee and Dongyub Jude Lee and Sugyeong Eo and Seongtae Hong and Seungyoon Lee and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2610.00320},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2610.00320},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

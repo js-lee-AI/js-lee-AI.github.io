@@ -1,0 +1,354 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Where Activation Sparsity and KV-Cache Sparsity Cross in LLM Decoding</title>
+  <meta name="description" content="Activation sparsity trims the projection-weight traffic of an LLM decode step and KV-cache sparsity trims its cache traffic. The byte crossover, the context length at which the two savings are equal, follows from model dimensions and keep ratios alone, together with ideal speedup bounds for each branch and for their composition.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/ByteCross/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Where Activation Sparsity and KV-Cache Sparsity Cross in LLM Decoding">
+  <meta property="og:description" content="The byte crossover is the context length at which the savings of activation sparsity and KV-cache sparsity are equal in LLM decoding. It follows, with ideal speedup bounds for each branch and for their composition, from model dimensions and keep ratios alone.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/ByteCross/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/ByteCross/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Where Activation Sparsity and KV-Cache Sparsity Cross in LLM Decoding">
+  <meta name="twitter:description" content="The byte crossover is the context length at which the savings of activation sparsity and KV-cache sparsity are equal in LLM decoding.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/ByteCross/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Blue of the projection arrows and orange of the KV-cache arrows in the
+       overview figure. The two branch cards carry the same pair, with the
+       label inks of that figure. */
+    :root { --accent-a: #0466e2; --accent-b: #c35905; }
+    .s1 { --step: #0466e2; --step-ink: #003f97; }
+    .s2 { --step: #c35905; --step-ink: #a84501; }
+    /* The paper shades the rows that select a composition and keeps their weight regular. */
+    .tbl tbody tr.ours > * { font-weight: 400; }
+    /* A two-word column head may wrap, so that a small table still fits a phone screen. */
+    .tbl thead th.wrap { white-space: normal; }
+    /* The byte account reads as one line, so on a phone it shrinks to fit instead of scrolling. */
+    .formula.fit .katex { font-size: min(1.1em, 4.2vw); }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">Where <span class="name">Activation Sparsity and <span class="nw">KV-Cache Sparsity</span> Cross</span> in LLM Decoding</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1</sup>,</span>
+          <span class="author">Seongtae Hong<sup>1</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>2†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Yonsei University Mirae Campus</span>
+        </p>
+        <p class="notes"><span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2609.33889" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2609.33889" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/ByteCross" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A byte account of the decode step gives the context length at which the savings of activation sparsity and <span class="nw">KV-cache</span> sparsity are equal, from model dimensions and keep ratios alone.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="697" alt="Three decode steps drawn along a growing context, each with an attention block and a feed-forward block, ending in the next token. A projection-sparsity panel above them shows a row of activation channels over a grid of shared projection weights, where the weight columns selected at each step are filled blue and a blue arrow leads from them into the step. A KV-cache sparsity panel below shows a KV cache under each step that is longer at each later step, with the retained entries filled amber, the other tiles unfilled, and an amber arrow leading into the step. Under the last cache, braces mark four amber sink entries, a history region in which only some entries are amber, and a run of amber recent entries. An arrow labelled context grows runs under the caches.">
+          </a>
+          <figcaption class="long">Decode-step reads of the two sparse branches as context grows. Blue marks the projection weights that the activations of each token select, and amber marks the KV entries that an <span class="nw">attention-scored</span> selection keeps, together with four sinks and the most recent entries. Unfilled cache tiles stay allocated but unread.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>At each step, decoding one sequence with a large language model rereads the projection weights, whose traffic is fixed, and the key-value (KV) cache, whose traffic grows with context. Activation sparsity trims the first term and <span class="nw">KV-cache</span> sparsity the second, yet their reported speedups are hard to compare because each depends on context length and on the dense attention kernel it is measured against. We derive a byte crossover, the context length at which the two savings are equal, together with ideal speedup bounds for each branch and for their composition, from model dimensions and keep ratios alone. We then time both branches and their composition from 2K to 128K tokens on two GPUs after a dense prefill of real text, with dense and sparse modes reading the cache through the same <span class="nw">split-K</span> attention kernel. The projection branch leads at short context and the KV branch at long context, with speedups that follow their byte bounds up to fixed kernel costs. Adding these costs, measured in separate sweeps, lets the byte account predict the measured crossings of three keep-ratio pairs, a second model, and a second GPU to within 4.1K tokens. Timing the dense baseline with masked instead of <span class="nw">split-K</span> attention inflates the apparent speedup of the same KV policy about fivefold. An attention-scored KV selection answers the same passkey and multi-key placements as dense decoding up to 127K tokens, whereas a KV window misses most of them. Under matched perplexity budgets, activation sparsity composed with this selection decodes 14 to 26% faster than the best single branch on both GPUs. Code is available at <a href="https://github.com/js-lee-AI/ByteCross" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>ByteCross</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>The Byte Crossover</h2>
+        <div class="prose">
+          <p>At batch size 1, a decode step performs about one floating-point operation per byte it reads, so reads from high-bandwidth memory set its latency and the two branches can be compared by the bytes they remove. At context length \(n\), the read traffic of one step is</p>
+          <p class="formula fit">\[B_{\text{total}}(n) = \underbrace{B_{\text{MLP}}}_{\text{constant}} + \underbrace{B_{\text{Attn}}}_{\text{constant}} + \underbrace{B_{\text{KV}}(n)}_{\text{linear in } n} + \underbrace{B_{\text{other}}}_{\text{constant}}\]</p>
+          <p>where \(B_{\text{MLP}}\) and \(B_{\text{Attn}}\) are the multilayer perceptron (MLP) and attention projection weights that each decode step loads once, \(B_{\text{KV}}(n)\) is the attention read over stored keys and values, and \(B_{\text{other}}\) covers the language-model head, one embedding row, and normalization weights. Only \(B_{\text{KV}}(n)\) grows with context. For scale, one <span class="nw">Llama-3.1-8B</span> layer reads 436 MB of projection weights at every step, while its cache adds \(4096n\) bytes, 2 MB at \(n = 512\) and 134 MB at \(n = 32\text{K}\).</p>
+        </div>
+        <ul class="steps">
+          <li class="step s1">
+            <span class="step-label">Projection branch</span>
+            <h3>A saving that stays constant</h3>
+            <p>Projection-side sparsity keeps a fraction \(r_{\text{P}}\) of the activation channels and loads only the associated weights, as threshold-based activation sparsity does. With all seven projections of a layer sparsified, one layer saves</p>
+            <p class="formula">\[\Delta B_{\text{P}} = (B_{\text{MLP}} + B_{\text{Attn}})(1 - r_{\text{P}})\]</p>
+            <p>bytes, independently of context length.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">KV branch</span>
+            <h3>A saving that grows with context</h3>
+            <p><span class="nw">KV-cache</span> sparsity reads a fraction \(r_{\text{KV}}\) of the stored keys and values, whether the retained entries come from a <span class="nw">sink-plus-recent</span> window, accumulated attention scores, or query-aware retrieval. One layer then saves</p>
+            <p class="formula">\[\Delta B_{\text{KV}}(n) = B_{\text{KV}}(n)(1 - r_{\text{KV}})\]</p>
+            <p>bytes, which grows linearly with \(n\).</p>
+          </li>
+        </ul>
+        <div class="prose">
+          <p>In the form studied, neither branch discards state, and each changes only what a step reads. Unselected weights stay in memory, and the full cache stays allocated and keeps receiving new entries.</p>
+          <p>The crossover length \(n^*\) is the context at which the two savings match, \(\Delta B_{\text{P}} = \Delta B_{\text{KV}}(n^*)\). Let \(d\) be the hidden size, \(d_{\text{ff}}\) the feed-forward size, \(h_{\text{kv}}\) the number of KV heads, and \(d_h\) the head dimension. With \(P = 3 d d_{\text{ff}} + 2d^2 + 2 d h_{\text{kv}} d_h\) parameters in the seven projections of a layer, the three feed-forward and the four attention projections, the layer count and the shared element size cancel, which gives</p>
+          <p class="formula">\[n^* = \frac{P \cdot (1 - r_{\text{P}})}{2 \cdot h_{\text{kv}} \cdot d_h \cdot (1 - r_{\text{KV}})}\]</p>
+          <p>This is a byte threshold with no fitted parameter. Below \(n^*\) the projection branch removes more bytes, and above it the KV branch does. On a step that is purely bandwidth-bound, a branch that removes \(\Delta B\) of the \(B_{\text{total}}(n)\) bytes can speed decoding up by at most \(B_{\text{total}}(n)/(B_{\text{total}}(n) - \Delta B)\). This bound falls with \(n\) for the projection branch, rises for the KV branch, and is largest for the two together.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Byte crossover lengths table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Model</th><th scope="col">\(d\)</th><th scope="col">\(d_{\text{ff}}\)</th><th scope="col">\(n^*\)</th><th scope="col">\(n^*_{\text{FF}}\)</th><th scope="col">Window</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Qwen3-8B</th><td>4096</td><td>12288</td><td>65.7K</td><td>51.4K</td><td>40K</td></tr>
+                <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>4096</td><td>14336</td><td>74.3K</td><td>60.0K</td><td>128K</td></tr>
+                <tr><th class="l stick" scope="row">Mistral-7B</th><td>4096</td><td>14336</td><td>74.3K</td><td>60.0K</td><td>32K</td></tr>
+                <tr><th class="l stick" scope="row">Llama-3.1-70B</th><td>8192</td><td>28672</td><td>291.4K</td><td>240.0K</td><td>128K</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Byte crossover lengths at 50% projection keep and 30% KV keep, for all seven projections and for the feed-forward projections alone. Window is the released context length.</p>
+        </div>
+        <div class="prose">
+          <p>All four models have eight KV heads of dimension \(d_h = 128\). Among the 8B models the one with the smaller feed-forward layer crosses earlier, while the 70B model crosses far beyond its 128K window, so at these keep ratios projection sparsity removes more of its bytes at every supported length.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="sweep">
+      <div class="wrap">
+        <h2>Speedup Across Context</h2>
+        <div class="prose">
+          <p>The primary model is <span class="nw">Llama-3.1-8B-Instruct</span>, whose 128K window spans its predicted crossover. The projection branch is the training-free activation sparsity of TEAL, which targets 50% keep in all seven projections. The KV branch follows SnapKV. After dense prefill it scores the cache once with the attention of the last 64 prompt tokens, keeps four sink tokens and the highest-scoring entries of each KV head up to a 30% keep ratio, and gathers them into a contiguous buffer that every later step reads in one kernel call.</p>
+          <p>All modes are timed in FP16 at batch size 1 with compiled decoding, and dense and sparse modes alike read their caches through the <span class="nw">split-K</span> decoding kernel of the FlashAttention library. For each context length the cache is first prefilled densely with that many tokens of <span class="nw">WikiText-2</span> text and repeated <span class="nw">50-step</span> decodes are then timed, so every sparse branch sees the activations of real text. Timing uses <span class="nw">A100-SXM4</span> 80 GB and RTX A6000 48 GB GPUs, and on RTX A6000 the sweep ends at 64K because its 128K cells do not fit in memory.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/speedup.webp" data-zoom>
+            <img src="assets/speedup.webp" width="2400" height="732" loading="lazy" alt="Two line plots of speedup over dense decoding against context length from 2K to 128K tokens, for A100-SXM4 on the left and RTX A6000 on the right. Each shows measured solid lines and dashed byte bounds for the projection branch, the KV selection and both together, and a dotted vertical line at the byte crossover. On A100-SXM4 the projection line starts at 1.36 at 2K and falls as context grows, the KV selection line starts near 1.0, crosses above the projection line between 32K and 64K and reaches 1.54 at 128K, and the line for both rises from the level of the projection line to 1.91 at 128K. On RTX A6000 the lines stop at 64K. The projection line falls from 1.67 at 2K to 1.36, the KV selection line rises to just below it, and the line for both reaches 2.00. On both GPUs the KV selection line lies close to its bound, while the projection line and the line for both stay below theirs.">
+          </a>
+          <figcaption>Speedup over dense decoding of the projection branch, the KV selection, and both together on <span class="nw">Llama-3.1-8B</span>, after a dense prefill of real text. Solid lines are measured, dashed lines are byte bounds, and the dotted line marks the byte crossover. RTX A6000 runs stop at 64K.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The projection branch leads at short context, reaching 1.36× on A100 and 1.67× on RTX A6000 at 2K, and its advantage shrinks as cache reads take a growing share of the step. The KV selection follows the opposite trend, overtakes the projection branch between 32K and 64K on A100, and reaches 1.54× at 128K. Because both trends mirror their bounds, the byte account alone predicts which branch leads at short and long context.</p>
+          <p>The selection runs within 1% of its bound on RTX A6000 and within 6% on A100, and the projection branch comes within 4 to 10% of its bound on RTX A6000. The remaining gap is a kernel cost that stays nearly constant across context, about 2 ms of step time for the sparse projection on A100 and 1 to 1.5 ms on RTX A6000.</p>
+          <p>Composition has the highest bound at every length, and from 8K onward it is the fastest mode on both GPUs. It reaches 1.91× at 128K on A100 and 2.00× at 64K on RTX A6000, against 1.54× and 1.36× for the faster single branch.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="crossing">
+      <div class="wrap">
+        <h2>Locating the Crossing</h2>
+        <div class="prose">
+          <p>The byte crossover assumes that both branches run at their byte bounds. When each branch also pays a kernel cost beyond its byte time, \(c_{\text{P}}\) or \(c_{\text{KV}}\), the latencies cross near</p>
+          <p class="formula">\[n_{\text{lat}} \approx n^* - (c_{\text{P}} - c_{\text{KV}})/s\]</p>
+          <p>where \(s\) is the growth of the byte-time gap as the context gains 1K tokens, the KV bytes that the KV branch skips within those tokens divided by the effective bandwidth. On A100, \(s\) is only about 0.06 ms, so a kernel-cost difference of one millisecond moves the crossing by roughly 17K tokens. Each crossing is therefore predicted from the byte account together with the kernel cost of each branch. These costs come from the context sweep above, a 32K keep-ratio campaign, and a sweep of <span class="nw">Llama-3.2-3B</span> over five context lengths, so that no cell of the crossing campaigns enters any prediction.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/crossing.webp" data-zoom>
+            <img src="assets/crossing.webp" width="2400" height="726" loading="lazy" alt="Plot of the KV-branch advantage in milliseconds against context length from 16K to 128K tokens for three keep-ratio pairs on A100-SXM4. For each pair, points with interval bars rise from below zero to above zero along a predicted line. The points of keep 0.7 / 0.3 pass zero near 25K, those of keep 0.5 / 0.3 near 50K, and those of keep 0.5 / 0.5 near 68K. A dotted vertical line marks the byte crossover of each pair, near 45K, 74K and 104K, each well to the right of the context at which its points pass zero.">
+          </a>
+          <figcaption><span class="nw">KV-selection</span> advantage, the projection minus the selection step latency, on <span class="nw">A100-SXM4</span>. Points average five fresh-process blocks with 95% intervals, lines are predicted without any crossing cell, and dotted lines mark byte crossovers.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>On A100 every prediction falls within 4.1K tokens of its crossing, for the three keep-ratio pairs of <span class="nw">Llama-3.1-8B</span> (8B in the table) as well as for the smaller layer of <span class="nw">Llama-3.2-3B</span> (3B).</p>
+        </div>
+        <div class="table-block narrow">
+          <div class="table-wrap" role="region" aria-label="Byte crossover, predicted crossing and measured crossing table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Model</th><th scope="col">\(r_{\text{P}}\,/\,r_{\text{KV}}\)</th><th scope="col">\(n^*\)</th><th scope="col">Pred.</th><th scope="col">Measured</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="5" scope="rowgroup"><span>A100-SXM4</span></th></tr>
+                <tr><th class="l stick" scope="row">8B</th><td>0.7 / 0.3</td><td>44.6</td><td>28.6</td><td>25.1</td></tr>
+                <tr><th class="l stick" scope="row">8B</th><td>0.5 / 0.3</td><td>74.3</td><td>51.9</td><td>50.4</td></tr>
+                <tr><th class="l stick" scope="row">8B</th><td>0.5 / 0.5</td><td>104.0</td><td>72.4</td><td>68.3</td></tr>
+                <tr><th class="l stick" scope="row">3B</th><td>0.5 / 0.3</td><td>34.3</td><td>13.9</td><td>16.5</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="5" scope="rowgroup"><span>RTX A6000</span></th></tr>
+                <tr><th class="l stick" scope="row">8B</th><td>0.7 / 0.3</td><td>44.6</td><td>38.7</td><td>39.3</td></tr>
+                <tr><th class="l stick" scope="row">8B</th><td>0.5 / 0.3</td><td>74.3</td><td>68.5</td><td>68.7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Byte crossover \(n^*\), cost-aware prediction, and measured crossing, in K tokens. Each crossing is measured in fresh-process blocks, five on <span class="nw">A100-SXM4</span> and four on RTX A6000.</p>
+        </div>
+        <div class="prose">
+          <p>The same account carries over to a GPU with less bandwidth. On RTX A6000, \(s\) is about 0.13 ms, so a millisecond of kernel cost moves the crossing only about 8K tokens, and both crossings fall within 0.6K tokens of their predictions. Kernel costs measured on A100, combined with the dense step time of the RTX A6000, also place these two crossings within 3.5K tokens of the measurements.</p>
+          <p>Across both models and both GPUs the crossings keep the order of their byte crossovers, and how far each falls below \(n^*\) depends on the kernel cost of each branch relative to the memory bandwidth of the GPU.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="baseline">
+      <div class="wrap">
+        <h2>The Attention Baseline</h2>
+        <div class="split">
+          <div class="prose">
+            <p>The same KV window, a <span class="nw">sink-plus-recent</span> window in the style of attention sinks, is timed against dense decoding when both read the cache through masked, fused, or <span class="nw">split-K</span> attention. At 128K the window runs 6.92× faster than dense decoding with masked attention and 2.82× faster with fused attention, whereas <span class="nw">split-K</span> attention leaves it 1.29× faster, below its byte bound of 1.60×.</p>
+            <p>The first two gains exceed the bound because the dense baselines themselves are inefficient. At 128K, masked attention uses 5% of peak bandwidth and fused attention 12%, against 78% for <span class="nw">split-K</span> attention, so shortening the attended sequence removes wasted execution as well as cache bytes.</p>
+            <p>A reported KV speedup therefore needs the attention path and execution mode of its baseline, and a gain above the byte bound indicates wasted execution in the dense baseline.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/baseline.webp" data-zoom>
+              <img src="assets/baseline.webp" width="1400" height="848" loading="lazy" alt="Line plot with a logarithmic vertical axis of the speedup of a KV window over dense decoding against context length from 2K to 128K tokens, for three attention paths and the byte bound of the window. With masked attention the speedup rises from about 1.4 at 2K to about 6.9 at 128K, and with fused attention from about 1.1 to about 2.8. With split-K attention it stays between 0.9 and 1.0 up to 16K and reaches about 1.3 at 128K, below the byte bound, which rises from about 1.0 to 1.6.">
+            </a>
+            <figcaption>Speedup of the same 30% KV window over dense decoding on A100 when both read the cache through masked, fused, or <span class="nw">split-K</span> attention. Only <span class="nw">split-K</span> attention keeps the speedup below the byte bound of the window.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="retrieval">
+      <div class="wrap">
+        <h2>Retrieval as an Admissibility Test</h2>
+        <div class="prose">
+          <p>Quality on real text is measured with <span class="nw">decode-position</span> perplexity (PPL) on <span class="nw">WikiText-2</span>, which prefills densely and scores 512 tokens one at a time under the branch, and with passkey and <span class="nw">multi-key</span> retrieval tests from 32K to 127K tokens. By perplexity at 32K, both KV branches look nearly free, whereas 50% projection keep adds about one point.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Perplexity increase and retrieval accuracy table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Configuration</th><th rowspan="2" scope="col">ΔPPL</th><th class="grp" colspan="3" scope="col"><span>Passkey</span></th><th class="grp" colspan="3" scope="col"><span>Multi-key</span></th></tr>
+                <tr><th scope="col">32K</th><th scope="col">64K</th><th scope="col">127K</th><th scope="col">32K</th><th scope="col">64K</th><th scope="col">127K</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Dense</th><td>0</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>36/40</td></tr>
+                <tr><th class="l stick" scope="row">KV window, 30%</th><td>0.06</td><td>16/40</td><td>16/40</td><td>16/40</td><td>16/40</td><td>16/40</td><td>14/40</td></tr>
+                <tr><th class="l stick" scope="row">Selection, 30%</th><td>&lt;0.01</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>36/40</td></tr>
+                <tr><th class="l stick" scope="row">Selection, 20%</th><td>&lt;0.01</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>36/40</td></tr>
+                <tr><th class="l stick" scope="row">Proj. 50% + sel. 20%</th><td>0.96</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>40/40</td><td>36/40</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Perplexity increase ΔPPL over dense decoding at 32K and retrieval accuracy on <span class="nw">Llama-3.1-8B-Instruct</span>. Dense perplexity is 6.09.</p>
+        </div>
+        <div class="prose">
+          <p>In the passkey test, however, the window answers only the 16 placements inside its retained region at every length. In the <span class="nw">multi-key</span> test, which hides four similar access codes in natural text and asks for one of them, it again answers only placements inside that region and returns a distractor code nine times at 32K and 19 times at 127K. The selection answers every placement of both tests at 32K and 64K, alone and composed with the projection branch, and at 127K, where dense decoding itself misses four <span class="nw">multi-key</span> placements, it answers exactly the placements that dense decoding answers.</p>
+          <p>The 30% window keeps more entries than the 20% selection and still misses most placements. A KV configuration is therefore admitted only if it also passes both retrieval tests.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="composition">
+      <div class="wrap">
+        <h2>Composition Under a Quality Budget</h2>
+        <div class="prose">
+          <p>The nominal keep ratios compare branches of unequal quality. In <span class="nw">keep-ratio</span> sweeps at 32K, the KV selection changes perplexity by less than 0.01 down to 20% keep and by 0.06 at 10%, where it still passes both retrieval tests, while the projection branch at 50% keep costs about one point of perplexity. Equating the byte savings of the two branches at equal PPL increase moves the crossover to 35.7K, 48.1K, and 57.8K for budgets of 0.2, 0.5, and 1.0, well below the nominal 74.3K.</p>
+          <p>The table tests whether composition keeps its advantage once each configuration must meet a perplexity budget. The 16 dense, <span class="nw">single-branch</span>, and composed settings are evaluated on eight fixed 32K <span class="nw">WikiText-2</span> windows. Within each budget, a timing screen selects the fastest configuration and the fastest single branch, and the selected settings are re-timed in five independent blocks.</p>
+        </div>
+        <div class="table-block narrow">
+          <div class="table-wrap" role="region" aria-label="Fastest configuration within each perplexity budget table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Budget</th><th rowspan="2" scope="col">\(r_{\text{P}}\,/\,r_{\text{KV}}\)</th><th rowspan="2" scope="col">ΔPPL</th><th class="grp" colspan="2" scope="col"><span>Speedup over</span></th></tr>
+                <tr><th scope="col">dense</th><th class="wrap" scope="col">best single</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">0.1</th><td>1.0 / 0.2</td><td>0.004</td><td>1.20×</td><td>1.00×</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">0.2</th><td>0.7 / 0.2</td><td>0.146</td><td>1.53×</td><td>1.25×</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">0.5</th><td>0.6 / 0.2</td><td>0.402</td><td>1.69×</td><td>1.26×</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">1.0</th><td>0.5 / 0.2</td><td>0.963</td><td>1.86×</td><td>1.25×</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Fastest configuration within each perplexity budget at 32K on RTX A6000, timed in five independent blocks. The KV branch is the <span class="nw">attention-scored</span> selection, a keep ratio of 1 disables a branch, and shaded rows select a composition.</p>
+        </div>
+        <div class="prose">
+          <p>From a budget of 0.2 upward, the selected compositions run 25 to 26% faster than the best single branch, and each of the five blocks shows a gain of at least 21%. The same compositions also lead on A100, by 14 to 24% over the best single branch. At the tightest budget of 0.1, which no projection keep ratio of the grid meets, the selection alone is the fastest configuration and still decodes 1.20× faster than dense decoding. Every selected configuration also passes both retrieval tests.</p>
+          <p>These measurements decode one sequence at a time. A batch shares each weight read, and the channels its sequences activate together leave a sparse projection little to skip, so in batched serving the crossover of each sequence falls to a few thousand tokens and the byte account favors <span class="nw">KV-cache</span> sparsity from short contexts onward.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026bytecross,
+  title = {Where Activation Sparsity and KV-Cache Sparsity Cross in LLM Decoding},
+  author = {Jungseob Lee and Seungyoon Lee and Seongtae Hong and Sugyeong Eo and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2609.33889},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2609.33889},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

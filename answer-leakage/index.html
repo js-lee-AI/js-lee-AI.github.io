@@ -1,0 +1,355 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language Models</title>
+  <meta name="description" content="A controlled experiment fixes the generator, the problem set, and the correctness filter, and varies only whether chains of thought are generated under answer-conditioning. Training a strong instruction-tuned reasoning model on its own answer-conditioned chains sharply lowers its verifiable-reasoning accuracy. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/answer-leakage/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language Models">
+  <meta property="og:description" content="Showing a generator the gold answer and asking it to write a chain that reaches it degrades distillation data in a way that correctness filtering cannot catch. Training a strong reasoning model on its own answer-conditioned chains sharply lowers its verifiable-reasoning accuracy. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/answer-leakage/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/answer-leakage/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language Models">
+  <meta name="twitter:description" content="Chains of thought written to reach a shown gold answer pass the correctness filter, yet training a strong reasoning model on them sharply lowers its verifiable-reasoning accuracy.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/answer-leakage/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Answer-blind blue and answer-visible orange of the two paths in the
+       overview figure, with the same pair on the two arm cards. */
+    :root { --accent-a: #152ec7; --accent-b: #fd460f; }
+    .s1 { --step: #152ec7; --step-ink: #152ec7; }
+    .s2 { --step: #fd460f; --step-ink: #c2350a; }
+    /* The Blind column carries the tint of the recommended arm, as in the paper's tables. */
+    .tbl td.blind { background: var(--ours); }
+    /* On a phone the three-number tables fit without sideways scrolling when
+       the note of a row sits under its name and long labels may wrap. */
+    @media (max-width: 47.99rem) {
+      .tbl.fit th.l { white-space: normal; }
+      .tbl.fit th.l .muted { display: block; font-size: 0.92em; }
+      .tbl.fit th, .tbl.fit td { padding-right: 0.3rem; padding-left: 0.3rem; }
+      .tbl.fit th:first-child { padding-left: 0.6rem; }
+      .tbl.fit th:last-child, .tbl.fit td:last-child { padding-right: 0.6rem; }
+      .tbl.fit tbody tr.group > th span { max-width: calc(100vw - 2 * var(--gutter) - 1.2rem); white-space: normal; }
+    }
+    /* Difficulty levels sit under their benchmark. */
+    .tbl tbody th.l.sub { padding-left: 1.9rem; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><span class="name"><span class="nw">Answer-Conditioned</span> Chains <span class="nw">of Thought</span></span> Degrade <span class="nw">Verifiable-Reasoning</span> Distillation in Large Language Models</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1</sup>,</span>
+          <span class="author">Suhyune Son<sup>1</sup>,</span>
+          <span class="author">Dongyub Jude Lee<sup>2</sup>,</span>
+          <span class="author">Sungbin Han<sup>1</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>3*</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1*</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Zoom Communications</span>
+          <span><sup>3</sup>Yonsei University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2607.14552" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2607.14552" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/answer-leakage" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">Chains of thought written to reach a shown gold answer pass the correctness filter, yet <span class="nw">fine-tuning</span> a strong reasoning model on them sharply lowers its <span class="nw">verifiable-reasoning</span> accuracy.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="796" alt="Diagram with two parallel rows that share six stages, namely shared generator, prompt, generated chain, final-answer filter, same SFT, and student. In the top row, the standard answer-blind path, a shared LLM G receives a question with the answer hidden and generates a chain of steps that ends at the answer. In the bottom row, answer-visible rationalization, the same model receives the question together with the gold answer and generates a chain that begins at the answer. Both rows keep the chains whose final answer is correct and run SFT on the filtered chains with the same initialization and recipe, which gives a blind student in the top row and a rationalized student in the bottom row. A note between the rows says that only answer visibility differs.">
+          </a>
+          <figcaption class="long">The one-bit experiment. A shared generator produces chains for the same problems under an answer-blind path and an answer-visible rationalization path. Both arms use the same final-answer filter and the same SFT recipe, so the arms differ only in whether generation is answer-conditioned, the gold answer shown together with a request to reach it.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>A standard recipe for distilling the reasoning ability of large language models (LLMs) is to sample chains of thought from the model, keep those that reach the correct final answer, and fine-tune on the survivors. When sampling fails, a common fix shows the generator the gold answer and asks it to write a chain that reaches that answer. We show that this second step degrades the training data in a way that correctness filtering cannot catch. We run a controlled experiment that fixes the generator, the problem set, and the correctness filter, and varies only whether the chain is generated under answer-conditioning, the gold answer shown with a request to reach it. Training a strong <span class="nw">instruction-tuned</span> reasoning model on its own answer-conditioned chains sharply lowers its verifiable-reasoning accuracy. The loss grows with difficulty, reaching as much as about 27 points on the hardest competition problems. The mechanism is legible in the chains themselves, which rationalize backward from the shown answer instead of deriving it, with the early final-answer statement as the measurable symptom. The harm is a property of the data rather than the generator, read off unlabeled generations before any fine-tuning, ordering the penalty across eight thinking models from four families, and transferring across teacher families. A prompt ablation localizes it to the rationalize-toward instruction rather than the answer's bare visibility. The practical takeaway is to generate answer-blind, because no correctness filter can see this damage in the data. Code is available at <a href="https://github.com/js-lee-AI/answer-leakage" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr><span class="nw">answer-leakage</span></a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>The One-Bit Experiment</h2>
+        <div class="prose">
+          <p>A single model generates chains of thought for the same problems under two prompts that differ only in whether generation is <span class="nw">answer-conditioned</span>.</p>
+        </div>
+        <ul class="steps">
+          <li class="step s1">
+            <span class="step-label">Blind arm</span>
+            <h3>The answer is hidden</h3>
+            <p>The <span class="sc">Blind</span> prompt shows only the problem and asks the model to derive the answer. Chains whose final boxed answer is correct train the <span class="nw">answer-blind</span> student \(S_{\mathrm{blind}}\).</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Leaked arm</span>
+            <h3>The gold answer is shown</h3>
+            <p>The <span class="sc">Leaked</span> prompt appends the gold answer \(a(q)\) and asks for a reasoning trace that arrives at it. The same filter keeps its correct chains, which train the <span class="nw">answer-leaked</span> student \(S_{\mathrm{leaked}}\).</p>
+          </li>
+        </ul>
+        <p class="formula">\[\Delta = \operatorname{acc}(S_{\mathrm{blind}}) - \operatorname{acc}(S_{\mathrm{leaked}})\]</p>
+        <div class="prose">
+          <p>The leakage penalty \(\Delta\) is the accuracy lost by generating the chain under <span class="nw">answer-conditioning</span>. The comparison is built on a fixed set of 935 math problems. Unless noted otherwise, every trained model is a <span class="nw">full-parameter</span> supervised <span class="nw">fine-tune</span> of <span class="nw">Qwen3-8B</span>, evaluated on <span class="nw">MATH-500</span> with a <span class="nw">32,768-token</span> budget, where the base model scores 95.2.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>The Leakage Penalty</h2>
+        <div class="prose">
+          <p>Generating under <span class="nw">answer-conditioning</span> costs 16.2 points on <span class="nw">MATH-500</span> as a <span class="nw">three-seed</span> mean. The <span class="sc">Blind</span> student sits at the base model within seed noise (95.1 against 95.2), so essentially the whole gap is leakage damage. The penalty holds across four independent math benchmarks, and within <span class="nw">MATH-500</span> it grows with problem difficulty.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Leakage penalty across math benchmarks table" tabindex="0">
+            <table class="tbl fit">
+              <thead>
+                <tr><th class="l stick" scope="col">Benchmark</th><th scope="col">Blind&nbsp;↑</th><th scope="col">Leaked&nbsp;↑</th><th scope="col">Penalty&nbsp;↓</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">GSM8K <span class="muted">(grade school)</span></th><td class="blind">95.4</td><td>90.5</td><td class="neg">4.9</td></tr>
+                <tr><th class="l stick" scope="row">MATH-500 <span class="muted">(competition)</span></th><td class="blind">95.1</td><td>78.9</td><td class="neg"><b>16.2</b></td></tr>
+                <tr><th class="l stick sub" scope="row">Level 1</th><td class="blind">95.3</td><td>95.3</td><td>0.0</td></tr>
+                <tr><th class="l stick sub" scope="row">Level 2</th><td class="blind">98.1</td><td>84.1</td><td class="neg">14.1</td></tr>
+                <tr><th class="l stick sub" scope="row">Level 3</th><td class="blind">98.4</td><td>83.5</td><td class="neg">14.9</td></tr>
+                <tr><th class="l stick sub" scope="row">Level 4</th><td class="blind">95.6</td><td>74.2</td><td class="neg">21.4</td></tr>
+                <tr><th class="l stick sub" scope="row">Level 5</th><td class="blind">89.8</td><td>70.9</td><td class="neg">18.9</td></tr>
+                <tr><th class="l stick" scope="row">Minerva <span class="muted">(graduate STEM)</span></th><td class="blind">48.7</td><td>38.5</td><td class="neg">10.2</td></tr>
+                <tr><th class="l stick" scope="row">AIME 2024–2025 <span class="muted">(olympiad)</span></th><td class="blind">71.7</td><td>44.4</td><td class="neg">27.2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Answer-leakage</span> penalty on <span class="nw">Qwen3-8B</span>, <span class="nw">MATH-500</span> accuracy unless a benchmark is named, with Penalty the Blind minus Leaked gap \(\Delta\). The tinted Blind column is the recommended <span class="nw">answer-blind</span> arm. The rows are panel (C) of the paper's table, which spans four <span class="nw">difficulty-ordered</span> math benchmarks. Panels (A) and (B) follow below.</p>
+        </div>
+        <div class="prose">
+          <p>A <span class="nw">length-matched</span> arm, which truncates each blind chain to its matched leaked chain's length, scores 95.0, so the penalty is carried by the <span class="nw">answer-conditioned</span> content, not the length.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="mechanism">
+      <div class="wrap">
+        <h2>Leaked Chains State the Answer First</h2>
+        <div class="prose">
+          <p>A chain is <em><span class="nw">answer-first</span></em> if the gold final answer is stated within the first 20% of the think block. With \(\mathrm{pos}(c) \in [0, 1]\) the relative position of the first <span class="nw">gold-answer</span> mention inside the reasoning of a chain \(c\), the <span class="nw">answer-first</span> rate of a corpus \(C\) is</p>
+        </div>
+        <p class="formula">\[\mathrm{AFR}(C) = \frac{1}{|C|} \sum_{c \in C} \mathbf{1}\bigl[\mathrm{pos}(c) &lt; 0.2\bigr]\]</p>
+        <div class="prose">
+          <p>A high AFR is the measurable symptom of rationalizing toward a known answer rather than deriving it. On the matched pairs the leaked chains show a <span class="nw">20.8-point</span> rise in AFR at comparable answer coverage, and the habit reappears in each student's own <span class="nw">MATH-500</span> generations, where no answer is shown.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/mechanism.webp" data-zoom>
+            <img src="assets/mechanism.webp" width="2400" height="790" loading="lazy" alt="Three panels. (a) Density of chains against the first-answer position as a fraction of the think block. The leaked curve is highest near the start and lies above the blind curve over most of the shaded answer-first zone below 0.2, and the blind curve is higher from there onward. (b) Percent for the blind and leaked arms at three points, training-data AFR of 26.6 against 47.4 with a gap of 20.8, student-chain AFR of 36.5 against 48.7 with a gap of 12.2, and MATH-500 accuracy of 95.2 against 79.6 with a gap of 15.6. (c) Chain length in thousands of characters. Blind chains average about 26 in training and about 14 at test, while leaked chains stay near 20 in both.">
+          </a>
+          <figcaption class="long"><span class="nw">Answer-position</span> and length behavior of the <span class="nw">answer-blind</span> and <span class="nw">answer-leaked</span> arms in training chains and student outputs. (a) Distribution of the first <span class="nw">gold-answer</span> position within the think block for the <span class="nw">answer-blind</span> chains, generated with the answer never shown, and the <span class="nw">answer-leaked</span> chains, generated with the gold answer shown. (b) <span class="nw">Answer-first</span> rate (AFR) in the training corpus and in the trained students' own <span class="nw">answer-blind</span> generations, for the blind and leaked arms. (c) Mean <span class="nw">think-block</span> length of the blind and leaked arms in the training chains and in the students' own test generations.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="carrier">
+      <div class="wrap">
+        <h2>What Carries the Harm</h2>
+        <div class="prose">
+          <p>Panel (A) holds the answer visible across all arms and varies only the instruction. The penalty falls with the <span class="nw">answer-first</span> rate to under a point, so the harm tracks the instruction, not the answer's mere visibility. The <span class="nw">derive-first</span> instruction recovers about <span class="nw">two-thirds</span> of the penalty.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Instruction ablation and chain-population carrier table" tabindex="0">
+            <table class="tbl fit">
+              <thead>
+                <tr><th class="l stick" scope="col">Setting</th><th scope="col">Blind&nbsp;↑</th><th scope="col">Leaked&nbsp;↑</th><th scope="col">Penalty&nbsp;↓</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(A) Instruction ablation at fixed visibility</span></th></tr>
+                <tr><th class="l stick" scope="row">Rationalize toward answer</th><td class="blind">95.1</td><td>78.9</td><td class="neg">16.2</td></tr>
+                <tr><th class="l stick" scope="row">Derive-first</th><td class="blind">95.1</td><td>90.7</td><td class="neg">4.3</td></tr>
+                <tr><th class="l stick" scope="row">Final-check</th><td class="blind">95.1</td><td>93.7</td><td class="neg">1.3</td></tr>
+                <tr><th class="l stick" scope="row">Out-of-band</th><td class="blind">95.1</td><td>94.3</td><td class="neg">0.7</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(B) Within-corpus chain-population carrier</span></th></tr>
+                <tr><th class="l stick" scope="row"><span class="sc">Leaked-Early</span></th><td class="blind">94.0</td><td>64.2</td><td class="neg">29.8</td></tr>
+                <tr><th class="l stick" scope="row"><span class="sc">Leaked-Late</span></th><td class="blind">94.8</td><td>86.2</td><td class="neg">8.6</td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Difference-in-differences</th><td></td><td></td><td>+16.9</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Panels (A) and (B) of the same table, <span class="nw">MATH-500</span> accuracy on <span class="nw">Qwen3-8B</span>. (A) varies the generation instruction at fixed answer visibility. (B) is the <span class="nw">within-corpus</span> <span class="nw">two-by-two</span> carrier design.</p>
+        </div>
+        <div class="prose">
+          <p>Panel (B) splits the 935 leaked chains by whether the answer is stated within the first 20% of the think block, giving <span class="sc nw">Leaked-Early</span> (438 chains) and <span class="sc nw">Leaked-Late</span> (497), and <span class="nw">fine-tunes</span> separately on each. The model trained on rationalized leaked chains collapses while the <span class="nw">derivation-first</span> arm largely holds. Two control arms on the blind chains of the same problems turn the comparison into a <span class="nw">difference-in-differences</span> that nets out <span class="nw">problem-subset</span> effects, with a <span class="nw">three-seed</span> mean of +16.9 (seed range 12 to 21). The rationalized chains therefore carry most but not all of the harm, and a <span class="nw">chain-level</span> filter is a cheap partial repair that leaves a residue only blind generation closes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="signature">
+      <div class="wrap">
+        <h2>Anticipating the Penalty Across Models</h2>
+        <div class="prose">
+          <p>Whether answer conditioning harms a model is anticipated, before any <span class="nw">fine-tuning</span>, by <span class="nw">\(\Delta\mathrm{AFR} = \mathrm{AFR}_{\text{leaked}} - \mathrm{AFR}_{\text{blind}}\)</span>, which measures how much more often the model states the gold answer early when it can see it. Computing it requires only a small unlabeled sample of generations from the candidate teacher.</p>
+        </div>
+        <figure class="fig mid">
+          <a class="plate" href="assets/signature.webp" data-zoom>
+            <img src="assets/signature.webp" width="1600" height="888" loading="lazy" alt="Scatter plot of leakage penalty against the rationalization signature, delta AFR in percentage points, for eight models, with a dashed linear fit and a shaded band. The in-sample points are DS-Llama-8B near zero on both axes, DS-Qwen-7B and GLM-Z1-9B near a signature of 11 with penalties of about 7 and 12, Qwen3-8B near 21 with a penalty of about 16, and Qwen3-4B near 27 with a penalty of about 29. The held-out points are DS-Qwen-14B near 9 with a penalty of about 9, Llama-Nemotron-8B near 18 with a penalty of about 18, and Qwen3-1.7B near 26 with a penalty of about 30. The plot is annotated r = 0.96, n = 8.">
+          </a>
+          <figcaption class="long">The ΔAFR signature against the <span class="nw">answer-leakage</span> penalty across eight thinking models from four families. The dashed line is the linear fit and the shaded band its dispersion. Three points are <span class="nw">out-of-sample</span>, and labels are colored by <span class="nw">in-sample</span> against <span class="nw">held-out</span>. Error bars show sampling variability on both axes.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Across all eight models the signature explains the penalty closely at <span class="nw">\(r = 0.960\)</span>. An independent third family, <span class="nw">Llama-Nemotron-8B</span>, is predicted to lose 17.4 points and loses 17.6. With only eight models, the fit should be read as a strong but <span class="nw">small-sample</span> trend rather than a precisely estimated law.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Answer-first signature across eight models table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Model</th><th class="grp" colspan="2" scope="col"><span>Pre-FT signature</span></th><th class="grp" colspan="3" scope="col"><span>Post-FT outcome</span></th></tr>
+                <tr><th scope="col">Base&nbsp;↑</th><th scope="col">ΔAFR</th><th scope="col">Blind&nbsp;↑</th><th scope="col">Leaked&nbsp;↑</th><th scope="col">Penalty&nbsp;↓</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Held-in models</span></th></tr>
+                <tr><th class="l stick" scope="row">Qwen3-8B</th><td>95.2</td><td>+20.8</td><td>95.1</td><td>78.9</td><td class="neg">16.2</td></tr>
+                <tr><th class="l stick" scope="row">Qwen3-4B</th><td>96.0</td><td>+26.6</td><td>94.0</td><td>64.8</td><td class="neg">29.2</td></tr>
+                <tr><th class="l stick" scope="row">GLM-Z1-9B</th><td>94.4</td><td>+11.1</td><td>94.8</td><td>82.6</td><td class="neg">12.2</td></tr>
+                <tr><th class="l stick" scope="row">DS-Qwen-7B</th><td>79.6</td><td>+11.0</td><td>89.7</td><td>82.4</td><td class="neg">7.3</td></tr>
+                <tr><th class="l stick" scope="row">DS-Llama-8B</th><td>77.8</td><td>−0.2</td><td>65.8</td><td>64.6</td><td class="neg">1.2</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Held-out models</span></th></tr>
+                <tr><th class="l stick" scope="row">Qwen3-1.7B</th><td>92.6</td><td>+26.2</td><td>89.6</td><td>59.8</td><td class="neg"><b>29.8</b></td></tr>
+                <tr><th class="l stick" scope="row">DS-Qwen-14B</th><td>88.2</td><td>+9.3</td><td>92.2</td><td>83.4</td><td class="neg"><b>8.8</b></td></tr>
+                <tr><th class="l stick" scope="row">Nemotron-8B</th><td>95.4</td><td>+17.9</td><td>92.2</td><td>74.6</td><td class="neg"><b>17.6</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">The <span class="nw">answer-first</span> signature across eight thinking models from four families, each <span class="nw">self-distilled</span> blind against leaked on <span class="nw">MATH-500</span>. Base is <span class="nw">un-fine-tuned</span> accuracy, ΔAFR the <span class="nw">pre-fine-tuning</span> signature. The <span class="nw">Qwen3-8B</span> and <span class="nw">DS-Qwen-7B</span> rows are <span class="nw">three-seed</span> means, the other six single training runs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="generalization">
+      <div class="wrap">
+        <h2>Generalization</h2>
+        <div class="prose">
+          <p>The penalty holds with the same sign across every generative setting and vanishes only where the task needs no <span class="nw">multi-step</span> derivation, the boundary the mechanism predicts.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Generalization table" tabindex="0">
+            <table class="tbl fit">
+              <thead>
+                <tr><th class="l stick" scope="col">Setting</th><th scope="col">Blind&nbsp;↑</th><th scope="col">Leaked&nbsp;↑</th><th scope="col">Penalty&nbsp;↓</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(A) Code domain, Qwen3-8B student</span></th></tr>
+                <tr><th class="l stick" scope="row">MBPP+ <span class="muted">(pass rate)</span></th><td class="blind">68.3</td><td>58.8</td><td class="neg">9.5</td></tr>
+                <tr><th class="l stick" scope="row">HumanEval+ <span class="muted">(pass rate)</span></th><td class="blind">72.8</td><td>63.6</td><td class="neg">9.2</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(B) Smaller student</span></th></tr>
+                <tr><th class="l stick" scope="row">Cross-student <span class="muted">(1.7B from 8B)</span></th><td class="blind">85.7</td><td>78.9</td><td class="neg">6.9</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="4" scope="rowgroup"><span>(C) Cross-family teacher, Qwen3-8B student</span></th></tr>
+                <tr><th class="l stick" scope="row">Nemotron</th><td class="blind">94.0</td><td>79.2</td><td class="neg">14.8</td></tr>
+                <tr><th class="l stick" scope="row">GLM</th><td class="blind">93.0</td><td>82.8</td><td class="neg">10.2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">The <span class="nw">one-bit</span> intervention carried to the code domain, a smaller student, and two further teacher families with a <span class="nw">Qwen3-8B</span> student. Columns are Blind and Leaked accuracy and the red Penalty is Blind − Leaked, <span class="nw">MATH-500</span> accuracy for the math rows and pass rate for the code rows.</p>
+        </div>
+        <div class="prose">
+          <p>In code, where the “answer” is the reference solution and “correct” means passing the tests, <span class="nw">answer-conditioned</span> chains that pass tests still harm the student. On the <span class="nw">multiple-choice</span> benchmarks MMLU and <span class="nw">GPQA-Diamond</span>, the blind and leaked students sit together near the base model, the differences within noise. The <span class="nw">single-seed</span> rows of the table support a consistent sign rather than an exact magnitude, and the <span class="nw">small-student</span> transfer is the least stable setting tested.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026answerconditioned,
+  title = {Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language Models},
+  author = {Jungseob Lee and Seungyoon Lee and Suhyune Son and Dongyub Jude Lee and Sungbin Han and Sugyeong Eo and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2607.14552},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2607.14552},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

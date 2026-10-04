@@ -1,0 +1,310 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Risk-Controlled Selective LLM Answering by Pricing Label-Free Checks</title>
+  <meta name="description" content="PriceCheck builds a compact family of decision rules from label-free checks such as re-solving a problem, prices each check by its agreement rates and cost, and selects a schedule with a calibration test at a stated selective-risk target. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/PriceCheck/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Risk-Controlled Selective LLM Answering by Pricing Label-Free Checks">
+  <meta property="og:description" content="PriceCheck prices label-free checks by their agreement rates and cost, composes the prices into schedules, and selects one schedule with a calibration test at a stated selective-risk target. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/PriceCheck/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/PriceCheck/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Risk-Controlled Selective LLM Answering by Pricing Label-Free Checks">
+  <meta name="twitter:description" content="PriceCheck prices label-free checks, composes the prices into schedules, and selects one schedule with a calibration test at a stated selective-risk target.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/PriceCheck/assets/card.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Brick and coral of the selected schedules in the split figure,
+       with the same pair on the three method cards. */
+    :root { --accent-a: #a8472e; --accent-b: #e07b5b; }
+    .step { --step: #e07b5b; --step-ink: #a8472e; }
+    /* In the tinted row only the best values are bold, as in the paper's table. */
+    .tbl tbody tr.ours > td.reg { font-weight: 400; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><img class="title-icon" src="assets/icon.png" alt="" width="135" height="160"><span class="nw">Risk-Controlled</span> Selective LLM Answering by <span class="name">Pricing <span class="nw">Label-Free</span> Checks</span></h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author">Dongyub Jude Lee<sup>1*</sup>,</span>
+          <span class="author"><a href="../">Jungseob Lee</a><sup>2*</sup>,</span>
+          <span class="author">Chanjun Park<sup>3</sup>,</span>
+          <span class="author">Hyeonseok Moon<sup>4†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>2†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Zoom Communications</span>
+          <span><sup>2</sup>Korea University</span>
+          <span><sup>3</sup>Soongsil University</span>
+          <span><sup>4</sup>Sookmyung Women's University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2609.37493" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2609.37493" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/PriceCheck" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">PriceCheck prices label-free checks by their agreement rates and cost, composes the prices into schedules, and selects one schedule with a calibration test at a stated selective-risk target.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="1044" alt="Two-row diagram. Top row, three boxes joined by arrows. Price: a probe of n labelled answers gives each check a completeness p1 and a leak p0. Compose: a small check feeds a large one, and the acceptance probability is P(3 of 3) plus P(1 or 2 of 3) times f(3, 2). Certify: a table of schedules is tested with p at most delta over the family size. Bottom row, one example. A candidate answer, the proposed answer 14 to a problem asking for the least possible sum of distinct positive integers whose product is 84, goes through three small re-solves, of which 2 of 3 agree. Three of three would serve and none of three would abstain. One or two of three pass to a large race, which serves at 3 agreements before 2 refusals and abstains otherwise. Served answers carry a risk at most the target.">
+          </a>
+          <figcaption class="long">Overview of PriceCheck. Top, the three steps: price each check on a labelled probe, compose prices into a schedule, and certify one schedule. Bottom, one candidate answer passing through a two-stage cascade. Green serves, red abstains, and amber passes the undecided band on.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Serving an answer from a large language model requires deciding when to abstain, yet a verifier's ranking accuracy alone does not determine the error rate among served answers. We introduce PriceCheck, which builds a compact family of decision rules from label-free checks such as re-solving a problem. Each check has a price: its agreement rates on correct and incorrect answers and its cost per run. Prices fitted on a small, class-enriched labelled set compose into predictions of a schedule's coverage and cost, guiding which checks to run and when to stop. A calibration test then selects a schedule at a stated selective-risk target. In mathematics, the selected schedules serve 76.1% of answers on average and keep held-out selective risk below 1.5% on all 15 splits. Under the shared testing protocol, PriceCheck serves more answers at that target than reward models, a prompted judge, the generator's confidence and a trained correctness classifier. At matched coverage, it keeps the fewest wrong answers among these scorers. Across 118 diagnostic schedules, price-based coverage predictions have a rank correlation of 0.97 with observed coverage. These results show that choosing how checks are combined and stopped matters alongside how well a verifier ranks answers. Code is available at <a href="https://github.com/js-lee-AI/PriceCheck" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>PriceCheck</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>PriceCheck</h2>
+        <div class="prose">
+          <p>A <em>check</em> reads a candidate answer, but not its label, and returns a binary verdict on whether it agrees with that answer. A <em>schedule</em> \(S\) uses one or more checks to serve an answer or abstain. Its coverage is the share of answers served, and its selective risk \(R(S)\) is the error rate among them. Given a target \(\alpha\) and a confidence budget \(\delta\), the objective is to select and certify a schedule for which \(R(S) \le \alpha\) holds with probability at least \(1 - \delta\) over the draw of calibration data, at the largest coverage obtainable.</p>
+        </div>
+        <ol class="steps cols-3">
+          <li class="step">
+            <span class="step-label">Step 1</span>
+            <h3>Price each check</h3>
+            <p>The price of a check is two measured rates and a unit cost. Completeness \(p_1\) is the <span class="nw">per-draw</span> rate at which the check agrees with a correct answer, and leak \(p_0\) the rate at which it agrees with a wrong one.</p>
+            <p class="formula">\[\begin{aligned} p_1 &amp;= \mathbb{P}(V = 1 \mid Y = 1) \\ p_0 &amp;= \mathbb{P}(V = 1 \mid Y = 0) \end{aligned}\]</p>
+            <p>Here \(V\) is the verdict of one draw and \(Y\) the correctness of the answer. Both rates are fitted on a small labelled pricing set.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Step 2</span>
+            <h3>Compose prices into a schedule</h3>
+            <p>Prices compose into predictions of a schedule's coverage, selective risk and cost. With \(a_y\) the fitted acceptance probability for class \(y\) and \(\pi\) the correct-answer fraction of the pricing set, predicted coverage and risk are</p>
+            <p class="formula">\[\begin{aligned} \hat{c} &amp;= \pi\, a_1 + (1-\pi)\, a_0 \\ \hat{r} &amp;= \frac{(1-\pi)\, a_0}{\hat{c}} \end{aligned}\]</p>
+            <p>Cost composes in the same way, as each stage is paid only by the answers that reach it.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Step 3</span>
+            <h3>Certify one schedule</h3>
+            <p>Each schedule in a family \(G\), fixed independently of the i.i.d. calibration answers, gets an exact <span class="nw">one-sided</span> binomial <span class="nw">\(p\)-value</span> against \(H_0\colon R(S) &gt; \alpha\). It is certified when it serves \(n &gt; 0\) calibration answers, \(e\) of them wrong, and</p>
+            <p class="formula">\[F(e;\, n,\, \alpha) \le \delta / |G|\]</p>
+            <p>with \(F\) the binomial cumulative distribution function, \(\delta = 0.05\) and \(|G| = 23\). The default selector takes the certified schedule with the largest calibration coverage.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section band" id="prices">
+      <div class="wrap">
+        <h2>Schedules over Priced Checks</h2>
+        <div class="prose">
+          <p>The paper calls a check an <em>action</em> and prices seven of them. A <em>backward probe</em> has a reverse model write the reasoning that leads to the proposed answer, and a forward model then recovers an answer from that trace. A <em><span class="nw">re-solve</span> vote</em> draws a fresh solution from the frozen forward model. Two <em>generator-confidence</em> actions read the generator's probability of Yes when asked whether the proposed answer is correct, and the mean log-probability of the stored solution.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Price of each action table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col"></th><th class="grp" colspan="3" scope="col"><span>Backward probe</span></th><th class="grp" colspan="2" scope="col"><span>Re-solve vote</span></th><th class="grp" colspan="2" scope="col"><span>Generator confidence</span></th></tr>
+                <tr><th scope="col">8B</th><th scope="col">4B</th><th scope="col">1.7B</th><th scope="col">8B</th><th scope="col">1.7B</th><th scope="col"><i>p</i>(True)</th><th scope="col">Log-prob.</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Rate per draw (%)</span></th></tr>
+                <tr><th class="l stick" scope="row">Completeness \(p_1\)</th><td>70.1</td><td>73.1</td><td>63.9</td><td>80.2</td><td>79.5</td><td>72.5</td><td>61.9</td></tr>
+                <tr><th class="l stick" scope="row">Leak \(p_0\)</th><td>10.8</td><td>13.8</td><td>12.5</td><td>9.0</td><td>10.6</td><td>54.5</td><td>30.3</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="8" scope="rowgroup"><span>Cost per draw (tokens)</span></th></tr>
+                <tr><th class="l stick" scope="row">Generated</th><td>1034</td><td>1034</td><td>1034</td><td>5384</td><td>4801</td><td>0</td><td>0</td></tr>
+                <tr><th class="l stick" scope="row">Weighted</th><td>1034</td><td>517</td><td>217</td><td>5384</td><td>1008</td><td>0</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Price of each action on the frozen pool: completeness \(p_1\) and leak \(p_0\) per draw, and unit cost per draw in generated and in parameter-weighted tokens. The two confidence actions re-score the stored solution, so they generate nothing.</p>
+        </div>
+        <div class="prose">
+          <p>Schedules are built from four primitives. A <em>threshold</em> serves when the agreement count of one backward probe reaches \(t\), and <em>unanimity</em> when the first \(N\) <span class="nw">re-solve</span> votes all agree. An <em>adaptive race</em> draws <span class="nw">re-solve</span> votes until it reaches \(k\) agreements, where it serves, or \(j\) disagreements, where it abstains. A <em>cascade</em> runs a cheap action first and sends its undecided band to the race. The deployed family is a fixed grid of 23 schedules that no certification run alters.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <h2>Main Results</h2>
+        <div class="prose">
+          <p>Five generators, all fine-tuned from one 8B backbone, each attempted the 500 problems of <span class="nw">MATH-500</span>, and the evaluation uses 2326 of their answers with a base error of 4.26%. PriceCheck is compared with a prompted judge, a trained process reward model (PRM), <span class="nw">Math-Shepherd</span>, and an outcome reward model (ORM) under the shared testing protocol across fifteen splits. For a fair comparison, each rival scorer receives a family of selective rules of the same shape and comparable size, and the comparisons apply the test at its nominal level and assess realised held-out risk.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Certification results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method</th><th class="grp" colspan="2" scope="col"><span>\(\alpha\) = 0.5%</span></th><th class="grp" colspan="2" scope="col"><span>0.75%</span></th><th class="grp" colspan="2" scope="col"><span>1.0%</span></th><th class="grp" colspan="2" scope="col"><span>1.25%</span></th><th class="grp" colspan="2" scope="col"><span>1.5%</span></th><th class="grp" colspan="2" scope="col"><span>2.0%</span></th></tr>
+                <tr><th scope="col">Spl.</th><th scope="col">Cov.</th><th scope="col">Spl.</th><th scope="col">Cov.</th><th scope="col">Spl.</th><th scope="col">Cov.</th><th scope="col">Spl.</th><th scope="col">Cov.</th><th scope="col">Spl.</th><th scope="col">Cov.</th><th scope="col">Spl.</th><th scope="col">Cov.</th></tr>
+              </thead>
+              <tbody>
+                <tr class="ours"><th class="l stick" scope="row">PriceCheck (ours)</th><td><b>5</b></td><td><b>23.20</b></td><td><b>12</b></td><td><b>57.00</b></td><td><b>15</b></td><td><b>72.11</b></td><td><b>15</b></td><td><b>73.85</b></td><td><b>15</b></td><td><b>76.09</b></td><td><b>15</b></td><td class="reg">78.86</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Prompted verifier</span></th></tr>
+                <tr><th class="l stick" scope="row">Judge</th><td>0</td><td>0</td><td>5</td><td>16.74</td><td><b>15</b></td><td>52.43</td><td><b>15</b></td><td>62.32</td><td><b>15</b></td><td>69.50</td><td><b>15</b></td><td>78.17</td></tr>
+                <tr><th class="l stick" scope="row">Judge<sup>†</sup></th><td>0</td><td>0</td><td>5</td><td>20.09</td><td><b>15</b></td><td>61.08</td><td><b>15</b></td><td>67.99</td><td><b>15</b></td><td>71.91</td><td><b>15</b></td><td><b>80.81</b></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Trained verifiers</span></th></tr>
+                <tr><th class="l stick" scope="row">PRM</th><td>0</td><td>0</td><td>1</td><td>3.31</td><td>5</td><td>16.71</td><td>8</td><td>26.77</td><td><b>15</b></td><td>55.90</td><td><b>15</b></td><td>68.14</td></tr>
+                <tr><th class="l stick" scope="row">PRM<sup>†</sup></th><td>0</td><td>0</td><td>1</td><td>3.90</td><td>8</td><td>32.09</td><td><b>15</b></td><td>62.46</td><td><b>15</b></td><td>66.55</td><td><b>15</b></td><td>74.20</td></tr>
+                <tr><th class="l stick" scope="row">Math-Shepherd</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>3.56</td><td>5</td><td>17.52</td></tr>
+                <tr><th class="l stick" scope="row">Math-Shepherd<sup>†</sup></th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>7.61</td><td>6</td><td>23.80</td></tr>
+                <tr><th class="l stick" scope="row">ORM</th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>3.47</td><td>3</td><td>10.23</td><td>11</td><td>38.63</td></tr>
+                <tr><th class="l stick" scope="row">ORM<sup>†</sup></th><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>7.66</td><td>9</td><td>34.94</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Certification under a shared protocol. At each target \(\alpha\), splits certifying of 15 and coverage over all 15 counting non-certifying splits as zero. A dagger marks 24 levels, not six. Bold is best. The last column of the paper's table, wrong answers kept at matched coverage, is given in the text below.</p>
+        </div>
+        <div class="prose">
+          <p>PriceCheck certifies on all fifteen splits at the primary 1.5% target, with the highest mean held-out coverage, 76.09%, and no test-risk exceedance. Its coverage advantage over the best rival grows from 4.18 points at the primary target to 36.91 points at 0.75%, and at the strictest 0.5% target only PriceCheck certifies any split. The judge's finer family leads at the looser 2% target.</p>
+          <p>At matched coverage, each rival's test answers are ranked and exactly as many are kept as the certified schedule kept on that split. Every rival scorer then keeps more wrong answers than PriceCheck's 44. The count is 60 for the judge, the strongest ranker, 97 for the PRM, 164 for <span class="nw">Math-Shepherd</span> and 195 for the ORM. Neither generator-confidence score certifies on any split at any target, and a 1.7B correctness classifier fitted to the calibration labels certifies on only three of the fifteen splits even at its widest context window.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="splits">
+      <div class="wrap">
+        <h2>Across Split Schemes</h2>
+        <div class="prose">
+          <p>The fifteen splits are five source-held-out folds, each reserving one generator, and ten question-disjoint halves that reserve problems. Certified coverage is higher on the folds than on the halves. The default selector certifies an 8B <span class="nw">re-solve</span> vote on every split, while a cost-minimising selector instead picks a small-first cascade on three of the five folds, where its selections average 77.7% coverage at under a third of the adaptive vote's weighted cost.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/splits.webp" data-zoom>
+            <img src="assets/splits.webp" width="2400" height="873" loading="lazy" alt="Three panels. (a) Bars of certified coverage on the five source-held-out folds, by held-out generator: F0 79.0, ForwardPref 80.7, STaR 80.6, SelfDistill 79.0 and iter2 80.0 percent, all with Race (2,3) selected. (b) Bars for the ten question-disjoint halves A to J: 71.8, 73.4, 71.5, 80.9, 68.5, 81.1, 70.3, 71.7, 79.6 and 73.3 percent. Halves D and F select Race (2,3), half I selects Race (3,3), and the other seven select the unanimous 3-vote. (c) Coverage certified by 8B re-solve agreement rises from 72.2 percent at 3 re-solves per answer to 73.6 at 4, 75.7 at 8 and 76.2 at 16, against a dashed PriceCheck line at 76.1 percent.">
+          </a>
+          <figcaption class="long">Held-out coverage certified by PriceCheck at the 1.5% target on (a) source-held-out folds and (b) question-disjoint halves A–J, coloured by the selected configuration. Race \((k,j)\) serves at \(k\) agreements before \(j\) disagreements. (c) Coverage certified at 1.5% by 8B re-solve agreement over \(n\) re-solves per answer, against PriceCheck (dashed).</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Panel (c) certifies the plain fraction of stored <span class="nw">re-solves</span> agreeing with an answer as a scalar score under the same protocol. With three 8B <span class="nw">re-solves</span>, which generate about as many tokens as the certified schedule, this score serves less at the primary target, and it reaches the schedule's coverage only at sixteen votes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="prediction">
+      <div class="wrap">
+        <h2>Prices Predict Schedule Coverage</h2>
+        <div class="prose">
+          <p>Prices fitted on 100 class-enriched answers track cascade coverage across three pools. Over 118 diagnostic schedules, price-based coverage predictions have a rank correlation of 0.97 with observed coverage, and the mean absolute coverage error is 2.97 points over 70 cascades. Risk prediction has a mean error of about one point but is less reliable across schedules, so PriceCheck tests schedules on calibration data rather than using predicted risk as a certificate.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/prediction.webp" data-zoom>
+            <img src="assets/prediction.webp" width="2400" height="780" loading="lazy" alt="Three panels. (a) Predicted minus realised coverage in points for the probe-first and small-first cascades: about minus 0.3 and minus 1.8 on MATH, plus 1.8 and plus 1.0 on GSM8K, and minus 3.6 and minus 5.7 on Minerva. (b) Splits over target, of 15, by risk target. At 0.5 percent the uncorrected rule exceeds on 2 splits and the plug-in rule on 8, while Bonferroni exceeds on none. At 1.0 percent each of the three rules exceeds on 1 split, and at 1.5 and 2.0 percent none does. (c) Pairs of horizontal bars, the answer-level and the problem-count upper bound on risk in percent: PRM 1.41 and 2.14, 8B probe 0.91 and 1.62, 8B re-solve 1.09 and 1.89, adaptive vote 0.91 and 1.64, unanimous 3-vote 0.47 and 1.20, small-first cascade 0.73 and 1.45.">
+          </a>
+          <figcaption class="long">(a) Predicted minus realised coverage of two composed cascades on three answer pools, from a probe of 100 labels. (b) Splits, of 15, whose certified selection exceeds the target on test under three testing rules. (c) Nominal answer-level and problem-count 95% upper bounds on selective risk.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>At the strictest target, an uncorrected <span class="nw">\(p\)-value</span> and a <span class="nw">plug-in</span> rule that admits any schedule whose calibration risk is at most the target both certify every split but exceed the target on test, whereas the flat Bonferroni correction certifies a third of the splits and exceeds on none. Answers to the same problem are dependent, with an intraclass correlation of 0.45 for the pool's error indicator, and counting distinct kept problems widens every reported bound while preserving their ordering.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="populations">
+      <div class="wrap">
+        <h2>Prices Across Populations and Cost Axes</h2>
+        <div class="prose">
+          <p>Both rates shift across actions on two further mathematics benchmarks and on program synthesis. On every population, each action agrees with correct answers clearly more often than with wrong ones, so a price refitted on a new population is still a usable input to the same composition.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/populations.webp" data-zoom>
+            <img src="assets/populations.webp" width="2400" height="884" loading="lazy" alt="Three panels. (a) Completeness per draw in percent for the 8B probe, the 8B re-solve and the 1.7B re-solve: 70.1, 80.2 and 79.5 on MATH, 72.9, 84.2 and 72.0 on Minerva, 97.6, 94.0 and 93.9 on GSM8K, and 97.4 and 75.4 for the probe and the 8B regeneration on programs. (b) Leak per draw in percent: 10.8, 9.0 and 10.6 on MATH, 30.5, 43.5 and 28.0 on Minerva, 16.3, 23.3 and 22.3 on GSM8K, and 2.2 and 3.1 on programs. (c) Cost per action relative to an 8B re-solve, in weighted tokens and in estimated seconds: about 0.04 and 0.07 for the 1.7B probe, 0.10 and 0.10 for the 4B probe, 0.19 and 0.14 for the 8B probe, and 0.19 and 0.49 for the 1.7B re-solve.">
+          </a>
+          <figcaption class="long">(a) Completeness and (b) leak per draw of three actions on four answer populations, where on programs the re-solve regenerates the program. (c) Parameter-weighted tokens and accelerator-time estimates from measured throughput, relative to an 8B re-solve.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The parameter-weighted proxy overstates the small model's advantage and reverses the ordering of a 1.7B <span class="nw">re-solve</span> and an 8B probe. The pooled small-first cascade is estimated to use about a third of the adaptive 8B vote's weighted tokens and about 30% less accelerator time.</p>
+          <p>Prices depend on the answer population and cost model, so applying PriceCheck to further model families, tasks or deployment settings calls for refitting the prices and recalibrating on representative data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026pricecheck,
+  title = {Risk-Controlled Selective LLM Answering by Pricing Label-Free Checks},
+  author = {Dongyub Jude Lee and Jungseob Lee and Chanjun Park and Hyeonseok Moon and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2609.37493},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2609.37493},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

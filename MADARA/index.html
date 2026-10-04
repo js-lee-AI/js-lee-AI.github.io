@@ -1,0 +1,413 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG</title>
+  <meta name="description" content="A controlled study of training-free multi-agent document assessment for RAG on 7B–9B models. For weaker baselines the dominant mechanism is per-document isolation, and for strong baselines a label-free probe classifies scoring behavior. MADARA is a model-adaptive routing architecture that integrates both findings. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/MADARA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG">
+  <meta property="og:description" content="For weaker baselines, the dominant mechanism of multi-agent document assessment in RAG is per-document isolation. For strong baselines, a label-free probe classifies scoring behavior. MADARA is a model-adaptive routing architecture that integrates both findings. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/MADARA/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/MADARA/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG">
+  <meta name="twitter:description" content="For weaker baselines, the dominant mechanism of multi-agent document assessment in RAG is per-document isolation. MADARA is a model-adaptive routing architecture built on that finding.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/MADARA/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The deep blue of the target model and the brick red of the isolation walls,
+       taken from the overview figure. The four treatment cards take the colors of
+       their panels in the same figure. */
+    :root { --accent-a: #245a84; --accent-b: #c67260; }
+    .t1 { --step: #c67260; --step-ink: #995c56; }
+    .t2 { --step: #c59c6a; --step-ink: #806039; }
+    .t3 { --step: #82a56e; --step-ink: #556b48; }
+    .t4 { --step: #6185a6; --step-ink: #4d6a85; }
+    /* The paper shades the EM column of the routed strategy. */
+    .tbl td.routed { background: var(--ours); }
+    /* A significance mark hangs beside its value, so the decimals of a column stay aligned.
+       Every cell of the routed column reserves the width of three marks after its value,
+       so the marks stay inside the shading whatever the cell spacing is. */
+    .tbl .sig { display: inline-block; width: 0; }
+    .tbl .em::after { content: ""; display: inline-block; width: 1.3em; }
+    /* Beside a table the text and the table share the width evenly, because a
+       table cannot shrink the way a figure does. Where the two no longer fit
+       side by side, the pair stacks and each part keeps its usual measure. */
+    .split.even .table-block { width: 100%; max-width: 30rem; justify-self: center; }
+    @media (min-width: 62rem) {
+      .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    }
+    @media (max-width: 61.99rem) {
+      .split.even { grid-template-columns: minmax(0, 1fr); }
+      .split.even .prose { width: 100%; max-width: var(--w-text); justify-self: center; }
+    }
+    /* The second line of a column head, as in the paper's tables. */
+    .tbl thead small { display: block; font-size: 0.8em; font-weight: 400; color: var(--ink-mute); }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">To Isolate or to Score? <span class="name"><span class="nw">Model-Adaptive</span> Assessment</span> for&nbsp;<span class="nw">Cost-Efficient</span> <span class="nw">Multi-Agent</span> RAG</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Chanjun Park<sup>2*</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1*</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Soongsil University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2606.25191" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2606.25191" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/MADARA" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A training-free pipeline that diagnoses each model–task pair with a <span class="nw">one-time</span> probe and routes weak baselines to <span class="nw">per-document</span> isolation and strong baselines to a scoring treatment.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="944" alt="Diagram in three phases. Phase 1, model profiling (offline): a target LLM and calibration data (n = 100) feed a one-time RSC probe and evaluation, which outputs the context capacity EM NF, the scoring trend rho star, and the coupling strength rho hat 1. Phase 2, MADARA router (decision logic): Path A, weak multi-doc capacity with EM NF below 30%, leads to PDE. Path B, strong multi-doc capacity with EM NF of at least 30%, splits into stochastic scoring with rho star above minus 1.0, which leads to SDA, and rho star equal to minus 1.0, where rho hat 1 below 0.5 (weakly coupled quality-ordered) leads to CoT and rho hat 1 of at least 0.5 (strongly coupled quality-ordered) leads to ATF. Phase 3, treatment execution (online processing): PDE, per-document extraction, passes documents D1 to D5 separately to the model and combines the five answers by voting. SDA, score distribution alignment, turns score histograms into percentile ranks. CoT, de-polarization, places thinking and reasoning between the prompt and the score. ATF, adaptive threshold filtering, keeps the documents above the threshold mu minus 0.5 sigma for the generator.">
+          </a>
+          <figcaption class="long">The MADARA Model-Adaptive Routing Architecture. (Left) A one-time RSC probe evaluates the target LLM's context capacity <span class="nw">(\(\text{EM}_{\text{NF}}\))</span> and scoring behavior <span class="nw">(\(\rho^*, \hat{\rho}_1\)).</span> (Middle) The router identifies a capability phase-transition: weak-baseline models are strictly routed to bypass multi-document evaluation. (Right) PDE (Isolation) structurally separates documents to cure context confusion, while scoring-only treatments (SDA, CoT, ATF) refine document assessment for strong models.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Multi-agent document assessment for retrieval-augmented generation is computationally expensive, driving practitioners toward smaller, deployable models whose assessment mechanisms remain poorly understood. We conduct a controlled study of training-free interventions on <span class="nw">7B–9B</span> instruction-tuned models across diverse QA benchmarks, revealing a sharp dichotomy in how models benefit from assessment. For weaker baselines, the dominant mechanism is per-document isolation. Astoundingly, assessment-free isolation matches full multi-agent assessment, demonstrating that resolving multi-document context confusion, rather than scoring quality, drives outsized gains of up to 50 percentage points. Conversely, for strong baselines where scoring quality matters, we introduce Reasoning-Score Coupling, a label-free perturbation probe that classifies scoring behavior. Integrating these findings, we propose MADARA, a model-adaptive routing architecture. Crucially, MADARA's diagnostic thresholds derived from a single pilot model generalize zero-shot to four unseen model families, providing a robust, lightweight pipeline to eliminate computational overhead.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>MADARA is a Diagnose→Treat pipeline over a <span class="nw">three-agent</span> document assessment framework. It diagnoses each model–task pair on 100 calibration queries by its accuracy under the No-Filter (NF) baseline, which passes all documents to the generator, and by its Reasoning-Score Coupling (RSC).</p>
+          <p>RSC compares a model's document scores under chain-of-thought (CoT) reasoning with those obtained after three levels of increasing perturbation (shuffled, contradicted, and random reasoning). With \(\hat{\rho}_k\) the Spearman rank correlation between normal and perturbed scores at level <span class="nw">\(k\),</span> the trend coefficient is</p>
+          <p class="formula">\[\rho^* = \text{Spearman}\bigl([1,\,2,\,3],\;[\hat{\rho}_1,\,\hat{\rho}_2,\,\hat{\rho}_3]\bigr)\]</p>
+          <p>A pair is <em>quality-ordered</em> if <span class="nw">\(\rho^* = -1.0\),</span> which requires <span class="nw">\(\hat{\rho}_1 &gt; \hat{\rho}_2 &gt; \hat{\rho}_3\),</span> and <em>stochastic</em> otherwise. The protocol requires no gold labels, and \(\hat{\rho}_1\) measures the strength of baseline coupling.</p>
+        </div>
+        <ol class="steps">
+          <li class="step t1">
+            <span class="step-label">Path A (weak multi-doc capacity)</span>
+            <h3>Per-Document Extraction (PDE)</h3>
+            <p>If <span class="nw">\(\text{EM}_{\text{NF}} &lt; \tau_{\text{NF}}\),</span> the model struggles with <span class="nw">multi-document</span> context. After <span class="nw">three-agent</span> scoring, it generates an answer from each <span class="nw">top-\(k\)</span> document individually. Candidates are grouped by normalized string match, and the group with the highest cumulative score is selected.</p>
+          </li>
+          <li class="step t2">
+            <span class="step-label">Path B (stochastic scoring)</span>
+            <h3>Score Distribution Alignment (SDA)</h3>
+            <p>If <span class="nw">\(\rho^* &gt; -1.0\),</span> reasoning quality does not drive scores. SDA bypasses reasoning entirely. It converts each agent's raw scores to percentile ranks, then aggregates them via weighted averaging to produce a calibrated ranking.</p>
+          </li>
+          <li class="step t3">
+            <span class="step-label">Path B (weakly coupled quality-ordered)</span>
+            <h3>CoT De-Polarization</h3>
+            <p>If \(\rho^* = -1.0\) and <span class="nw">\(\hat{\rho}_1 &lt; 0.5\),</span> the baseline failure mode is polarization, in which agents without reasoning guidance assign extreme scores (0 or 5) to about 80% of documents. Agents therefore generate explicit reasoning before scoring.</p>
+          </li>
+          <li class="step t4">
+            <span class="step-label">Path B (strongly coupled quality-ordered)</span>
+            <h3>Adaptive Threshold Filtering (ATF)</h3>
+            <p>If \(\rho^* = -1.0\) and <span class="nw">\(\hat{\rho}_1 \geq 0.5\),</span> baselines already produce effective rankings. ATF filters rather than reranks. With <span class="nw">\(\tau = \mu(\mathbf{s}) - 0.5\,\sigma(\mathbf{s})\),</span> it retains only documents with \(s_i \geq \tau\) and requires no additional LLM calls.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The routing thresholds <span class="nw">(\(\rho^* = -1.0\),</span> <span class="nw">\(\hat{\rho}_1 = 0.5\),</span> <span class="nw">\(\tau_{\text{NF}} = 30\%\))</span> were derived from a single pilot model, <span class="nw">Mistral-7B</span>, and applied zero-shot to all others.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Main Results</h2>
+        <div class="prose">
+          <p>Five open-weight, instruction-tuned <span class="nw">7B–9B</span> models are evaluated on sampled subsets (∼1K queries) of CONFLICTS, an adversarial QA benchmark with inter-document contradictions, and FEVER, a binary fact-verification task.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Main results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Task</th><th class="grp" colspan="2" scope="col"><span>Diagnostics</span></th><th class="grp" colspan="4" scope="col"><span>Component Methods EM (%)</span></th><th class="grp" colspan="3" scope="col"><span>MADARA (Ours)</span></th></tr>
+                <tr><th class="c" scope="col">RSC</th><th scope="col">\(\hat{\rho}_1\)</th><th scope="col">NF</th><th scope="col">3-Agent</th><th scope="col">CoT</th><th scope="col">SDA</th><th class="c" scope="col">Strategy</th><th class="em" scope="col">EM</th><th scope="col">\(\Delta_{\text{NF}}\)</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Llama-3.1-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td class="c">Quality-Ordered</td><td>0.76</td><td>13.9</td><td>24.1</td><td>16.5</td><td>19.4</td><td class="c"><b>PDE</b></td><td class="em routed"><b>50.2</b><span class="sig"><sup>***</sup></span></td><td>+36.3</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td class="c">Quality-Ordered</td><td>0.65</td><td>88.7</td><td>87.8</td><td>88.4</td><td>88.2</td><td class="c"><b>ATF</b></td><td class="em routed"><b>90.9</b><span class="sig"><sup>*</sup></span></td><td>+2.2</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Mistral-7B-v0.3</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td class="c">Quality-Ordered</td><td>0.35</td><td>18.1</td><td>18.6</td><td>22.8</td><td>20.3</td><td class="c"><b>PDE</b></td><td class="em routed"><b>43.5</b><span class="sig"><sup>***</sup></span></td><td>+25.4</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td class="c">Quality-Ordered</td><td>0.28</td><td>90.7</td><td>90.9</td><td><b>92.6</b></td><td>90.7</td><td class="c"><b>CoT</b></td><td class="em routed"><b>92.6</b></td><td>+1.9</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Qwen3-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td class="c">Stochastic</td><td>0.39</td><td>60.8</td><td>62.4</td><td>62.4</td><td><b>63.0</b></td><td class="c"><b>SDA</b></td><td class="em routed"><b>63.0</b></td><td>+2.2</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td class="c">Quality-Ordered</td><td>0.63</td><td>89.6</td><td>89.8</td><td>89.5</td><td>90.0</td><td class="c"><b>ATF</b></td><td class="em routed"><b>90.9</b></td><td>+1.3</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Qwen2.5-7B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td class="c">Stochastic</td><td>0.46</td><td>59.9</td><td>65.0</td><td>62.4</td><td><b>65.4</b></td><td class="c"><b>SDA</b></td><td class="em routed"><b>65.4</b></td><td>+5.5</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td class="c">Quality-Ordered</td><td>0.62</td><td>87.1</td><td>88.9</td><td>87.5</td><td><b>90.5</b><span class="sig"><sup>**</sup></span></td><td class="c">ATF<sup>†</sup></td><td class="em routed">88.2</td><td>+1.1</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Gemma-2-9B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td class="c">Stochastic</td><td>0.79</td><td>60.8</td><td><b>64.6</b></td><td>63.3</td><td>63.3</td><td class="c"><b>SDA</b></td><td class="em routed">63.3</td><td>+2.5</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td class="c">Quality-Ordered</td><td>0.58</td><td>92.2</td><td>92.4</td><td><b>92.5</b></td><td>92.5</td><td class="c"><b>ATF</b></td><td class="em routed"><b>93.6</b></td><td>+1.4</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="10" scope="rowgroup"><span>Average</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td></td><td></td><td>42.7</td><td>46.9</td><td>45.5</td><td>46.3</td><td class="c">–</td><td class="em"><b>57.1</b></td><td>+14.4</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td></td><td></td><td>89.7</td><td>90.0</td><td>90.1</td><td>90.4</td><td class="c">–</td><td class="em"><b>91.2</b></td><td>+1.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">MADARA dynamically routes models to optimal assessment strategies, maximizing Exact Match (EM%). The Strategy is determined zero-shot via RSC and No-Filter (NF) baselines. Significance vs. NF (McNemar's test with Holm-Bonferroni): <span class="nw">\(^{*}p{&lt;}0.05\),</span> <span class="nw">\(^{**}p{&lt;}0.01\),</span> <span class="nw">\(^{***}p{&lt;}0.001\).</span> <sup>†</sup>Routed to ATF due to crossing the baseline coupling threshold <span class="nw">(\(\hat{\rho}_1 = 0.62 \ge 0.5\)),</span> narrowly missing the optimal SDA.</p>
+        </div>
+        <div class="prose">
+          <p>Routing sends the two weak-baseline pairs to PDE, which yields +36.3pp for Llama and +25.4pp for Mistral on CONFLICTS <span class="nw">(\(p &lt; 0.001\)).</span> Averaged over the five models, the routed strategy reaches 57.1% EM on CONFLICTS against 42.7% for NF, and 91.2% against 89.7% on FEVER.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="isolation">
+      <div class="wrap">
+        <h2>Isolation vs. Scoring</h2>
+        <div class="split even">
+          <div class="prose">
+            <p><span class="nw">PDE-Random</span> selects documents at random and votes uniformly, which bypasses multi-agent assessment. For Llama it matches the full PDE pipeline on both CONFLICTS (50.6% vs. 50.2%) and the held-out TriviaQA (79.6% vs. 79.6%). For Mistral, assessment-guided selection adds +19pp beyond random isolation on CONFLICTS.</p>
+            <p>Strong-baseline models <span class="nw">(\(\text{EM}_{\text{NF}} \geq 60\%\))</span> show no benefit from PDE. Qwen3 on CONFLICTS, for example, drops from 60.8% to 58.6%.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="PDE component ablation table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" rowspan="2" scope="col">Task</th><th class="grp" scope="col"><span>Base</span></th><th class="grp" colspan="3" scope="col"><span>PDE Component Ablation</span></th></tr>
+                  <tr><th scope="col">NF<small>(1× cost)</small></th><th scope="col">Rand.<small>(1× cost)</small></th><th scope="col">Unif.<small>(≈4×)</small></th><th scope="col">Full<small>(≈4×)</small></th></tr>
+                </thead>
+                <tbody>
+                  <tr class="group"><th colspan="5" scope="rowgroup"><span>Llama-3.1</span></th></tr>
+                  <tr><th class="l stick" scope="row">Conflicts</th><td>13.9</td><td><b>50.6</b></td><td><b>51.1</b></td><td><b>50.2</b></td></tr>
+                  <tr><th class="l stick" scope="row">TriviaQA</th><td>29.8</td><td><b>79.6</b></td><td><b>80.1</b></td><td><b>79.6</b></td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="5" scope="rowgroup"><span>Mistral-v0.3</span></th></tr>
+                  <tr><th class="l stick" scope="row">Conflicts</th><td>18.1</td><td>24.5</td><td>38.8</td><td><b>43.5</b></td></tr>
+                  <tr><th class="l stick" scope="row">TriviaQA</th><td>67.6</td><td>71.5</td><td><b>73.7</b></td><td><b>73.7</b></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">PDE component ablation (EM%) reveals that multi-agent assessment is redundant for weak baselines. For Llama, completely assessment-free isolation (<i>Rand.</i>) yields identical outsized gains as the computationally heavy <i>Full</i> pipeline, proving that resolving context confusion drives the improvement. (<i>Cost multipliers</i> indicate relative inference calls vs. standard RAG. CFL=Conflicts, TQA=TriviaQA; NF=No Filter; Unif.=assessment-guided + uniform vote; Full=score-weighted vote.)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="rsc">
+      <div class="wrap">
+        <h2>RSC Diagnostic Results</h2>
+        <div class="prose">
+          <p>Strong-baseline models lose quality-ordered scoring on the adversarial and <span class="nw">factoid-QA</span> tasks but maintain it on the simpler binary FEVER task. On the held-out TriviaQA, RSC classifications replicate those on CONFLICTS, except for Llama, whose scoring is degenerate.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="RSC diagnostic results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Task</th><th class="grp" colspan="3" scope="col"><span>Correlation (\(\hat{\rho}_k\))</span></th><th rowspan="2" scope="col">Trend (\(\rho^*\))</th><th class="c" rowspan="2" scope="col">RSC Class</th></tr>
+                <tr><th scope="col">Shuffled</th><th scope="col">Contra.</th><th scope="col">Random</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Llama-3.1-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td>.76</td><td>.43</td><td>.08</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td>.65</td><td>.49</td><td>.10</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">TriviaQA</th><td class="c" colspan="5"><i>Degenerate scoring (mean=0.17/5.0)</i><sup>‡</sup></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Mistral-7B-v0.3</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td>.35</td><td>.22</td><td>.18</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td>.28</td><td>.09</td><td>.01</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">TriviaQA</th><td>.47</td><td>.05</td><td>.02</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Qwen3-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td>.39</td><td>.04</td><td>.14</td><td>−0.5</td><td class="c">Stochastic</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td>.63</td><td>.51</td><td>.14</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">TriviaQA</th><td>.64</td><td>.45</td><td>.45</td><td>−0.5</td><td class="c">Stochastic</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Qwen2.5-7B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td>.46</td><td>−.26</td><td>.08</td><td>−0.5</td><td class="c">Stochastic</td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td>.62</td><td>.21</td><td>.06</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">TriviaQA</th><td>.55</td><td>−.28</td><td>.15</td><td>−0.5</td><td class="c">Stochastic</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Gemma-2-9B</span></th></tr>
+                <tr><th class="l stick" scope="row">Conflicts</th><td>.79</td><td>.40</td><td>.40</td><td>−0.5</td><td class="c">Stochastic<sup>†</sup></td></tr>
+                <tr><th class="l stick" scope="row">FEVER</th><td>.58</td><td>.41</td><td>.18</td><td>−1.0</td><td class="c"><b>Quality-Ordered</b></td></tr>
+                <tr><th class="l stick" scope="row">TriviaQA</th><td>.83</td><td>.19</td><td>.48</td><td>−0.5</td><td class="c">Stochastic</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">RSC diagnostic results reveal that scoring behavior is a model-task interaction. Spearman correlations <span class="nw">(\(\hat{\rho}_k\))</span> are shown under three increasing perturbation levels. Perfect monotonic degradation yields a trend coefficient of <span class="nw">\(\rho^* = -1.0\),</span> classifying the model-task pair as Quality-Ordered; otherwise, it is Stochastic. <sup>†</sup>Aggregate vs. per-query disagreement. <sup>‡</sup>Scores degenerate at the absolute floor, making perturbation uninformative.</p>
+        </div>
+        <div class="prose">
+          <p>Computed independently for each of the 100 probe queries on CONFLICTS, Llama's mean correlations are strictly ordered (0.72 &gt; 0.38 &gt; −0.01), while Qwen3's means violate monotonicity.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/perquery.webp" data-zoom>
+            <img src="assets/perquery.webp" width="2400" height="788" loading="lazy" alt="Three violin plots of per-query Spearman rho, for Mistral-7B, Llama-3.1-8B, and Qwen3-8B, each with one violin for the shuffled, the contradicted, and the random perturbation level. Mistral-7B has means of plus 0.29, plus 0.18, and plus 0.08, with a green box reading trend rho of minus 1.00, p below 0.001. Llama-3.1-8B has means of plus 0.72, plus 0.38, and minus 0.01, with a green box reading trend rho of minus 1.00, p below 0.001. Qwen3-8B has means of plus 0.30, plus 0.03, and plus 0.16, with a red box reading trend rho of minus 0.50, p of 0.667.">
+          </a>
+          <figcaption>Per-query Spearman \(\rho\) distributions on CONFLICTS. Violin widths show density, and horizontal lines mark medians. Numbers below violins indicate mean \(\rho\) values. Green and red boxes denote significant <span class="nw">(\(\rho^* = -1.0\))</span> and non-significant monotonic trends, respectively.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="retrieval">
+      <div class="wrap">
+        <h2>Robustness Across Retrieval Quality</h2>
+        <div class="split even">
+          <div class="prose">
+            <p>On TriviaQA, upgrading BM25 to a dense retriever (Contriever, 500 queries) shrinks Llama's PDE gain from +49.8pp to +20.8pp, and under a generative reranker (<span class="nw">Qwen3-0.6B</span>) the gain is +50.4pp.</p>
+            <p>Under dense retrieval, Llama's NF baseline (34.6%) marginally crosses <span class="nw">\(\tau_{\text{NF}} = 30\%\),</span> so a strict application of the router would bypass PDE and miss the +20.8pp isolation gain.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Retrieval quality table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" rowspan="2" scope="col">Model</th><th class="grp" colspan="3" scope="col"><span>PDE Gain (Δ EM vs. NF Baseline)</span></th></tr>
+                  <tr><th scope="col">BM25<small>(Sparse)</small></th><th scope="col">Contriever<small>(Dense)</small></th><th scope="col">Qwen3-0.6B<small>(Reranker)</small></th></tr>
+                </thead>
+                <tbody>
+                  <tr class="group"><th colspan="4" scope="rowgroup"><span>Weak-Baseline Capacity</span></th></tr>
+                  <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>+49.8</td><td>+20.8</td><td>+50.4</td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="4" scope="rowgroup"><span>Strong-Baseline Capacity</span></th></tr>
+                  <tr><th class="l stick" scope="row">Qwen2.5-7B</th><td>−0.5</td><td>+3.6</td><td>−1.0</td></tr>
+                  <tr><th class="l stick" scope="row">Gemma-2-9B</th><td>−0.8</td><td>+2.4</td><td>+0.8</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">Impact of Context Quality Upgrades on TriviaQA. Upgrading retrieval quality (Dense/Reranker) reduces the isolation benefit for weak models, yet PDE remains mandatory to cure severe context confusion (e.g., \(+50.4\text{pp}\) for Llama). Conversely, strong models (Qwen, Gemma) possess intrinsic context capacity, rendering PDE unnecessary.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="multihop">
+      <div class="wrap">
+        <h2>Multi-Hop Generalization</h2>
+        <div class="split even">
+          <div class="prose">
+            <p>On MuSiQue, scoring treatments become optimal while isolation alone fails. For <span class="nw">Qwen2.5-7B</span> on 100 queries with 20 mixed supporting and distractor paragraphs per query, <span class="nw">3-Agent</span> and SDA both improve EM by +16.0pp, while <span class="nw">PDE-Random</span> falls below NF. PDE lags the best scoring treatments by 6pp because isolated <span class="nw">per-document</span> voting cannot reconstruct missing chain steps.</p>
+            <p>The static threshold would still route this pair to PDE, a limitation of the current routing implementation.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="MuSiQue results table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Method</th><th scope="col">EM (%)</th><th scope="col">F1 (%)</th><th scope="col">Δ EM</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th class="l stick" scope="row">NF (No-Filter)</th><td>14.0</td><td>21.3</td><td>—</td></tr>
+                  <tr><th class="l stick" scope="row">3-Agent Baseline</th><td><b>30.0</b></td><td><b>39.6</b></td><td>+16.0</td></tr>
+                  <tr><th class="l stick" scope="row">CoT De-Polarization</th><td>21.0</td><td>30.9</td><td>+7.0</td></tr>
+                  <tr><th class="l stick" scope="row">SDA (rank)</th><td><b>30.0</b></td><td>38.7</td><td>+16.0</td></tr>
+                  <tr><th class="l stick" scope="row">PDE</th><td>24.0</td><td>34.4</td><td>+10.0</td></tr>
+                  <tr><th class="l stick" scope="row">PDE-Random</th><td>12.0</td><td>19.6</td><td>−2.0</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">MuSiQue results (Qwen2.5-7B-Instruct, 100 queries). Bootstrap CI for the <span class="nw">\(+16.0\)pp</span> 3-Agent gain over NF: 95% CI <span class="nw">\([+5.0, +27.0]\)pp,</span> \(p=0.003\) (10,000 resamples).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026madara,
+  title = {To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG},
+  author = {Jungseob Lee and Chanjun Park and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2606.25191},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2606.25191},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>

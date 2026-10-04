@@ -1,0 +1,324 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAST: Cost-Aware Speculative Trees from One-Pass Block Drafters</title>
+  <meta name="description" content="CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement. At its predicted width, CAST is faster than the standard chain in all eight settings, by up to 43%. arXiv preprint.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/CAST/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="CAST: Cost-Aware Speculative Trees from One-Pass Block Drafters">
+  <meta property="og:description" content="CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement. arXiv preprint.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/CAST/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/CAST/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CAST: Cost-Aware Speculative Trees from One-Pass Block Drafters">
+  <meta name="twitter:description" content="CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/CAST/assets/card.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The burnt and bright orange of the stag in the icon, with the amber of the
+       drafter scores and the violet of the ancestor mask from the overview figure
+       on the two method cards. */
+    :root { --accent-a: #c24b00; --accent-b: #fa9b23; }
+    .s1 { --step: #fda003; --step-ink: #8a5300; }
+    .s2 { --step: #6a64d8; --step-ink: #4b45b3; }
+    /* The predicted-width columns carry the tint of the proposed method. */
+    .tbl td.pred { background: var(--ours); }
+    /* Below the width at which the second table fits on one line, each setting
+       name breaks after the GPU, so that the row labels leave room for the numbers. */
+    @media screen and (max-width: 57.99rem) { .tbl .gpu { display: block; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><img class="title-icon" src="assets/icon.png" alt="" width="144" height="160"><span class="name">CAST</span>: Cost-Aware Speculative Trees from One-Pass Block Drafters</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>2†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Yonsei University Mirae Campus</span>
+        </p>
+        <p class="notes"><span><sup>†</sup>Corresponding author</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2610.00321" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2610.00321" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/CAST" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="1097" alt="Two rows that start from the same DFlash drafter pass over the block far, he, is, from, home, at, the, end, with an amber score bar under each token and lower-ranked candidates such as John below. Top row, standard decoding: the top-1 chain is sent to the target in one verify pass, the target accepts far, rejects he because it wanted John, and 2 tokens are committed. Bottom row, CAST: a prefix-closed tree of the 15 candidates with the largest prefix mass adds the branches John, is, from, home and home, home, at to the chain, the tree is verified in one pass under an ancestor mask, the path far, John, is, from, home is accepted, and 6 tokens are committed.">
+          </a>
+          <figcaption class="long">One round of standard DFlash decoding (top) and CAST (bottom) on a GSM8K prompt, using the same drafter scores (amber bars) and one verification pass of 16 packed tokens. Standard decoding verifies only the <span class="nw">top-1</span> chain and discards the other scored candidates (gray bars), whereas CAST verifies a prefix-closed tree of the 15 highest-scoring nonroot candidates and the pending root \(b\) under an ancestor mask. Green and red mark accepted and rejected tokens.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Speculative decoding accelerates large language model inference by drafting future tokens cheaply and verifying them with the target model in parallel. Block drafters score a whole block of future tokens in one forward pass, yet standard decoding verifies only the top-scoring chain and discards the other candidates. Because these candidates are already scored, verifying more of them adds target computation but no extra drafting. We introduce CAST (Cost-Aware Speculative Trees), which packs these candidates into a tree and verifies it in a single target pass, leaving the target model, drafter weights, and decoding rule untouched. To decide how wide the tree should be, CAST adds candidates while the expected gain from the next one outweighs the verification time it adds. The width therefore adapts to each deployment from a latency measurement, without sweeping over widths. We evaluate CAST across five domains on three GPU generations and two model families. At its predicted width, CAST is faster than the standard chain in all eight settings, by up to 43%. We also find that the best width depends strongly on the deployment. Where verification cost jumps at a kernel boundary, a <span class="nw">128-token</span> tree is only 2% faster than the standard chain, whereas the tree at the predicted width is 20% faster. Furthermore, we prove that CAST leaves the target output distribution unchanged under both greedy and sampled decoding. Code is available at <a href="https://github.com/js-lee-AI/CAST" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>CAST</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>A block drafter such as DFlash returns, in one forward pass, a probability distribution over the vocabulary for every position of a future block. Standard decoding keeps the most likely token at each position and verifies the resulting chain. CAST instead runs the unchanged drafter once, scores candidate sequences by the product of the drafter's probabilities along each sequence, and keeps the highest-scoring sequences as a tree for the target to verify in one pass. Theorem&nbsp;1 of the paper says which nodes to include once the width \(N\) is fixed, and the cost slope determines how large \(N\) should be.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Theorem 1</span>
+            <h3>Budget-optimal tree: keep the highest-scoring candidates</h3>
+            <p>Given the cache-backed prefix \(x\) and the pending root \(b\), the token committed by the previous round, the drafter returns a distribution \(q_j(\cdot \mid x, b)\) for each future position \(j \le L\). CAST ranks a candidate sequence \(y_{1:d}\) by the plug-in score</p>
+            <p class="formula">\[\hat\pi(y_{1:d} \mid x, b) = \prod_{j \le d} q_j(y_j \mid x, b)\]</p>
+            <p>This product serves only to rank candidates and does not assume that the target distribution factorizes over positions. A candidate tree is prefix-closed, meaning that it contains every ancestor of each of its nodes, and its budget \(N\) counts its nonroot nodes. Keeping the \(N\) highest-scoring candidates maximizes the expected number of accepted tokens under the drafter's scores for any \(N\), and this set is itself prefix-closed.</p>
+            <p>The public decoder keeps the top \(K = 8\) tokens at each future position and expands the tree best-first, a rank cap that matches the full-rank tree's accepted length to within 1.1% at the evaluated budgets. The tree is optimal only among the candidates this cap retains, and only for the plug-in score.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Theorem 2</span>
+            <h3>Cost-aware width: add candidates while they pay off</h3>
+            <p>Verifying a <span class="nw">budget-\(N\)</span> tree packs \(N + 1\) tokens, the pending root included, into one target pass. One drafter pass has already scored every candidate, so a wider tree adds verification work but no drafting work. When the round time \(\ell(N)\) is locally affine in \(N\) with nonnegative slope \(c_1\), throughput \((g(N) + 1) / \ell(N)\) is unimodal, and adding node \(N + 1\) does not reduce it if and only if</p>
+            <p class="formula">\[\rho_{(N+1)} \;\ge\; \frac{g(N) + 1}{\ell(N)} \cdot c_1\]</p>
+            <p>Here \(\rho_{(N+1)}\) is the prefix mass of the next node, \(g(N)\) is the expected accepted length of the optimal <span class="nw">budget-\(N\)</span> tree, the fraction is the throughput in tokens per millisecond, and \(c_1\) is the cost of one more node in milliseconds. Because this test needs only the drafter's scores and a short latency measurement, the width adapts to each deployment without a sweep.</p>
+            <p>The experiments set \(c_1\) to the slope of the target-forward latency, fit to probe measurements. This probe omits the packing, mask, heap, and <span class="nw">KV-gather</span> overhead, so the choice under-estimates \(c_1\), and the width sweeps bound the resulting error.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The packed tree is verified in one target pass under an attention mask through which each node sees only the prefix and its own ancestors, which reproduces exactly what \(N + 1\) separate autoregressive forward passes would compute. Under greedy decoding, the round commits the longest tree path that agrees with the target and appends the target's next token, which becomes the new pending root. For temperature \(T &gt; 0\), CAST runs a proposal-aware stochastic tree verifier, and by Theorem&nbsp;3 of the paper its committed tokens follow the distribution of autoregressive sampling from the target at temperature \(T\).</p>
+          <p>In fp32, CAST and standard DFlash both reproduce autoregressive decoding token for token on <span class="nw">Qwen3-8B</span> and <span class="nw">Qwen3-4B</span>. In bf16, both depart from autoregressive decoding only at near-ties of the top two target logits, where shape-dependent rounding can flip the greedy token.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="cost">
+      <div class="wrap">
+        <h2>The Cost of Width</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Adding a candidate node can raise the committed round length \(R\) but adds selection, heap, mask, packing, target-forward, and KV-gather work. A wider tree pays off only when the gain in \(R\) outweighs that work.</p>
+            <p>The target-forward latency grows only locally with the packed-token count \(n = N + 1\). From \(n = 16\) to \(n = 64\) it rises only +12% on <span class="nw">Blackwell-8B</span> and a few percent on every other GPU and target pair, then jumps at the <span class="nw">Blackwell-8B</span> \(n = 128\) kernel/tile boundary alone.</p>
+            <p>The stopping rule turns each curve into a width. On Blackwell (RTX PRO 6000 Server Edition) with <span class="nw">Qwen3-8B</span> the threshold is about 0.015, crossed between \(N = 47\) and 63, so the deployed width is \(N^\ast = 63\). The same rule selects wider trees on flatter cost curves.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/cost.webp" data-zoom>
+              <img src="assets/cost.webp" width="1400" height="955" loading="lazy" alt="Line plot of relative verify latency against packed tokens from 1 to 128 for five GPU and target pairs, Blackwell 8B, Blackwell 4B, A6000 8B, H100 8B, and H100 4B, each normalized to 1.0 at 16 packed tokens. From 16 to 96 packed tokens every curve stays between about 0.98 and 1.12. At 128 packed tokens the Blackwell 8B curve jumps to about 1.38, while the other four curves stay between about 1.0 and 1.1.">
+            </a>
+            <figcaption>Batch-one target-forward latency relative to 16 packed tokens across GPUs and targets, with packed count \(n=N+1\).</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <h2>Speedup at the Predicted Width</h2>
+        <div class="prose">
+          <p>The main experiments use the public, unmodified <span class="nw">block-16</span> DFlash heads for non-thinking <span class="nw">Qwen3-4B</span> and <span class="nw">Qwen3-8B</span> in bf16 at batch 1. Autoregressive (AR) decoding, DFlash, and CAST are timed in one shared decoding loop on an H100 SXM across five math, code, and chat domains, using 40 prompts in each domain and the same token budget for every method. <span class="nw">EAGLE-3</span> uses its official code and public Qwen3 heads and shares the machine, prompts, decode-only timer, and AR baseline of the DFlash and CAST rows.</p>
+          <p>CAST improves on DFlash across every H100 domain for <span class="nw">Qwen3-8B</span> and <span class="nw">Qwen3-4B</span>. Both targets average 5.62× speedup over AR, with longer committed rounds throughout.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Qwen3 decoding results on H100 SXM" tabindex="0">
+            <table class="tbl dense">
+              <thead>
+                <tr><th class="l stick" rowspan="3" scope="col">Method</th><th class="grp" colspan="4" scope="col"><span>Math</span></th><th class="grp" colspan="4" scope="col"><span>Code</span></th><th class="grp" colspan="2" scope="col"><span>Chat</span></th><td colspan="2"></td></tr>
+                <tr><th class="grp" colspan="2" scope="col"><span>GSM8K</span></th><th class="grp" colspan="2" scope="col"><span>MATH-500</span></th><th class="grp" colspan="2" scope="col"><span>HumanEval</span></th><th class="grp" colspan="2" scope="col"><span>MBPP</span></th><th class="grp" colspan="2" scope="col"><span>MT-Bench</span></th><th class="grp" colspan="2" scope="col"><span><i>Avg.</i></span></th></tr>
+                <tr><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th><th class="g" scope="col">Speedup</th><th scope="col">\(R\)</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Temperature = 0, Qwen3-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(16)</span></th><td class="g">2.58×</td><td>4.45</td><td class="g">2.37×</td><td>4.11</td><td class="g">2.23×</td><td>3.97</td><td class="g">2.37×</td><td>4.11</td><td class="g">2.07×</td><td>3.74</td><td class="g">2.32×</td><td>4.08</td></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(60)</span></th><td class="g">3.08×</td><td>5.34</td><td class="g">2.79×</td><td>4.88</td><td class="g">2.69×</td><td>4.76</td><td class="g">2.80×</td><td>4.93</td><td class="g">2.41×</td><td>4.49</td><td class="g">2.75×</td><td>4.88</td></tr>
+                <tr><th class="l stick" scope="row">DFlash <span class="muted">(16)</span></th><td class="g">4.54×</td><td>6.23</td><td class="g">5.57×</td><td>7.81</td><td class="g">4.67×</td><td>6.52</td><td class="g">4.82×</td><td>6.56</td><td class="g">2.30×</td><td>4.06</td><td class="g">4.38×</td><td>6.24</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">CAST <span class="muted">(\(N^\ast{=}127\))</span></th><td class="g">5.81×</td><td>8.46</td><td class="g">6.74×</td><td>9.87</td><td class="g">6.16×</td><td>9.04</td><td class="g">6.25×</td><td>9.09</td><td class="g">3.16×</td><td>5.52</td><td class="g">5.62×</td><td>8.40</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Temperature = 0, Qwen3-4B</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(16)</span></th><td class="g">1.81×</td><td>3.29</td><td class="g">1.79×</td><td>3.11</td><td class="g">1.62×</td><td>3.00</td><td class="g">1.71×</td><td>3.03</td><td class="g">1.59×</td><td>2.84</td><td class="g">1.70×</td><td>3.05</td></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(60)</span></th><td class="g">2.08×</td><td>3.81</td><td class="g">2.03×</td><td>3.61</td><td class="g">1.86×</td><td>3.41</td><td class="g">1.94×</td><td>3.46</td><td class="g">1.87×</td><td>3.34</td><td class="g">1.96×</td><td>3.53</td></tr>
+                <tr><th class="l stick" scope="row">DFlash <span class="muted">(16)</span></th><td class="g">4.40×</td><td>6.13</td><td class="g">5.34×</td><td>7.49</td><td class="g">4.61×</td><td>6.49</td><td class="g">4.96×</td><td>6.72</td><td class="g">2.30×</td><td>3.95</td><td class="g">4.32×</td><td>6.15</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">CAST <span class="muted">(\(N^\ast{=}127\))</span></th><td class="g">5.79×</td><td>8.47</td><td class="g">6.62×</td><td>9.76</td><td class="g">6.04×</td><td>9.02</td><td class="g">6.34×</td><td>9.11</td><td class="g">3.29×</td><td>5.78</td><td class="g">5.62×</td><td>8.43</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Temperature = 1, Qwen3-8B</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(16)</span></th><td class="g">2.22×</td><td>4.30</td><td class="g">2.32×</td><td>3.91</td><td class="g">2.19×</td><td>3.90</td><td class="g">2.22×</td><td>3.89</td><td class="g">1.82×</td><td>3.52</td><td class="g">2.15×</td><td>3.90</td></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(60)</span></th><td class="g">2.63×</td><td>5.17</td><td class="g">2.65×</td><td>4.62</td><td class="g">2.52×</td><td>4.57</td><td class="g">2.58×</td><td>4.66</td><td class="g">2.16×</td><td>4.29</td><td class="g">2.51×</td><td>4.66</td></tr>
+                <tr><th class="l stick" scope="row">DFlash <span class="muted">(16)</span></th><td class="g">4.11×</td><td>5.69</td><td class="g">4.39×</td><td>6.36</td><td class="g">4.08×</td><td>5.77</td><td class="g">3.83×</td><td>5.31</td><td class="g">2.15×</td><td>3.63</td><td class="g">3.71×</td><td>5.35</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">CAST <span class="muted">(\(N^\ast{=}127\))</span></th><td class="g">5.16×</td><td>7.93</td><td class="g">5.39×</td><td>8.46</td><td class="g">5.35×</td><td>8.27</td><td class="g">4.97×</td><td>7.56</td><td class="g">2.94×</td><td>5.30</td><td class="g">4.76×</td><td>7.50</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="13" scope="rowgroup"><span>Temperature = 1, Qwen3-4B</span></th></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(16)</span></th><td class="g">1.60×</td><td>3.21</td><td class="g">1.68×</td><td>3.00</td><td class="g">1.67×</td><td>3.00</td><td class="g">1.64×</td><td>2.98</td><td class="g">1.38×</td><td>2.80</td><td class="g">1.59×</td><td>3.00</td></tr>
+                <tr><th class="l stick" scope="row">EAGLE-3 <span class="muted">(60)</span></th><td class="g">1.83×</td><td>3.75</td><td class="g">1.89×</td><td>3.48</td><td class="g">1.83×</td><td>3.41</td><td class="g">1.81×</td><td>3.42</td><td class="g">1.53×</td><td>3.22</td><td class="g">1.78×</td><td>3.46</td></tr>
+                <tr><th class="l stick" scope="row">DFlash <span class="muted">(16)</span></th><td class="g">4.16×</td><td>5.80</td><td class="g">4.54×</td><td>6.55</td><td class="g">4.27×</td><td>5.96</td><td class="g">4.29×</td><td>5.96</td><td class="g">2.21×</td><td>3.79</td><td class="g">3.90×</td><td>5.61</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">CAST <span class="muted">(\(N^\ast{=}127\))</span></th><td class="g">5.14×</td><td>7.88</td><td class="g">5.56×</td><td>8.69</td><td class="g">5.54×</td><td>8.59</td><td class="g">5.41×</td><td>8.27</td><td class="g">3.02×</td><td>5.44</td><td class="g">4.93×</td><td>7.77</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Qwen3 decoding on H100 SXM. Cells report speedup over AR and committed round length \(R\). Parentheses give baseline packed tokens or the CAST nonroot budget.</p>
+        </div>
+        <div class="prose">
+          <p>The \(T = 1\) blocks keep the same rule-predicted width and replace greedy verification by the proposal-aware stochastic verifier. Sampling shortens the committed rounds of DFlash and CAST, yet the gain of CAST over DFlash stays between +22% and +37% in every domain on both targets.</p>
+          <p>The same cost rule selects \(N^\ast = 127\) for the <span class="nw">block-10</span> head of <span class="nw">LLaMA-3.1-8B</span>, extending the benefit to a second target family and block size. There, CAST at the predicted width averages 3.87× over AR, against 2.59× for the official <span class="nw">EAGLE-3</span> with a <span class="nw">60-token</span> tree.</p>
+          <p>Speedups and gains are computed from decode-only steady-state time. The claim is a controlled comparison that changes only the decoder within each setting, not a cross-system ranking.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="width">
+      <div class="wrap">
+        <h2>Width Across Hardware</h2>
+        <div class="prose">
+          <p>The rule thresholds drafter-score order statistics from 1,500 offline GSM8K rounds, using one curve across deployments and changing only the measured cost slope. Width selection uses scores and costs, not timing-sweep outcomes. Across all eight settings, the predicted gain is within 1.7 percentage points of the sweep oracle, and the predicted width matches the best swept width in six settings. The settings cover three GPUs, two model families, two block sizes, and a 30B sparse mixture-of-experts target.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Predicted and sweep-oracle widths table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Setting (drafter block)</th><th scope="col">\(N^\ast\)</th><th scope="col">Gain at \(N^\ast\)</th><th class="c" colspan="2" scope="col">Oracle width (gain)</th><th scope="col">Gap</th><th scope="col">Gain at \(N{=}127\)</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row"><span class="gpu">H100 SXM,</span> Qwen3-8B (b16)</th><td class="pred">127</td><td class="pred pos">+29.5%</td><td>127</td><td class="pos">+29.5%</td><td>+0.0</td><td class="pos">+29.5%</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">H100 SXM,</span> Qwen3-4B (b16)</th><td class="pred">127</td><td class="pred pos">+31.5%</td><td>127</td><td class="pos">+31.5%</td><td>+0.0</td><td class="pos">+31.5%</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">Blackwell,</span> Qwen3-8B (b16)</th><td class="pred">63</td><td class="pred pos">+19.8%</td><td>95</td><td class="pos">+21.5%</td><td>−1.7</td><td class="pos">+2.4%</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">Blackwell,</span> Qwen3-4B (b16)</th><td class="pred">95</td><td class="pred pos">+27.3%</td><td>127</td><td class="pos">+29.0%</td><td>−1.7</td><td class="pos">+29.0%</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">A6000,</span> Qwen3-8B (b16)</th><td class="pred">95</td><td class="pred pos">+28.7%</td><td>95</td><td class="pos">+28.7%</td><td>+0.0</td><td><span class="pos">+25.1%</span>\(^\ddagger\)</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">A6000,</span> Qwen3-4B (b16)</th><td class="pred">95</td><td class="pred pos">+32.6%</td><td>95</td><td class="pos">+32.6%</td><td>+0.0</td><td><span class="pos">+31.7%</span>\(^\ddagger\)</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">H100 SXM,</span> LLaMA-3.1-8B (b10)</th><td class="pred">127</td><td class="pred pos">+27.4%</td><td>127</td><td class="pos">+27.4%</td><td>+0.0</td><td class="pos">+27.4%</td></tr>
+                <tr><th class="l stick" scope="row"><span class="gpu">H100 SXM,</span> Qwen3-Coder-30B-A3B (b16)</th><td class="pred">127</td><td class="pred pos">+35.6%</td><td>127</td><td class="pos">+35.6%</td><td>+0.0</td><td class="pos">+35.6%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Predicted and sweep-oracle widths across the eight settings. Gain over DFlash is averaged over domains. Gap is measured in percentage points. Sweeps use \(N\in\{15,31,47,63,95,127\}\). The H100 SXM <span class="nw">Qwen3-8B</span> and <span class="nw">Qwen3-4B</span> sweeps start at \(N{=}47\), and the A6000 sweeps end at \(N{=}95\). <span class="nw">\(\ddagger\) marks</span> cells measured on a second A6000 host.</p>
+        </div>
+        <div class="prose">
+          <p>CAST is faster than the standard DFlash chain in all eight hardware and model settings, with average gains of <span class="nw">20–36%</span> and up to 43% on a single domain.</p>
+          <p>The best width depends strongly on the deployment. The <span class="nw">Blackwell-8B</span> cost cliff erodes most of the gain at the largest width. Gains plateau at <span class="nw">\(N = 63\)–95</span> and fall at 127. Where verification cost jumps at a kernel boundary, a <span class="nw">128-token</span> tree is only 2.4% faster than the standard chain, whereas the tree at the predicted width is 19.8% faster. Flatter A6000 and <span class="nw">Blackwell-4B</span> curves support wider trees.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="scores">
+      <div class="wrap">
+        <h2>Candidate Scores and Tree Shape</h2>
+        <div class="prose">
+          <p>The diagnostics below replay <span class="nw">Qwen3-8B</span> greedy decoding offline on the same <span class="nw">40-prompt</span> slices as the main rows. At the first chain rejection, the target correction lies at draft ranks <span class="nw">2–4</span> in <span class="nw">56–77%</span> of events. Depth-one reliability and the falling prefix masses explain the ranking and stopping rule.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/scores.webp" data-zoom>
+            <img src="assets/scores.webp" width="2400" height="786" loading="lazy" alt="Three panels for GSM8K, MT-Bench, and HumanEval. Panel a, correction rank: stacked bars of the rank of the target correction among first rejections, where ranks 2 to 4 cover about 77 percent on GSM8K and HumanEval and about 56 percent on MT-Bench, followed by ranks 5 to 8, 9 to 16, 17 to 32, and above 32. Panel b, depth-one reliability: target-hit rate against drafter probability, with the points of all three domains close to the diagonal. Panel c, stopping values: sorted candidate prefix masses on a log scale against candidate index up to about 100, falling from near 1 to below 0.01, with a dashed line at the Blackwell GSM8K threshold near 0.015 that the GSM8K and HumanEval curves cross around index 48.">
+          </a>
+          <figcaption><span class="nw">Qwen3-8B</span> greedy replay diagnostics on <span class="nw">40-prompt</span> slices. (a) Target-correction rank at the first DFlash rejection. (b) Depth-one reliability. (c) Sorted candidate prefix masses. The dashed line is the Blackwell GSM8K threshold.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>In this replay at a fixed budget of 47 nonroot nodes, neither a fixed branching schedule nor uniform binary branching commits longer rounds than the <span class="nw">15-node</span> chain in any domain, whereas the <span class="nw">top-\(N\)</span> tree does in every domain. On GSM8K its committed round length reaches 7.7 against 6.3 for the chain.</p>
+          <p>At 16 packed tokens, CAST keeps \(N = 15\) nonroot nodes from the same <span class="nw">block-16</span> drafter as DFlash, so the two decoders differ only in tree shape. This shape alone makes CAST 5.9 to 29.2% faster than DFlash in all twelve Blackwell and A6000 cells. In offline replay, the tree also lengthens accepted rounds for a second one-pass drafter.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="serving">
+      <div class="wrap">
+        <h2>Serving Under Load</h2>
+        <div class="prose">
+          <p>No single static width serves the load range. The drafter forward is width-independent, one pass serving all \(B\) requests, while the verifier width tax grows from +10% at \(B = 1\) to +237% at \(B = 32\). In the batched harness, the best static width is therefore a fixed wide tree up to \(B = 8\) and the plain chain from \(B = 16\).</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/serving.webp" data-zoom>
+            <img src="assets/serving.webp" width="2400" height="699" loading="lazy" alt="Three line plots of Qwen3-8B verification latency in milliseconds. Panel a, Blackwell width cost: verifier latency against packed verifier width from 1 to 64, nearly flat near 21 at batch 1, rising from about 25 to 45 at batch 8 and from about 43 to 145 at batch 32. Panel b, H100 SXM cost probe: batch latency against packed tokens per request up to 128, flat near 30 at batch 1, rising to about 100 at batch 8 and to about 390 at batch 32. Panel c, Blackwell cost probe: batch latency against packed tokens per request for batches 1, 2, 4, 8, and 16, where batches 1 and 2 stay near 30, batch 4 reaches about 45, batch 8 about 80, and batch 16 about 150 at 128 packed tokens.">
+          </a>
+          <figcaption><span class="nw">Qwen3-8B</span> verification cost under load. (a) Blackwell verifier latency over the packed width \(W\) of each request. (b,c) Batch latency over the packed tokens \(n\) of each request on H100 SXM and Blackwell.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Global best-first allocation instead splits one shared budget across requests. In offline replay of <span class="nw">32-request</span> batches whose budget averages four nodes for each request, it raises total accepted tokens over a uniform split by 16.8 to 22.5%. Measured on Blackwell with <span class="nw">Qwen3-8B</span> and a ragged verifier kernel, it lifts goodput over the best static width by a median 7.0% at \(B = 16\) and 13.7% at \(B = 32\) across four runs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026cast,
+  title = {CAST: Cost-Aware Speculative Trees from One-Pass Block Drafters},
+  author = {Jungseob Lee and Sugyeong Eo},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2610.00321},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2610.00321},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>
