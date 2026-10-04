@@ -1,0 +1,387 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models</title>
+  <meta name="description" content="ThinkFuse is a training-free test-time fusion framework for small reasoning models that selectively intervenes in unreliable reasoning segments. Findings of EMNLP 2026.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/ThinkFuse/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models">
+  <meta property="og:description" content="A training-free test-time fusion framework that selectively intervenes in unreliable reasoning segments of small reasoning models. Findings of EMNLP 2026.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/ThinkFuse/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/ThinkFuse/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models">
+  <meta name="twitter:description" content="A training-free test-time fusion framework that selectively intervenes in unreliable reasoning segments of small reasoning models.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/ThinkFuse/assets/card.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The blue of the eagle and the orange of the tiger in the title icon, the
+       auxiliary and the primary model of the overview figure. The monitoring
+       cards take the blue of the entropy bars under the threshold in that
+       figure, and the fusion card the red of the bars that cross it, with the
+       darker red of the figure's text for its label. */
+    :root { --accent-a: #4068a5; --accent-b: #fe8711; }
+    .s1 { --step: #2b2be6; --step-ink: #2b2be6; }
+    .s2 { --step: #ee2a2a; --step-ink: #c00000; }
+    /* The proposed method keeps its tint, and bold is left to mark the best
+       value as in the paper's tables. */
+    .tbl tbody tr.ours > td { font-weight: 400; }
+    /* Beside a table the text and the table share the width evenly, because a
+       table cannot shrink the way a figure does. Where the two no longer fit
+       side by side, the pair stacks and each part keeps its usual measure. */
+    .split.even .table-block { width: 100%; max-width: 30rem; justify-self: center; }
+    @media (min-width: 62rem) {
+      .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    }
+    @media (max-width: 61.99rem) {
+      .split.even { grid-template-columns: minmax(0, 1fr); }
+      .split.even .prose { width: 100%; max-width: var(--w-text); justify-self: center; }
+    }
+    /* The case study keeps the two columns of the paper's example, with its red
+       for the step that leads astray and its green for the step that is fused. */
+    .prose + .case { margin-top: 1.75rem; }
+    .case-prefix { max-width: var(--w-text); margin: 0 auto 1.1rem; }
+    .case .lost { --step: #b30000; --step-ink: #b30000; }
+    .case .kept { --step: #006600; --step-ink: #006600; }
+    .case .step p + p { margin-top: 0.7rem; }
+    .case .step code { display: block; font-size: 0.84rem; line-height: 1.55; overflow-wrap: anywhere; }
+    .case .step .hl code { color: var(--step-ink); }
+    .case .step .remark code { font-size: 0.78rem; color: var(--ink-mute); }
+    .case .step .answer { padding-top: 0.6rem; border-top: 1px solid var(--rule); }
+    .case .verdict { color: var(--step-ink); }
+    /* A group label of the main table is wider than a phone screen, so there
+       it wraps inside the visible part of the table. */
+    @media (max-width: 47.99rem) {
+      .tbl tbody tr.group > th span { max-width: calc(100vw - 2 * var(--gutter) - 1.4rem); white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><img class="title-icon" src="assets/icon.png" alt="" width="165" height="160"><span class="name">ThinkFuse</span>: <span class="nw">Trajectory-Aware</span> <span class="nw">Test-Time</span> Fusion for Small Reasoning Models</h1>
+        <p class="venue">Findings of EMNLP 2026</p>
+
+        <p class="authors">
+          <span class="author">Myunghoon Kang<sup>1*</sup>,</span>
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1*</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>3</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1,2†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Department of Computer Science and Engineering, Korea University</span>
+          <span><sup>2</sup>Human-inspired AI Research</span>
+          <span><sup>3</sup>Department of Computer Science and Engineering, Konkuk University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding author</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <span class="btn soon" aria-disabled="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            <span>arXiv (coming soon)</span>
+          </span>
+          <a class="btn" href="https://github.com/js-lee-AI/ThinkFuse" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A training-free test-time fusion framework that intervenes only in reasoning segments whose uncertainty stands out against the primary model's own trajectory.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="1214" alt="Overview of ThinkFuse on the question of the derivative of sin(x). The primary model, drawn as a tiger, writes its thinking as a row of token segments, and the auxiliary model, drawn as an eagle, runs below it. An entropy track with a dashed adaptive EMA threshold sits under the tokens. In the early segments the entropy stays under the threshold and the primary path is kept. In the fusion region the entropy spikes cross the threshold: the primary segment says the derivative of sin(x) is sin(x), the auxiliary segment says it is cos(x), and the action is compare and fuse, which the auxiliary wins. The bottom panel shows that comparison: the primary model scores the primary and the auxiliary candidate by perplexity under the input context, and the auxiliary candidate joins the context. After the thinking stage closes there is no fusion, and the answer is the boxed cos(x).">
+          </a>
+          <figcaption>Overview of ThinkFuse framework. ThinkFuse monitors the <span class="nw">segment-level</span> uncertainty of the primary model \(M_p\) using an adaptive threshold \(\theta\). Upon detecting uncertainty spikes, it invokes an auxiliary model \(M_a\) to generate alternative reasoning steps. Both trajectory candidates are then evaluated for compatibility by \(M_p\) via perplexity (\(\text{PPL}\)), fusing the most compatible segment into the context. This procedure iterates until the reasoning reaches a terminal state.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Small reasoning models (SRMs) have shown strong performance on complex reasoning tasks by generating extended <span class="nw">chain-of-thought</span> trajectories, but they often fail to recover once their reasoning enters an erroneous path. Existing <span class="nw">test-time</span> fusion methods rely on local fusion signals to determine when to trigger fusion, which can be misled by transient uncertainty fluctuations and may reinforce unstable reasoning trajectories. We propose ThinkFuse, a <span class="nw">training-free</span> <span class="nw">test-time</span> fusion framework that selectively intervenes in unreliable reasoning segments. ThinkFuse compares <span class="nw">segment-level</span> uncertainty shifts with <span class="nw">trajectory-level</span> uncertainty trends to identify unstable reasoning points and fuse auxiliary reasoning paths into the primary model's trajectory. Extensive experiments demonstrate that ThinkFuse outperforms baselines on mathematical and <span class="nw">knowledge-intensive</span> reasoning benchmarks, with consistent gains across <span class="nw">model-family</span> combinations, and remains robust with a smaller primary model. Our analysis shows that ThinkFuse requires fewer fusion triggers and generates fewer tokens, highlighting the efficiency of selective triggering. Our code is available at <a href="https://github.com/js-lee-AI/ThinkFuse" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>ThinkFuse</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Method</h2>
+        <div class="prose">
+          <p>ThinkFuse prompts the primary reasoning model \(M_p\) to generate a reasoning path and monitors its uncertainty at the segment level, capturing both the variation within a segment and the overall progress of the cumulative trajectory. Once the <span class="nw">segment-level</span> uncertainty exceeds an adaptive threshold, ThinkFuse evaluates the primary and auxiliary segments by <span class="nw">primary-model</span> perplexity under the current context and extends the reasoning trajectory with the more compatible segment.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s1">
+            <span class="step-label">Step 1</span>
+            <h3>Token uncertainty over fixed-length segments</h3>
+            <p>ThinkFuse monitors uncertainty at the segment level rather than relying directly on isolated <span class="nw">token-level</span> signals, which can be sensitive to local lexical or discourse fluctuations. Segments have a fixed length of \(T\) tokens. For each token of the segment \(s_k^p\) that the primary model \(M_p\) generates from the context \(c_k\), it computes normalized Shannon entropy over the <span class="nw">top-\(r\)</span> <span class="nw">log-probability</span> distribution:</p>
+            <p class="formula">\[u_{k,i}^{p} = -\frac{\sum_{v \in \mathcal{V}_{k,i}} \tilde{p}_{k,i}(v) \log \tilde{p}_{k,i}(v)}{\log \lvert \mathcal{V}_{k,i} \rvert}\]</p>
+            <p>Here \(\mathcal{V}_{k,i}\) is the set of the \(r\) <span class="nw">highest-probability</span> candidate tokens at position \(i\), and \(\tilde{p}_{k,i}\) is the distribution renormalized over that set.</p>
+          </li>
+          <li class="step s1">
+            <span class="step-label">Step 2</span>
+            <h3>Segment uncertainty with EWCA</h3>
+            <p>Exponentially Weighted Causal Aggregation (EWCA) turns the token uncertainties into one <span class="nw">segment-level</span> signal. Each token uncertainty is weighted by its relative position and by the uncertainty accumulated over the preceding tokens:</p>
+            <p class="formula">\[w_{k,i} = \exp(\alpha \cdot i) \cdot \prod_{j&lt;i} \bigl(1 + \beta \cdot u_{k,j}^{p}\bigr)\]</p>
+            <p>where \(\alpha\) controls <span class="nw">later-token</span> emphasis and \(\beta\) controls uncertainty accumulation. The <span class="nw">segment-level</span> uncertainty of the \(k\)-th segment is</p>
+            <p class="formula">\[U_k^p = \frac{\sum_{i=1}^{T_k} w_{k,i}\, u_{k,i}^p}{\sum_{i=1}^{T_k} w_{k,i}}\]</p>
+          </li>
+          <li class="step s1">
+            <span class="step-label">Step 3</span>
+            <h3>Adaptive threshold with a soft budget</h3>
+            <p>The same uncertainty value can have different implications depending on the recent reasoning trajectory. The mean uncertainty \(\mu_k\) and deviation scale \(\sigma_k\) of the trajectory are updated by an exponential moving average with decay factor \(\eta\), and they set the threshold</p>
+            <p class="formula">\[\begin{aligned} \mu_k &amp;= (1-\eta)\,\mu_{k-1} + \eta\, U_k^p \\ \sigma_k &amp;= (1-\eta)\,\sigma_{k-1} + \eta\, \lvert U_k^p - \mu_{k-1} \rvert \\ \theta_k &amp;= (\mu_{k-1} + \tau \cdot \sigma_{k-1}) \cdot (1 + \lambda \cdot R_{k-1}^2) \end{aligned}\]</p>
+            <p>where \(\tau\) controls the deviation margin and \(R_{k-1}\) is the cumulative fusion ratio, scaled by the soft budget parameter \(\lambda\). The quadratic term raises the threshold as fusions accumulate, and fusion is triggered only when \(U_k^p \ge \theta_k\).</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Step 4</span>
+            <h3>Trajectory compatibility scoring</h3>
+            <p>When the trigger activates, the auxiliary reasoning model \(M_a\) generates an alternative segment \(s_k^a\) from the same context. The primary model scores both candidates as a <span class="nw">trajectory-compatibility</span> scorer, \(\ell_k(s) = \mathrm{PPL}_{M_p}(s \mid c_k)\), and the selected segment is</p>
+            <p class="formula">\[s_k^\star = \begin{cases} s_k^p, &amp; U_k^p &lt; \theta_k \\ \arg\min\limits_{s \in \{s_k^p,\, s_k^a\}} \ell_k(s), &amp; U_k^p \ge \theta_k \end{cases}\]</p>
+            <p>It is appended to the reasoning context, \(c_{k+1} = c_k \oplus s_k^\star\), and the primary model continues generation from the updated context until the reasoning trajectory reaches a terminal state.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>Monitoring and fusion apply only inside the explicit thinking stage, and the auxiliary candidate is generated in parallel with the primary model whenever applicable. The default setting uses segments of \(T = 8\) tokens, <span class="nw">top-5</span> token entropy, EWCA with \((\alpha, \beta) = (0.1, 0.5)\), an EMA update rate \(\eta = 0.05\), a tolerance \(\tau = 1.0\), and a <span class="nw">soft-budget</span> coefficient \(\lambda = 50\).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Main Results</h2>
+        <div class="prose">
+          <p>The comparison covers standalone models, <span class="nw">self-consistency</span> with <span class="nw">Qwen3-4B</span>, the <span class="nw">test-time</span> fusion methods <span class="nw">Cool-Fusion</span> and AdaFuse, and ThinkFuse with <span class="nw">cross-family</span> and <span class="nw">same-family</span> model pairs. All methods share a <span class="nw">16,384-token</span> generation budget. Each method is evaluated on the same fixed random subsample of 200 examples per benchmark, and AIME 2024 (30 problems) and <span class="nw">GPQA-Diamond</span> (198 problems) are evaluated in full. Ministral stands for <span class="nw">Ministral-3B-R</span> and <span class="nw">EXAONE-4.0</span> for <span class="nw">EXAONE-4.0-1.2B.</span></p>
+          <p>With <span class="nw">Qwen3-4B</span> as the primary model, ThinkFuse improves over its standalone performance on every benchmark, whether the auxiliary is a <span class="nw">cross-family</span> model or a smaller model from the same family. In particular, <span class="nw">Qwen3-4B</span>&nbsp;×&nbsp;Ministral achieves the best result on four out of five benchmarks, with large gains on AIME24 (+20.0), GPQA (+10.6), and <span class="nw">NQ-Open</span> (+10.0).</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Main results table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Method</th><th scope="col">MATH-500</th><th scope="col">GSM8K</th><th scope="col">AIME24</th><th scope="col">GPQA</th><th scope="col">NQ-Open</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Standalone models</span></th></tr>
+                <tr><th class="l stick" scope="row">Qwen3-4B</th><td>89.0</td><td>92.0</td><td>53.3</td><td>54.0</td><td>29.5</td></tr>
+                <tr><th class="l stick" scope="row">Qwen3-1.7B<sup>‡</sup></th><td>83.0</td><td>90.0</td><td>33.3</td><td>39.4</td><td>28.0</td></tr>
+                <tr><th class="l stick" scope="row">Ministral</th><td>32.5</td><td>67.0</td><td>0.0<sup>†</sup></td><td>25.8</td><td>24.0</td></tr>
+                <tr><th class="l stick" scope="row">EXAONE-4.0</th><td>57.0</td><td>85.0</td><td>3.3<sup>†</sup></td><td>38.9</td><td>22.0</td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Test-time compute baseline: Qwen3-4B</span></th></tr>
+                <tr><th class="l stick" scope="row">Self-consistency (\(K = 3\))</th><td>89.5<span class="delta pos">(+0.5)</span></td><td>94.5<span class="delta pos">(+2.5)</span></td><td>53.3<span class="delta muted">(+0.0)</span></td><td>51.0<span class="delta neg">(−3.0)</span></td><td>39.0<span class="delta pos">(+9.5)</span></td></tr>
+                <tr><th class="l stick" scope="row">Self-consistency (\(K = 5\))</th><td>88.0<span class="delta neg">(−1.0)</span></td><td>94.5<span class="delta pos">(+2.5)</span></td><td>53.3<span class="delta muted">(+0.0)</span></td><td>50.0<span class="delta neg">(−4.0)</span></td><td>39.0<span class="delta pos">(+9.5)</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>Test-time fusion baselines: Qwen3-4B × Ministral</span></th></tr>
+                <tr><th class="l stick" scope="row">Cool-Fusion</th><td>31.0<span class="delta neg">(−58.0)</span></td><td>66.0<span class="delta neg">(−26.0)</span></td><td>0.0<sup>†</sup><span class="delta neg">(−53.3)</span></td><td>11.6<span class="delta neg">(−42.4)</span></td><td>0.5<span class="delta neg">(−29.0)</span></td></tr>
+                <tr><th class="l stick" scope="row">AdaFuse</th><td>45.5<span class="delta neg">(−43.5)</span></td><td>72.6<span class="delta neg">(−19.4)</span></td><td>33.3<span class="delta neg">(−20.0)</span></td><td>28.8<span class="delta neg">(−25.2)</span></td><td>38.5<span class="delta pos">(+9.0)</span></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th colspan="6" scope="rowgroup"><span>ThinkFuse</span></th></tr>
+                <tr class="ours"><th class="l stick" scope="row">Qwen3-4B × Ministral</th><td>90.0<span class="delta pos">(+1.0)</span></td><td><b>96.9</b><span class="delta pos">(+4.9)</span></td><td><b>73.3</b><span class="delta pos">(+20.0)</span></td><td><b>64.6</b><span class="delta pos">(+10.6)</span></td><td><b>39.5</b><span class="delta pos">(+10.0)</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Qwen3-4B × Qwen3-1.7B</th><td><b>91.0</b><span class="delta pos">(+2.0)</span></td><td>94.0<span class="delta pos">(+2.0)</span></td><td>70.0<span class="delta pos">(+16.7)</span></td><td>55.1<span class="delta pos">(+1.1)</span></td><td>37.0<span class="delta pos">(+7.5)</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Qwen3-4B × Qwen3-4B</th><td>75.0<span class="delta neg">(−14.0)</span></td><td>90.0<span class="delta neg">(−2.0)</span></td><td>40.0<span class="delta neg">(−13.3)</span></td><td>28.3<span class="delta neg">(−25.7)</span></td><td>38.0<span class="delta pos">(+8.5)</span></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">Qwen3-1.7B × EXAONE-4.0</th><td>85.0<span class="delta pos">(+2.0)</span></td><td>90.5<span class="delta pos">(+0.5)</span></td><td>30.0<span class="delta neg">(−3.3)</span></td><td>53.5<span class="delta pos">(+14.1)</span></td><td>28.0<span class="delta muted">(+0.0)</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Main benchmark results. Accuracy (%) for standalone models, <span class="nw">test-time</span> baselines, and ThinkFuse across five benchmarks under a <span class="nw">16K-token</span> budget. Values in parentheses indicate the signed accuracy difference, in percentage points, relative to the standalone performance of the primary model, with <span class="pos">green</span> indicating gains and <span class="neg">red</span> indicating degradation. The † symbol marks AIME24 results affected by <span class="nw">length-limit</span> or <span class="nw">final-answer</span> truncation. The ‡ symbol marks the standalone <span class="nw">Qwen3-1.7B</span> evaluated with the Qwen3 recommended <span class="nw">top-\(k\)</span> of 20, whereas all other rows use the shared decoding setting. Additional experimental details, including the decoding settings and remaining <span class="nw">cross-family</span> and <span class="nw">same-family</span> configurations, are presented in the appendix of the paper.</p>
+        </div>
+        <div class="prose">
+          <p>Existing <span class="nw">test-time</span> fusion baselines show the opposite trend. With the same <span class="nw">Qwen3-4B</span>&nbsp;×&nbsp;Ministral pair, <span class="nw">Cool-Fusion</span> drops sharply from 89.0 to 31.0 on <span class="nw">MATH-500</span> and from 54.0 to 11.6 on GPQA, while AdaFuse also underperforms the standalone primary on four out of five benchmarks. <span class="nw">Self-consistency</span> provides gains on GSM8K and <span class="nw">NQ-Open,</span> but does not improve AIME24 and degrades GPQA. The redundant <span class="nw">same-model</span> variant, <span class="nw">Qwen3-4B</span>&nbsp;×&nbsp;<span class="nw">Qwen3-4B</span>, degrades performance on <span class="nw">MATH-500</span>, GSM8K, AIME24, and GPQA. These results suggest that fusion must be selective and <span class="nw">trajectory-aware</span>, since locally determined or redundant fusion can disrupt the primary model's reasoning process.</p>
+          <p>With the smaller primary model <span class="nw">Qwen3-1.7B</span> and <span class="nw">EXAONE-4.0</span> as the auxiliary, ThinkFuse raises GPQA from 39.4 to 53.5, exceeding both standalone models. On the remaining benchmarks, where <span class="nw">EXAONE-4.0</span> is substantially weaker than the primary, it gains +2.0 on <span class="nw">MATH-500</span> and +0.5 on GSM8K, ties on <span class="nw">NQ-Open,</span> and differs by a single problem on AIME24. The standalone <span class="nw">Qwen3-1.7B</span> is evaluated with the Qwen3 recommended <span class="nw">top-\(k\)</span> of 20 while ThinkFuse retains the shared decoding setting, so this comparison favors the standalone baseline.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="dynamics">
+      <div class="wrap">
+        <h2>Fusion Dynamics and Downstream Performance</h2>
+        <div class="split">
+          <div class="prose">
+            <p>The fusion methods differ in how many auxiliary reasoning tokens they fuse and in how this changes the length of the thinking stage. <span class="nw">Cool-Fusion</span> fuses the most auxiliary tokens, yet its thinking stage is the shortest on four of the five benchmarks. This suggests that excessive fusion can overwrite or prematurely redirect the primary model's reasoning trajectory, explaining its large performance drops. AdaFuse uses fewer auxiliary tokens but still shortens the thinking stage on <span class="nw">reasoning-intensive</span> benchmarks such as AIME24 and GPQA, indicating that simply limiting auxiliary usage is insufficient for preserving reasoning quality.</p>
+            <p>ThinkFuse uses auxiliary tokens much more sparsely than <span class="nw">Cool-Fusion</span>. Combined with its accuracy gains, this analysis suggests that effective <span class="nw">test-time</span> fusion requires selective and <span class="nw">trajectory-aware</span> intervention, rather than frequent or locally determined auxiliary fusion.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/dynamics.webp" data-zoom>
+              <img src="assets/dynamics.webp" width="1200" height="1343" loading="lazy" alt="Two horizontal bar charts over MATH-500, GSM8K, AIME24, GPQA and NQ-Open. Top, average fused auxiliary tokens in the thinking stage on a log scale: Cool-Fusion fuses the most on every benchmark, roughly 70 to 280 tokens, ThinkFuse about 3 to 19, and AdaFuse about 1 to 7. Bottom, average thinking-stage tokens for the standalone model and the three fusion methods: the standalone model thinks longest on four benchmarks, up to about 7,100 tokens on AIME24, where ThinkFuse keeps about 3,100, AdaFuse about 2,300 and Cool-Fusion about 2,000. Cool-Fusion is the shortest on four benchmarks and the longest on NQ-Open.">
+            </a>
+            <figcaption><span class="nw">Thinking-stage</span> token statistics. Top: Average fused auxiliary tokens in log scale. Bottom: Average total <span class="nw">thinking-stage</span> tokens. All fusion configurations use <span class="nw">Qwen3-4B</span> as primary model and <span class="nw">Ministral-3B-Reasoning</span> as auxiliary model.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="efficiency">
+      <div class="wrap">
+        <h2>Compute Efficiency</h2>
+        <div class="prose">
+          <p>On the <span class="nw">Qwen3-4B</span>&nbsp;×&nbsp;Ministral pair, with accuracy averaged over the five benchmarks, ThinkFuse achieves the highest accuracy with a TFLOP budget comparable to AdaFuse and lower than that of <span class="nw">Cool-Fusion</span>, resulting in the highest accuracy per TFLOP. ThinkFuse exhibits a longer <span class="nw">wall-clock</span> time, yet the comparable TFLOPs indicate that this gap arises from the <span class="nw">CPU-GPU</span> data transfer during PPL scoring rather than from additional computation. The lower latency of the baselines comes at the cost of severe accuracy degradation, leaving ThinkFuse as the only fusion method that improves over the standalone primary. Compared with <span class="nw">single-model</span> decoding, serving an auxiliary model together with the primary model can increase memory usage and latency.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Efficiency table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Method</th><th scope="col">Wall-clock (s)</th><th scope="col">TFLOPs</th><th scope="col">Acc.</th><th scope="col">Acc. / TFLOPs</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Cool-Fusion</th><td>39.4</td><td>86</td><td>21.8</td><td>0.25</td></tr>
+                <tr><th class="l stick" scope="row">AdaFuse</th><td><b>33.9</b></td><td><b>74</b></td><td>43.7</td><td>0.60</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">ThinkFuse</th><td>68.7</td><td>77</td><td><b>72.9</b></td><td><b>0.95</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">Efficiency comparison of ThinkFuse and comparable <span class="nw">test-time</span> fusion methods. <span class="nw">Wall-clock</span> time and TFLOPs are averaged per example, and accuracy is averaged over the five benchmarks, with the <span class="nw">Qwen3-4B</span>&nbsp;×&nbsp;Ministral pair.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ablation">
+      <div class="wrap">
+        <h2>Ablation Study</h2>
+        <div class="split even">
+          <div class="prose">
+            <p>All ablations pair <span class="nw">Qwen3-4B</span> as the primary model with <span class="nw">Ministral-3B-Reasoning</span> as the auxiliary model. Without the budget penalty <span class="nw">(\(\lambda = 0\)),</span> accuracy falls to 88.5% on <span class="nw">MATH-500</span> and 90.5% on GSM8K, below the standalone primary model, which indicates that the soft budget stabilizes ThinkFuse by discouraging excessive fusion interventions.</p>
+            <p>The default segment length \(T = 8\) yields the best results. A segment of \(T = 4\) fails to encapsulate a meaningful reasoning step, and longer segments <span class="nw">(\(T = 16\)</span> and <span class="nw">\(T = 32\))</span> diminish the gains, which suggests that excessively long segments delay necessary interventions.</p>
+            <p>Scoring candidates by the primary model's PPL alone works best, while the average PPL drops <span class="nw">MATH-500</span> to 80.5% and limits GSM8K to the standalone baseline (92.0%). The confidence gap reaches 98.6% on GSM8K but falls below the standalone baseline on <span class="nw">MATH-500</span> (87.5%), and entropy, which preserves the gains on both datasets, is the default uncertainty signal.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Ablation table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Setting</th><th scope="col">MATH-500</th><th scope="col">GSM8K</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="group"><th colspan="3" scope="rowgroup"><span>Fusion budget penalty</span></th></tr>
+                  <tr class="ours"><th class="l stick" scope="row">Soft budget (ours, \(\lambda = 50\))</th><td><b>90.0</b><span class="delta pos">(+1.0)</span></td><td><b>96.9</b><span class="delta pos">(+4.9)</span></td></tr>
+                  <tr><th class="l stick" scope="row">No budget penalty (\(\lambda = 0\))</th><td>88.5<span class="delta neg">(−0.5)</span></td><td>90.5<span class="delta neg">(−1.5)</span></td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="3" scope="rowgroup"><span>Segment length \(T\)</span></th></tr>
+                  <tr><th class="l stick" scope="row">\(T = 4\)</th><td>87.0<span class="delta neg">(−2.0)</span></td><td>93.5<span class="delta pos">(+1.5)</span></td></tr>
+                  <tr class="ours"><th class="l stick" scope="row">\(T = 8\) (ours)</th><td><b>90.0</b><span class="delta pos">(+1.0)</span></td><td><b>96.9</b><span class="delta pos">(+4.9)</span></td></tr>
+                  <tr><th class="l stick" scope="row">\(T = 16\)</th><td>88.0<span class="delta neg">(−1.0)</span></td><td>93.5<span class="delta pos">(+1.5)</span></td></tr>
+                  <tr><th class="l stick" scope="row">\(T = 32\)</th><td>88.5<span class="delta neg">(−0.5)</span></td><td>93.5<span class="delta pos">(+1.5)</span></td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="3" scope="rowgroup"><span>Trajectory compatibility scoring</span></th></tr>
+                  <tr class="ours"><th class="l stick" scope="row">Primary PPL (ours)</th><td><b>90.0</b><span class="delta pos">(+1.0)</span></td><td><b>96.9</b><span class="delta pos">(+4.9)</span></td></tr>
+                  <tr><th class="l stick" scope="row">Average PPL</th><td>80.5<span class="delta neg">(−8.5)</span></td><td>92.0<span class="delta muted">(+0.0)</span></td></tr>
+                </tbody>
+                <tbody>
+                  <tr class="group"><th colspan="3" scope="rowgroup"><span>Token-level uncertainty estimation</span></th></tr>
+                  <tr class="ours"><th class="l stick" scope="row">Entropy (ours)</th><td><b>90.0</b><span class="delta pos">(+1.0)</span></td><td>96.9<span class="delta pos">(+4.9)</span></td></tr>
+                  <tr><th class="l stick" scope="row">Confidence gap</th><td>87.5<span class="delta neg">(−1.5)</span></td><td><b>98.6</b><span class="delta pos">(+6.6)</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">Impact of individual ThinkFuse components on downstream performance. Values in parentheses denote the accuracy delta relative to the standalone baseline. All experiments are conducted with <span class="nw">Qwen3-4B</span> as the primary model and <span class="nw">Ministral-3B-Reasoning</span> as the auxiliary model.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="case">
+      <div class="wrap">
+        <h2>Case Study</h2>
+        <div class="prose">
+          <p>On an AIME 2024 example, both traces share the initial coordinate setup. The standalone baseline prematurely grounds the coordinates of \(D\), failing to satisfy the second <span class="nw">angle-bisector</span> condition and trapping the reasoning in a <span class="nw">dead-end</span> quadratic, resulting in an incorrect answer. In contrast, ThinkFuse triggers an intervention and selects an auxiliary segment that keeps \(D\) and \(C\) symbolic and successfully enforces both <span class="nw">distance-to-line</span> constraints before solving.</p>
+        </div>
+        <div class="case">
+          <p class="case-prefix"><strong>Shared prefix.</strong> <em>For <span class="nw">AIME-2024</span> #17, both traces begin with the same coordinate setup: \(A=(0,0)\), \(B=(2,0)\), \(D=(p,q)\), \(C=(r,s)\), and \(M=((2+r)/2,s/2)\) is the midpoint of \(BC\). Both traces then try to use the two <span class="nw">angle-bisector</span> conditions at \(M\).</em></p>
+          <div class="steps">
+            <div class="step lost">
+              <span class="step-label">Standalone</span>
+              <h3>Generated trace near the divergence</h3>
+              <p><em>⋯ I place the quadrilateral in coordinates and write the distance equations. Since \(M\) is the midpoint of \(BC\), it should lie on the two angle bisectors. ⋯</em></p>
+              <p class="hl"><code>the valid solution is b = -7/sqrt(2), a = 7/sqrt(2)<br>So, D is at ((7*sqrt(2))/2, -7*sqrt(2)/2).</code></p>
+              <p><em>⋯ I plug this coordinate for \(D\) back into the remaining constraints and solve for \(C\). ⋯</em></p>
+              <p><code>(2+sqrt(2))*y^2 + 9*(sqrt(2)+1)*y<br>&nbsp;&nbsp;+ (22+7*sqrt(2)) = 0</code></p>
+              <p class="remark"><code>// Comment: this fixes D as if ∠DAB = 45°. The second angle-bisector condition has not been used, so the trace enters a dead-end quadratic.</code></p>
+              <p class="answer"><strong>Answer:</strong> <span class="verdict">\(\boxed{0}\) ×</span></p>
+            </div>
+            <div class="step kept">
+              <span class="step-label">ThinkFuse</span>
+              <h3>Generated trace near the fusion point</h3>
+              <p><em>⋯ I keep \(D=(p,q)\) and \(C=(r,s)\) symbolic, then express the two <span class="nw">angle-bisector</span> conditions as <span class="nw">distance-to-line</span> equations. ⋯</em></p>
+              <p><code>[Two angle-bisector distance equations from M = (B+C)/2]<br>-8 - 2p + 3r = 0</code></p>
+              <p class="hl"><code>=&gt; r = (8 + 2p)/3<br>=&gt; s = 2q/3</code></p>
+              <p><code>Substituting these relations keeps both angle-bisector constraints active while the remaining equations are solved.</code></p>
+              <p class="remark"><code>// Comment: the auxiliary segment keeps D = (p, q) symbolic. It uses both angle-bisector conditions before solving.</code></p>
+              <p class="answer"><strong>Answer:</strong> <span class="verdict">\(\boxed{180}\) ✓</span></p>
+            </div>
+          </div>
+        </div>
+        <p class="caption long">Qualitative comparison on AIME 2024. Standalone denotes <span class="nw">Qwen3-4B.</span> ThinkFuse uses <span class="nw">Qwen3-4B</span> as the primary model and <span class="nw">Ministral-3B-Reasoning</span> as the auxiliary model. Both traces start from the same coordinate formulation; the highlighted text marks the standalone step that enters a <span class="nw">dead-end</span> quadratic and the auxiliary symbolic step selected by ThinkFuse.</p>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@inproceedings{kang2026thinkfuse,
+  title={ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models},
+  author={Kang, Myunghoon and Lee, Jungseob and Seo, Jaehyung and Lim, Heuiseok},
+  booktitle={Findings of the Association for Computational Linguistics: EMNLP 2026},
+  year={2026}
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>
