@@ -286,6 +286,49 @@
       }
     },
     {
+      "id": 42,
+      "title": "LAMAR: An Open Language-Aware Multilingual Alignment Reranker",
+      "authors": "S. Hong, Y. Jang, **J. Lee**, S. Lee, H. Lim",
+      "venue": "arXiv",
+      "venueType": "preprint",
+      "venueFull": "arXiv preprint arXiv:2607.22042",
+      "year": 2026,
+      "citations": 0,
+      "preprint": true,
+      "links": {
+        "arxiv": "https://arxiv.org/abs/2607.22042"
+      }
+    },
+    {
+      "id": 43,
+      "title": "RenderRank: Learning to Rerank Text with Compressed Visual Tokens",
+      "authors": "S. Hong, Y. Jang, **J. Lee**, H. Moon, H. Lim",
+      "venue": "arXiv",
+      "venueType": "preprint",
+      "venueFull": "arXiv preprint arXiv:2609.35069",
+      "year": 2026,
+      "citations": 0,
+      "preprint": true,
+      "links": {
+        "arxiv": "https://arxiv.org/abs/2609.35069"
+      }
+    },
+    {
+      "id": 44,
+      "title": "Predicting and Repairing Merge Collapse in Large Language Models",
+      "authors": "**J. Lee**, S. Lee, S. Eo, H. Moon, J. Seo, H. Lim",
+      "venue": "arXiv",
+      "venueType": "preprint",
+      "venueFull": "arXiv preprint arXiv:2610.03199",
+      "year": 2026,
+      "citations": 0,
+      "preprint": true,
+      "links": {
+        "arxiv": "https://arxiv.org/abs/2610.03199",
+        "code": "https://github.com/js-lee-AI/PRISM"
+      }
+    },
+    {
       "id": 1,
       "title": "Cross-Lingual Optimization for Language Transfer in Large Language Models",
       "authors": "**J. Lee**, S. Hong, H. Moon, H.S. Lim",
