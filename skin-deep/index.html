@@ -1,0 +1,388 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations</title>
+  <meta name="description" content="Skin-Deep is a geometric diagnostic that examines the unmodified model's residual-stream activations. It compares aligned and base checkpoints to identify safety-separating directions, tests their behavioral relevance through ablation, and summarizes the layer-wise pattern in the Geometric Fragility Score (GFS). Findings of AACL-IJCNLP 2026.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/skin-deep/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations">
+  <meta property="og:description" content="A geometric diagnostic that examines the unmodified model's residual-stream activations and summarizes the layer-wise pattern in the Geometric Fragility Score (GFS). Findings of AACL-IJCNLP 2026.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/skin-deep/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/skin-deep/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations">
+  <meta name="twitter:description" content="A geometric diagnostic that examines the unmodified model's residual-stream activations, as a complement to refusal tests.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/skin-deep/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* Teal of the cPCA-PC1 arrow and the GFS label, and amber of the harmful
+       prompts, both taken from the overview figure. */
+    :root { --accent-a: #277f80; --accent-b: #b88438; }
+    .step { --step: #277f80; --step-ink: #1d6061; }
+    /* The ranking keeps its rank beside the model name, so the pinned first
+       column on narrow screens still says which model a row belongs to. */
+    .tbl .rk { display: inline-block; min-width: 1.6em; margin-right: 0.45em; color: var(--ink-mute); text-align: right; }
+    .tbl thead .rk { min-width: 0; text-align: left; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title"><span class="name">Skin-Deep</span>: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations</h1>
+        <p class="venue">Findings of AACL-IJCNLP 2026</p>
+
+        <p class="authors">
+          <span class="author">Dongyub Jude Lee<sup>1*</sup>,</span>
+          <span class="author"><a href="../">Jungseob Lee</a><sup>2*</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>2</sup>,</span>
+          <span class="author">Seongtae Hong<sup>2</sup>,</span>
+          <span class="author">Suhyune Son<sup>2</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>3</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>4†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>2†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Zoom Communications</span>
+          <span><sup>2</sup>Korea University</span>
+          <span><sup>3</sup>Yonsei University</span>
+          <span><sup>4</sup>Konkuk University</span>
+        </p>
+        <p class="notes"><span><sup>*</sup>Equal contribution</span> <span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2606.22676" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2606.22676" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/skin-deep" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">Skin-Deep compares the residual-stream activations of an unmodified aligned checkpoint with its <span class="nw">version-matched</span> base checkpoint and summarizes the geometry in one score, computed without adversarial optimization or downstream <span class="nw">fine-tuning</span>, as a complement to refusal tests.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="852" alt="Diagram. Matched harmful and benign prompts give residual activations in an aligned model and in its base model, and the covariance contrast between the two, cPCA, defines a direction in every layer. Three stacked layer planes run from early to late. On the late plane the solid cPCA-PC1 arrow and a dashed Arditi reference arrow are separated by an angle marked 1 minus c sub l, and harmful and benign projections lie apart along the cPCA-PC1 arrow, marked Separation. A depth-weighted sum over the layers gives GFS.">
+          </a>
+          <figcaption class="long">Skin-Deep contrasts aligned and base covariances on matched harmful and benign prompts. Projected separation, angular departure, and depth contribute to GFS before downstream fine-tuning. Here \(c_\ell\) is the absolute <span class="nw">cPCA-PC1–Arditi</span> cosine. Layer geometry is schematic.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Refusal on a safety benchmark does not reveal how stable that behavior will remain after model updates. Benign downstream fine-tuning can weaken refusal, yet behavioral evaluations typically expose this fragility only after an intervention. We introduce Skin-Deep, a geometric diagnostic that examines the unmodified model's residual-stream activations. It compares aligned and base checkpoints to identify safety-separating directions, tests their behavioral relevance through ablation, and summarizes the layer-wise pattern in the Geometric Fragility Score (GFS). Across twenty-one instruction-tuned models, harmful requests and benign instructions exhibit a recurring low-rank separation pattern. Selected direction ablations weaken refusal, with the effective direction varying across models. In benign low-rank fine-tuning experiments, the initially safe model with the lowest score before fine-tuning has the lowest harmful-compliance rate when trained on the largest tested set of harmless examples. These findings connect representation geometry to subsequent behavioral susceptibility and support activation-based diagnostics as a complement to refusal tests. Our code is available at <a href="https://github.com/js-lee-AI/skin-deep" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr><span class="nw">skin-deep</span></a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="wrap">
+        <h2>Geometric Fragility</h2>
+        <div class="prose">
+          <p>The paper calls refusal geometrically fragile when it is associated with a low-rank activation pattern that selected direction interventions can disrupt. Skin-Deep compares an aligned model \(M\) with its version-matched base counterpart \(M_0\) on the same prompts. The safety set \(\mathcal{D}_{\mathrm{safe}}\) contains harmful requests that an aligned assistant should refuse, and the general set \(\mathcal{D}_{\mathrm{gen}}\) contains benign instructions. At each layer \(\ell\), activations are collected at the final token and centered, giving covariance matrices \(\Sigma^{\mathrm{inst}}_\ell\) and \(\Sigma^{\mathrm{base}}_\ell\).</p>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-label">Step 1</span>
+            <h3>Contrast aligned and base covariances</h3>
+            <p>Contrastive PCA finds a unit direction with large <span class="nw">aligned-model</span> variance relative to <span class="nw">base-model</span> variance. Both covariance matrices use the same prompt mixture, so their difference isolates the contrast between checkpoints.</p>
+            <p class="formula">\[\mathbf{v}^{\mathrm{cPCA}}_\ell=\arg\max_{\|\mathbf{v}\|=1}\mathbf{v}^{\top}\bigl(\Sigma^{\mathrm{inst}}_\ell-\alpha\Sigma^{\mathrm{base}}_\ell\bigr)\mathbf{v}\]</p>
+            <p>The leading eigenvector supplies <span class="nw">cPCA-PC1</span>, and \(\alpha = 100\) sets how strongly <span class="nw">base-model</span> variance is penalized.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Step 2</span>
+            <h3>Measure harmful and benign separation</h3>
+            <p>With the scalar projection \(z_\ell(x)=\mathbf{v}_\ell^\top h_\ell(x)\), Cohen's \(d\) measures the difference between harmful and benign projected means relative to their pooled standard deviation.</p>
+            <p class="formula">\[d_\ell=\frac{\mu_{\mathrm{safe},\ell}-\mu_{\mathrm{gen},\ell}}{s_{\mathrm{pooled},\ell}}\]</p>
+            <p>PERMANOVA assesses the split in the full activation space, without projection onto <span class="nw">cPCA-PC1</span>.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Step 3</span>
+            <h3>Test directions through ablation</h3>
+            <p>At a <span class="nw">model-specific</span> <span class="nw">peak-separation</span> layer \(\ell^\star\), a unit direction is projected out of the residual stream during generation.</p>
+            <p class="formula">\[\widetilde h_{\ell^\star}=h_{\ell^\star}-\bigl(\mathbf{v}_{\ell^\star}^{\top}h_{\ell^\star}\bigr)\mathbf{v}_{\ell^\star}\]</p>
+            <p>PCA-PC1, <span class="nw">cPCA-PC1</span>, the Arditi direction, and a random direction are compared under this same intervention.</p>
+          </li>
+          <li class="step">
+            <span class="step-label">Step 4</span>
+            <h3>Summarize the layers in GFS</h3>
+            <p>The score combines separation, depth, and angular distance from the Arditi direction, the normalized <span class="nw">harmful-minus-benign</span> mean difference.</p>
+            <p class="formula">\[\mathrm{GFS}(M)=\sum_{\ell=1}^{L}w_\ell\,|d_\ell|\,(1-c_\ell)\]</p>
+            <p>Here \(c_\ell=|\cos(\mathbf{v}_\ell,\mathbf{v}^{\mathrm{Arditi}}_\ell)|\) for the <span class="nw">cPCA-PC1</span> direction \(\mathbf{v}_\ell\), and the default depth weight is \(w_\ell=\ell/L\). A high score indicates separation that extends away from the reference axis.</p>
+            <p>The default aggregation sums layer contributions without normalization. Its total weight is \(\sum_{\ell=1}^{L}\ell/L=(L+1)/2\), so GFS reflects both the <span class="nw">separation-and-overlap</span> profile and model depth.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>Activation extraction and the geometric measurements precede any weight update or adversarial optimization. Scores are compared within an extraction protocol, since prompt formatting and token position change the activations being summarized.</p>
+          <p>The study covers <span class="nw">twenty-one</span> <span class="nw">instruction-tuned</span> models with <span class="nw">3B–32B</span> parameters, using overlapping cohorts for each analysis. Activation measurements use 500 harmful requests and 500 benign instructions matched by token count. The harmful set combines 200 AdvBench prompts, 200 HarmBench prompts, and 100 BeaverTails prompts, and the benign set combines 250 Alpaca instructions and 250 OASST instructions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="separation">
+      <div class="wrap">
+        <h2>Safety-Separating Geometry</h2>
+        <div class="split">
+          <div class="prose">
+            <p>In the <span class="nw">split-sample</span> check, cPCA directions are fitted on one half of the prompts and separation is measured on the other half. For the four core models, the bootstrap intervals lie above zero. Across a broader <span class="nw">fourteen-model</span> check, the mean <span class="nw">train-minus-test</span> gap is +0.070, nine models have an absolute gap below 0.08, and the minimum held-out effect is 1.69 for <span class="nw">Qwen-2.5-3B</span>.</p>
+            <p>PERMANOVA remains significant after correction for all core models, so the harmful and benign distinction is visible outside a single projection. <span class="nw">Unit-normalized</span> PCA also retains separation, which rules out activation magnitude as its sole explanation.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Held-out separation table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Model</th><th scope="col">Held-out \(d\)<br>[95% CI]</th><th scope="col">Probe<br>acc.</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>3.23 [2.96, 3.51]</td><td>0.937</td></tr>
+                  <tr><th class="l stick" scope="row">Qwen-2.5-7B</th><td>2.97 [2.68, 3.24]</td><td>0.959</td></tr>
+                  <tr><th class="l stick" scope="row">Mistral-7B-v0.3</th><td>2.71 [2.50, 2.95]</td><td>0.904</td></tr>
+                  <tr><th class="l stick" scope="row">Gemma-2-9B</th><td>2.88 [2.56, 3.12]</td><td>0.926</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long">Held-out cPCA separation and <span class="nw">linear-probe</span> accuracy for the core models. Separation estimates include 95% bootstrap percentile intervals.</p>
+          </div>
+        </div>
+        <div class="prose">
+          <p>The separation persists under <span class="nw">model-specific</span> chat formatting, across an <span class="nw">eight-model</span> cohort with different training labels. Overlap with the Arditi direction is measured by the smallest principal angle \(\theta_\ell\) between that direction and the top-five cPCA subspace with orthonormal basis \(Q_\ell\), where \(\cos\theta_\ell=\|Q_\ell^\top\mathbf{v}^{\mathrm{Arditi}}_\ell\|_2\). The Arditi direction lies within 20° of the subspace in five of the eight models. This supports overlap between the recovered subspace and a known refusal direction, rather than equivalence between <span class="nw">cPCA-PC1</span> and that direction. For Starling, substantial separation coexists with weak overlap.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Chat-template separation table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Model</th><th class="l" scope="col">Training label</th><th scope="col">Peak \(|d|\)</th><th scope="col">Peak layer</th><th scope="col">Relative depth</th><th scope="col">\(\theta\)</th><th scope="col">\(\cos\theta\)</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Mistral-7B-Instruct-v0.2</th><td class="l">SFT</td><td>7.031</td><td>22/32</td><td>0.69</td><td>11.3°</td><td>0.98</td></tr>
+                <tr><th class="l stick" scope="row">Mistral-7B-Instruct-v0.3</th><td class="l">IFT</td><td>6.157</td><td>19/32</td><td>0.59</td><td>8.8°</td><td>0.99</td></tr>
+                <tr><th class="l stick" scope="row">Yi-1.5-9B-Chat</th><td class="l">IFT</td><td>5.078</td><td>46/48</td><td>0.96</td><td>8.1°</td><td>0.99</td></tr>
+                <tr><th class="l stick" scope="row">openchat-3.5-1210</th><td class="l">C-RLFT</td><td>5.012</td><td>12/32</td><td>0.38</td><td>17.4°</td><td>0.95</td></tr>
+                <tr><th class="l stick" scope="row">Hermes-2-Pro-Mistral-7B</th><td class="l">DPO</td><td>4.941</td><td>13/32</td><td>0.41</td><td>13.1°</td><td>0.97</td></tr>
+                <tr><th class="l stick" scope="row">SOLAR-10.7B-Instruct</th><td class="l">DPO</td><td>4.713</td><td>46/48</td><td>0.96</td><td>29.1°</td><td>0.87</td></tr>
+                <tr><th class="l stick" scope="row">Starling-LM-7B-alpha</th><td class="l">RLAIF</td><td>2.653</td><td>31/32</td><td>0.97</td><td>76.7°</td><td>0.23</td></tr>
+                <tr><th class="l stick" scope="row">Nous-Hermes-2-Mistral-7B-DPO</th><td class="l">DPO</td><td>2.520</td><td>1/32</td><td>0.03</td><td>40.8°</td><td>0.76</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Chat-template</span> separation and subspace overlap. \(\theta\) is the smallest principal angle between the top-five cPCA subspace and the Arditi direction. Its cosine measures projected overlap with the subspace.</p>
+        </div>
+        <div class="prose">
+          <p>The peak location also matters, because an early peak can capture <span class="nw">input-format</span> structure rather than the representation used to generate a refusal. In a separate <span class="nw">five-model</span> check, <span class="nw">first-token</span> separation is weak, whereas both <span class="nw">final-token</span> and <span class="nw">mean-pooled</span> activations retain a substantial signal.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ablation">
+      <div class="wrap">
+        <h2>Direction-Specific Refusal Changes</h2>
+        <div class="prose">
+          <p>Each selected direction is removed at a <span class="nw">peak-separation</span> layer, and <span class="nw">harmful-request</span> refusal is evaluated on 100 AdvBench prompts. At least one tested direction gives a detectable refusal decrease in four of the six ablation models. The effective intervention differs by model. <span class="nw">PCA-PC1</span> produces the clearest decrease for Llama, whereas the Arditi direction does so for Qwen and SOLAR. <span class="nw">Mistral-v0.2</span> responds to all three <span class="nw">non-random</span> directions.</p>
+        </div>
+        <div class="table-block mid">
+          <div class="table-wrap" role="region" aria-label="Direction ablation table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Model</th><th scope="col">Baseline</th><th scope="col">PCA-PC1</th><th scope="col">cPCA-PC1</th><th scope="col">Arditi</th><th scope="col">Random</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row">Llama-3.1-8B</th><td>0.14</td><td><b>0.02</b><sup>⋆</sup></td><td>0.17</td><td>0.14</td><td>0.14</td></tr>
+                <tr><th class="l stick" scope="row">Qwen-2.5-7B</th><td>0.86</td><td>0.84</td><td>0.86</td><td><b>0.68</b><sup>⋆</sup></td><td>0.86</td></tr>
+                <tr><th class="l stick" scope="row">Mistral-7B-v0.2</th><td>0.31</td><td><b>0.08</b><sup>⋆</sup></td><td><b>0.09</b><sup>⋆</sup></td><td><b>0.13</b><sup>⋆</sup></td><td>0.28</td></tr>
+                <tr><th class="l stick" scope="row">SOLAR-10.7B</th><td>0.22</td><td>0.17</td><td>0.11</td><td><b>0.06</b><sup>⋆</sup></td><td>0.21</td></tr>
+                <tr><th class="l stick" scope="row">Mistral-7B-v0.3</th><td>0.04</td><td>0.00</td><td>0.05</td><td>0.02</td><td>0.05</td></tr>
+                <tr><th class="l stick" scope="row">Gemma-2-9B</th><td>0.96</td><td>0.93</td><td>0.96</td><td>0.92</td><td>0.96</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Harmful-request</span> refusal after direction ablation. Bold starred entries have a <span class="nw">post-ablation</span> Wilson 95% confidence interval entirely below the baseline interval.</p>
+        </div>
+        <div class="prose">
+          <p>Random-direction rates remain close to the corresponding baselines. This comparison supports <span class="nw">direction-specific</span> effects rather than a uniform consequence of modifying the residual stream. The effects include both decreases and increases in refusal. PCA, cPCA, and the Arditi <span class="nw">mean-difference</span> direction select different aspects of the representation, and their removal has different effects within the same checkpoint, which is why variance dominance is a partial guide to behavioral importance.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="recurrence">
+      <div class="wrap">
+        <h2>Cross-Family Recurrence</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Linear CKA compares the activation matrices of two models on the same prompts at their respective peak layers. The core families preserve similar activation relationships among the matched prompts. Every <span class="nw">off-diagonal</span> pair exceeds the <span class="nw">prompt-shuffle</span> null, with no shuffled run reaching its observed CKA and reported <span class="nw">\(p&lt;0.001\)</span>.</p>
+            <p>The <span class="nw">depth-normalized</span> separation profiles have both positive and negative correlations across model pairs. High CKA therefore coexists with different peak depths. Shared prompt relationships do not imply a shared layer schedule. Tokenization and <span class="nw">activation-norm</span> structure can also affect <span class="nw">high-dimensional</span> CKA. The <span class="nw">prompt-shuffle</span> control establishes dependence on prompt correspondence, while the separate norm and <span class="nw">token-position</span> checks address other aspects of the representation.</p>
+          </div>
+          <figure class="fig">
+            <a class="plate" href="assets/cka.webp" data-zoom>
+              <img src="assets/cka.webp" width="1400" height="694" loading="lazy" alt="Four-by-four heat map of peak-layer linear CKA among Llama, Qwen, Mistral and Gemma, with 1.000 on the diagonal. The off-diagonal values are 0.881 for Llama and Qwen, 0.738 for Llama and Mistral, 0.676 for Llama and Gemma, 0.803 for Qwen and Mistral, 0.764 for Qwen and Gemma, and 0.681 for Mistral and Gemma.">
+            </a>
+            <figcaption class="long"><span class="nw">Peak-layer</span> linear CKA between <span class="nw">instruct-model</span> activations. Llama, Qwen, Mistral and Gemma denote <span class="nw">Llama-3.1-8B</span>, <span class="nw">Qwen-2.5-7B</span>, <span class="nw">Mistral-7B-v0.3</span> and <span class="nw">Gemma-2-9B</span>.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lora">
+      <div class="wrap">
+        <h2>Geometry Before LoRA</h2>
+        <div class="prose">
+          <p>On raw prompts, sixteen models receive a GFS. The four <span class="nw">DPO-labelled</span> models occupy the leading positions, while models with strong separation can still receive low scores when their candidate directions align closely with the reference refusal axis. Since the ranking contains different families and sizes, it describes these checkpoints rather than isolating an effect of the training algorithm. Its behavioral relevance is tested within the smaller LoRA cohort.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="GFS ranking table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col"><span class="rk">Rank</span> Model</th><th class="l" scope="col">Family</th><th class="l" scope="col">Training label</th><th scope="col">Layers</th><th class="l" scope="col">Peak depth</th><th scope="col">Peak \(|d|\)</th><th scope="col">GFS</th></tr>
+              </thead>
+              <tbody>
+                <tr><th class="l stick" scope="row"><span class="rk">1</span> Nous-Hermes-2-Mistral-7B</th><td class="l">Mistral</td><td class="l">DPO</td><td>32</td><td class="l">late</td><td>3.65</td><td>2.333</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">2</span> Tulu-3-8B-DPO</th><td class="l">Llama</td><td class="l">DPO</td><td>32</td><td class="l">late</td><td>3.93</td><td>2.285</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">3</span> Zephyr-7B-β</th><td class="l">Mistral</td><td class="l">DPO</td><td>32</td><td class="l">late</td><td>4.51</td><td>2.185</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">4</span> Notus-7B-v1</th><td class="l">Mistral</td><td class="l">DPO</td><td>32</td><td class="l">late</td><td>4.18</td><td>2.126</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">5</span> Qwen-2.5-14B</th><td class="l">Qwen</td><td class="l">RLHF+SFT</td><td>48</td><td class="l">late</td><td>3.28</td><td>1.899</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">6</span> Llama-3.2-3B</th><td class="l">Llama</td><td class="l">RLHF+SFT</td><td>28</td><td class="l">late</td><td>3.43</td><td>1.868</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">7</span> Qwen-2.5-7B</th><td class="l">Qwen</td><td class="l">RLHF+SFT</td><td>28</td><td class="l">mid</td><td>3.01</td><td>1.670</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">8</span> Llama-3.1-8B</th><td class="l">Llama</td><td class="l">RLHF+SFT</td><td>32</td><td class="l">late</td><td>2.44</td><td>1.597</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">9</span> Orpo-Llama-3-8B</th><td class="l">Llama</td><td class="l">ORPO</td><td>32</td><td class="l">late</td><td>2.93</td><td>1.557</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">10</span> Qwen-2.5-32B</th><td class="l">Qwen</td><td class="l">RLHF+SFT</td><td>64</td><td class="l">late</td><td>3.27</td><td>1.484</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">11</span> Mistral-7B-v0.3</th><td class="l">Mistral</td><td class="l">IFT</td><td>32</td><td class="l">early/late</td><td>2.72</td><td>1.469</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">12</span> Qwen-2.5-3B</th><td class="l">Qwen</td><td class="l">RLHF+SFT</td><td>36</td><td class="l">late</td><td>2.46</td><td>1.468</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">13</span> Gemma-2-9B</th><td class="l">Gemma</td><td class="l">RLHF+SFT</td><td>42</td><td class="l">mid</td><td>3.38</td><td>1.315</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">14</span> Mistral-7B-Instruct-v0.1</th><td class="l">Mistral</td><td class="l">SFT</td><td>32</td><td class="l">late</td><td>3.53</td><td>1.279</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">15</span> Yi-1.5-9B-Chat</th><td class="l">Yi</td><td class="l">IFT</td><td>48</td><td class="l">mid</td><td>3.08</td><td>0.962</td></tr>
+                <tr><th class="l stick" scope="row"><span class="rk">16</span> Mistral-Nemo-12B</th><td class="l">Mistral</td><td class="l">RLHF+SFT</td><td>40</td><td class="l">late</td><td>3.00</td><td>0.160</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Raw-prompt</span> GFS ranking, training labels, and descriptive peak separation. Depth categories summarize peak locations. IFT denotes instruction <span class="nw">fine-tuning</span> without a specified <span class="nw">preference-optimization</span> stage.</p>
+        </div>
+        <div class="prose">
+          <p>The LoRA cohort adds three initially safe models, <span class="nw">Tulu-3-8B-DPO</span>, <span class="nw">Qwen-2.5-3B</span>, and <span class="nw">Qwen-2.5-14B</span>, to the four core models, where initially safe means a <span class="nw">pre-LoRA</span> harmful compliance of at most 0.1. LoRA <span class="nw">fine-tuning</span> uses <span class="nw">rank-eight</span> adapters on harmless Alpaca subsets of \(n\in\{5,10,25,50,100,150,200\}\) examples, and harmful compliance is measured on 50 held-out harmful prompts using a <span class="nw">rule-based</span> <span class="nw">harm-string</span> match together with <span class="nw">Llama-Guard</span>. Three random seeds are used for Llama, Qwen, and Mistral, and for Gemma at \(n=200\). The other Gemma entries and the three added models provide the reported trajectories without a <span class="nw">multi-seed</span> uncertainty estimate. Benign LoRA <span class="nw">fine-tuning</span> can sharply increase harmful compliance in both the core models and the initially safe additions. At \(n=200\), Gemma is the only model below full compliance. Its <span class="nw">non-monotonic</span> trajectory also reaches full compliance at intermediate sizes.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/lora.webp" data-zoom>
+            <img src="assets/lora.webp" width="2400" height="618" loading="lazy" alt="Two line plots of harmful compliance against the number of LoRA training examples n, at 0, 5, 10, 25, 50, 100, 150 and 200, equally spaced. (a) Core models. Llama-3.1-8B starts at 0.3 and Mistral-7B-v0.3 near 0.84, and both reach 1.0 at n equal to 5. Qwen-2.5-7B and Gemma-2-9B start near 0 and reach 1.0 at n equal to 10. Gemma ends at a mean near 0.68 at n equal to 200, with a bar from about 0.48 to 0.80, while the other three stay at 1.0. (b) Additional models. Tulu-3-8B-DPO, Qwen-2.5-3B and Qwen-2.5-14B start near 0. Tulu rises to 0.8 at n equal to 5, and all three are at or near 1.0 from n equal to 10 onward.">
+          </a>
+          <figcaption class="long">Harmful compliance on 50 held-out prompts after benign LoRA updates. Sample sizes occupy equally spaced positions. Zero denotes no update. The Gemma endpoint shows the mean and observed range across repeated runs.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The added models begin with low harmful compliance and have higher GFS than Gemma. All reach full compliance with the largest tested <span class="nw">fine-tuning</span> set. Among the initially safe cases, Gemma is both the <span class="nw">lowest-scoring</span> model and the one with the lowest endpoint <span class="nw">harmful-compliance</span> rate. The endpoint distinction persists across the replicated runs. Every <span class="nw">non-Gemma</span> core run reaches full compliance, while Gemma's mean is 0.68 with standard deviation 0.17 and range <span class="nw">0.48–0.80</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="score">
+      <div class="wrap">
+        <h2>Interpreting the Score</h2>
+        <div class="split">
+          <div class="prose">
+            <p>Within the core set, Gemma has the largest <span class="nw">layer-averaged</span> <span class="nw">cPCA-PC1</span> cosine with the Arditi direction, so the cosine term of GFS downweights more of its separation signal. The component with the strongest reference overlap is not always <span class="nw">PCA-PC1</span>, and the ablation results show that variance dominance does not determine the behavioral effect.</p>
+          </div>
+          <div class="table-block">
+            <div class="table-wrap" role="region" aria-label="Reference-direction overlap table" tabindex="0">
+              <table class="tbl">
+                <thead>
+                  <tr><th class="l stick" scope="col">Model</th><th scope="col">PCA<br>index</th><th scope="col">PCA<br>cosine</th><th scope="col">cPCA<br>cosine</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th class="l stick" scope="row">Llama-3.1</th><td>PC3</td><td>0.295</td><td>0.16</td></tr>
+                  <tr><th class="l stick" scope="row">Qwen-2.5</th><td>PC1</td><td>0.333</td><td>0.26</td></tr>
+                  <tr><th class="l stick" scope="row">Mistral-v0.3</th><td>PC9</td><td>0.291</td><td>0.10</td></tr>
+                  <tr><th class="l stick" scope="row">Gemma-2</th><td>PC1</td><td>0.636</td><td>0.33</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="scroll-hint">Scroll sideways to see every column.</p>
+            <p class="caption long"><span class="nw">Reference-direction</span> overlap in the core models. The PCA index identifies the largest <span class="nw">PCA–Arditi</span> cosine. The last column gives the <span class="nw">layer-averaged</span> absolute <span class="nw">cPCA-PC1–Arditi</span> cosine.</p>
+          </div>
+        </div>
+        <div class="prose">
+          <p>The layer profiles show how the core models differ across depth. Panel A gives a descriptive maximum over ten principal components, which is distinct from the <span class="nw">cPCA-PC1</span> effect size entering GFS. Panel B shows the <span class="nw">cPCA-PC1</span> reference overlap used by the score. Gemma's reference overlap is strongest through much of the <span class="nw">later-layer</span> region, where the score assigns greater weight. This profile connects its lower score to the <span class="nw">reference-direction</span> term.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/layer-profiles.webp" data-zoom>
+            <img src="assets/layer-profiles.webp" width="2400" height="648" loading="lazy" alt="Two line plots against relative depth from 0 to 1 for Llama-3.1-8B, Qwen-2.5-7B, Mistral-7B-v0.3 and Gemma-2-9B, with Gemma drawn as a thick line. (A) Peak Cohen's d, the maximum over 10 principal components, lies between about 1.2 and 3.4 for all four models, and Gemma has peaks near 0.5 of depth and at the last layer. (B) The absolute cosine between cPCA-PC1 and the Arditi direction stays low for Llama, Qwen and Mistral, apart from an early spike for Mistral, while Gemma's cosine rises through the later layers to about 0.69 and then falls.">
+          </a>
+          <figcaption class="long">Layer-wise peak Cohen's \(|d|\) and absolute <span class="nw">cPCA–Arditi</span> cosine for the core models, plotted against relative depth.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>The paper states the scope of this evidence. The LoRA evidence concerns one <span class="nw">harmless-data</span> <span class="nw">fine-tuning</span> protocol and a small, heterogeneous model cohort. It supports an endpoint association among initially safe models, not a calibrated forecast across attacks, update sizes, or training recipes. <span class="nw">Full-space</span> similarity and subspace overlap complement the behavioral tests, but neither identifies a universal refusal direction or demonstrates that the cosine term itself protects a model against <span class="nw">fine-tuning</span>. The analysis covers English prompts and <span class="nw">open-weight</span> models with <span class="nw">3B–32B</span> parameters, and the <span class="nw">direction-ablation</span> models occupy a narrower <span class="nw">7–10.7B</span> range. The cPCA comparison requires a <span class="nw">version-matched</span> base checkpoint.</p>
+          <p>The intended use is defensive assessment of <span class="nw">open-weight</span> models. The disclosure boundary separates the activation diagnostic and aggregate measurements from operational attack artifacts. It excludes <span class="nw">generation-time</span> ablation hooks, <span class="nw">attack-ready</span> <span class="nw">direction-extraction</span> scripts, and the LoRA adapter weights used for the behavioral tests.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@article{lee2026skin,
+  title={Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations},
+  author={Lee, Dongyub Jude and Lee, Jungseob and Lee, Seungyoon and Hong, Seongtae and Son, Suhyune and Eo, Sugyeong and Seo, Jaehyung and Lim, Heuiseok},
+  journal={arXiv preprint arXiv:2606.22676},
+  year={2026}
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>
