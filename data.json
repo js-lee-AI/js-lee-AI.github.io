@@ -324,6 +324,7 @@
       "citations": 0,
       "preprint": true,
       "links": {
+        "project": "PRISM/",
         "arxiv": "https://arxiv.org/abs/2610.03199",
         "code": "https://github.com/js-lee-AI/PRISM"
       }

@@ -1,0 +1,392 @@
+<!--
+  Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
+  https://github.com/js-lee-AI/js-lee-AI.github.io
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predicting and Repairing Merge Collapse in Large Language Models</title>
+  <meta name="description" content="Large language models fine-tuned from a shared base can be merged by averaging their task vectors, but some merges collapse far below the base model. One statistic of the specialists' task vectors, their variance across specialists, both predicts this collapse through a pre-merge score and calibrates its repair, PRISM, which averages the task vectors first and then soft-thresholds each layer at a level set by the layer's interference.">
+  <meta name="author" content="Jungseob Lee">
+  <link rel="canonical" href="https://js-lee-ai.github.io/PRISM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Jungseob Lee">
+  <meta property="og:title" content="Predicting and Repairing Merge Collapse in Large Language Models">
+  <meta property="og:description" content="A pre-merge score built on the variance of task vectors across specialists exceeds its threshold only for destructive merges, and PRISM, which soft-thresholds the averaged task vector at that variance&#39;s scale, keeps those merges near the base without data or tuning.">
+  <meta property="og:url" content="https://js-lee-ai.github.io/PRISM/">
+  <meta property="og:image" content="https://js-lee-ai.github.io/PRISM/assets/card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Predicting and Repairing Merge Collapse in Large Language Models">
+  <meta name="twitter:description" content="A pre-merge score built on the variance of task vectors across specialists exceeds its threshold only for destructive merges, and PRISM keeps those merges near the base without data or tuning.">
+  <meta name="twitter:image" content="https://js-lee-ai.github.io/PRISM/assets/card.png">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:wght@400;500&family=Google+Sans+Flex:opsz,wght@6..144,400..700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.css" integrity="sha384-nH0MfJ44wi1dd7w6jinlyBgljjS8EJAh2JBoRad8a3VDw2K69vfaaqm4WnR+gXtA" crossorigin="anonymous">
+  <link rel="stylesheet" href="../assets/project/page.css">
+  <style>
+    /* The purple of the aggregated vector that PRISM returns in the overview
+       figure, and the red of destructive merges in the screening figure. The
+       card that derives the pre-merge score takes that red, and the cards of
+       the repair take the purple of the aggregated vector. */
+    :root { --accent-a: #725c94; --accent-b: #d1605e; }
+    .s1 { --step: #d1605e; --step-ink: #9d4846; }
+    .s2 { --step: #8569b4; --step-ink: #725c94; }
+    /* Six names and four affiliations would leave the last one alone on the
+       second line, so the lines of both lists are balanced. */
+    .authors, .affils { text-wrap: balance; }
+    /* The pair of figures keeps the gap that a single figure has next to text. */
+    .prose + .fig-pair, .fig-pair + .prose { margin-top: 1.75rem; }
+    /* The paper's group labels in the screening table are set in italics. */
+    .tbl tbody tr.group > th.it span { font-style: italic; font-weight: 600; }
+    /* A wide formula shrinks with its own frame instead of scrolling, both on
+       a phone and in the narrow two-column cards of a tablet. Each limit is
+       the formula's width relative to its type size. */
+    .formula.fit { container-type: inline-size; }
+    .formula.fit .katex { font-size: min(1.1em, var(--fit)); }
+    .fit.eq-var { --fit: 4.1cqi; }
+    .fit.eq-cancel { --fit: 5cqi; }
+    .fit.eq-shrink { --fit: 6.2cqi; }
+    .fit.eq-gate { --fit: 4.95cqi; }
+    .fit.eq-rho { --fit: 5.6cqi; }
+    /* On a phone the setting names of the screening table wrap, so that the
+       pinned first column leaves room for the numbers beside it. */
+    @media screen and (max-width: 47.99rem) {
+      #screening .tbl tbody th.l { min-width: 9.5rem; max-width: 10.5rem; white-space: normal; }
+    }
+    /* On paper the two figures stay side by side at the size of the page's
+       other figures. */
+    @media print {
+      .fig-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="home" href="../">Jungseob Lee</a>
+    <a href="../#publications">Publications</a>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="title">Predicting and Repairing <span class="name">Merge Collapse</span> in Large Language Models</h1>
+        <p class="venue">arXiv preprint</p>
+
+        <p class="authors">
+          <span class="author"><a href="../">Jungseob Lee</a><sup>1</sup>,</span>
+          <span class="author">Seungyoon Lee<sup>1</sup>,</span>
+          <span class="author">Sugyeong Eo<sup>2</sup>,</span>
+          <span class="author">Hyeonseok Moon<sup>3</sup>,</span>
+          <span class="author">Jaehyung Seo<sup>4†</sup>,</span>
+          <span class="author">Heuiseok Lim<sup>1†</sup></span>
+        </p>
+        <p class="affils">
+          <span><sup>1</sup>Korea University</span>
+          <span><sup>2</sup>Yonsei University Mirae Campus</span>
+          <span><sup>3</sup>Sookmyung Women's University</span>
+          <span><sup>4</sup>Konkuk University</span>
+        </p>
+        <p class="notes"><span><sup>†</sup>Corresponding authors</span></p>
+
+        <nav class="links" aria-label="Paper resources">
+          <a class="btn" href="https://arxiv.org/pdf/2610.03199" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zm-3 12H7v-2h3v2zm5-4H7v-2h8v2z"/></svg>
+            Paper
+          </a>
+          <a class="btn" href="https://arxiv.org/abs/2610.03199" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8423 0a1.0037 1.0037 0 0 0-.922.6078c-.1536.3687-.0438.6275.2938 1.1113l6.9185 8.3597-1.0223 1.1058a1.0393 1.0393 0 0 0 .003 1.4229l1.2292 1.3135-5.4391 6.4444c-.2803.299-.4538.823-.2971 1.1986a1.0253 1.0253 0 0 0 .9585.635.9133.9133 0 0 0 .6891-.3405l5.783-6.126 7.4902 8.0051a.8527.8527 0 0 0 .6835.2597.9575.9575 0 0 0 .8777-.6138c.1577-.377-.017-.7502-.306-1.1407l-7.0518-8.3418 1.0632-1.13a.9626.9626 0 0 0 .0089-1.3165L4.6336.4639s-.3733-.4535-.768-.463zm0 .272h.0166c.2179.0052.4874.2715.5644.3639l.005.006.0052.0055 10.169 10.9905a.6915.6915 0 0 1-.0072.945l-1.0666 1.133-1.4982-1.7724-8.5994-10.39c-.3286-.472-.352-.6183-.2592-.841a.7307.7307 0 0 1 .6704-.4401Zm14.341 1.5701a.877.877 0 0 0-.6554.2418l-5.6962 6.1584 1.6944 1.8319 5.3089-6.5138c.3251-.4335.479-.6603.3247-1.0292a1.1205 1.1205 0 0 0-.9763-.689zm-7.6557 12.2823 1.3186 1.4135-5.7864 6.1295a.6494.6494 0 0 1-.4959.26.7516.7516 0 0 1-.706-.4669c-.1119-.2682.0359-.6864.2442-.9083l.0051-.0055.0047-.0055z"/></svg>
+            arXiv
+          </a>
+          <a class="btn" href="https://github.com/js-lee-AI/PRISM" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            Code
+          </a>
+          <a class="btn" href="#bibtex">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h3.2l2.3-4.6V6.5H4v6.2h3.1L5 17zm9 0h3.2l2.3-4.6V6.5H13v6.2h3.1L14 17z"/></svg>
+            BibTeX
+          </a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="teaser">
+      <div class="wrap">
+        <p class="tldr">A <span class="nw">pre-merge</span> score built on the variance of task vectors across specialists exceeds its threshold only for destructive merges, and PRISM, which <span class="nw">soft-thresholds</span> the averaged task vector at that variance's scale, keeps those merges near the base without data or tuning.</p>
+        <figure class="fig">
+          <a class="plate" href="assets/overview.webp" data-zoom>
+            <img src="assets/overview.webp" width="2400" height="998" alt="Two panels. The top panel, Prior Methods (Prune-then-Merge), shows a blue Task Vector 1 and a red Task Vector 2 each passing through Independent Pruning, which leaves two grids of blocks with gaps, and the two grids are then added into one block of mixed blue and red cubes labelled Cross-model interaction ignored. The bottom panel, PRISM (Merge-then-Prune), shows Task Vector 1 with upward arrows and Task Vector 2 with downward arrows added first into a Norm-Scaled Aggregate, delta bar, shaded from blue to red. The aggregate passes through a Soft Thresholding plane, with lambda l equal to kappa times sigma l times the square root of 2 log n l, and comes out as a purple High-Signal Aggregated Vector.">
+          </a>
+          <figcaption>Merge then prune. <b>Top:</b> task vectors are pruned before aggregation. <b>Bottom:</b> PRISM averages first with norm scaling and then <span class="nw">soft-thresholds</span> the aggregate at the layer's interference scale.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section band" id="abstract">
+      <div class="wrap">
+        <h2>Abstract</h2>
+        <div class="prose just">
+          <p>Large language models fine-tuned from a shared base can be merged by averaging their task vectors, but some merges collapse far below the base model, and common merge operators give no warning before evaluation. We show that one statistic of the specialists' task vectors both predicts this collapse and calibrates its repair. The power that averaging removes equals the variance of the task vectors across specialists, our measure of interference. Under a working noise model, the disturbance that a merge injects grows with the merge coefficient and with interference, yielding a <span class="nw">pre-merge</span> score. In our experiments on <span class="nw">twenty-two</span> merge configurations from four model families, only destructive merges exceed a threshold on this score. We find that statistics of sign conflict between specialists, a common target of existing merge operators, are <span class="nw">anti-predictive</span>. We then predicted the outcomes of fourteen merges before evaluating them, and twelve predictions were correct, including the destructive outcome of a specialist pair pushed past the threshold by continued pretraining. To address this collapse, we introduce PRISM, an operator that averages the task vectors first and then <span class="nw">soft-thresholds</span> each layer at a level set by the layer's interference. Without data or tuning, PRISM keeps all five destructive merges above the threshold within evaluation noise of the base model, where plain averaging falls at least 14.4 points below it or collapses entirely. We apply PRISM only above the threshold and keep the plain average for merges below it, which include all fifteen harmless ones. Code is available at <a href="https://github.com/js-lee-AI/PRISM" target="_blank" rel="noopener">https://<wbr>github.com/<wbr><span class="nw">js-lee-AI</span>/<wbr>PRISM</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="interference">
+      <div class="wrap">
+        <h2>Interference Is the Cross-Model Variance</h2>
+        <div class="prose">
+          <p>Let \(\theta_{\text{base}}\) denote the parameters of a pretrained base model and \(\theta_k\) those of specialist \(k\in\{1,\dots,K\}\), fine-tuned from it. The task vector \(\tau_k = \theta_k - \theta_{\text{base}}\) has value \(\tau_k(i)\) at coordinate \(i\). A merge rescales each task vector by a weight \(s_k&gt;0\), set by norm scaling or to one in a raw merge, and averages them into \(\bar{\delta} = \frac{1}{K}\sum_k s_k \tau_k\). At coordinate \(i\) the total power \(P(i)\) splits into signal power \(S(i) = \bar{\delta}(i)^2\) and interference \(I(i) = P(i) - S(i)\), the reduction in <span class="nw">mean-squared</span> power due to averaging.</p>
+          <p class="formula fit eq-var">\[I(i) = \underbrace{\tfrac{1}{K}\sum_{k=1}^{K}\big(s_k \tau_k(i)\big)^2}_{P(i)} \;-\; \underbrace{\bar{\delta}(i)^2}_{S(i)} \;=\; \mathrm{Var}_k\big(s_k \tau_k(i)\big) \geq 0\]</p>
+          <p>This is the ambiguity decomposition of ensembles applied to the scaled task vectors, with the base model as the target. The variance measures <span class="nw">task-vector</span> disagreement, which the paper uses as a proxy for task interference, and is computed alongside the mean. Interpreting it as noise requires a model. Drift means the displacement \(s_k\tau_k\) of a specialist from the base. Identical scaled task vectors give zero interference regardless of the size or effect of their shared drift. Aligned vectors with unequal magnitudes can still have positive variance, as can <span class="nw">one-sided</span> drift, present in one specialist and absent in the others.</p>
+          <p>For a layer \(l\) with \(n_l\) merged coordinates, the means \(\overline{P}_l\), \(\overline{S}_l\) and \(\overline{I}_l\) give the coherence ratio \(\overline{\mathrm{CR}}_l = \overline{S}_l / (\overline{P}_l + \epsilon)\) and an interference scale \(\sigma_l^2 = \overline{I}_l = \overline{P}_l - \overline{S}_l\). The standard deviation \(\sigma_l=\sqrt{\overline{I}_l}\) has weight units and can set a threshold on <span class="nw">task-vector</span> coordinates. Computing these statistics takes about two <span class="nw">CPU-minutes</span> on a 7B model.</p>
+        </div>
+        <ul class="steps">
+          <li class="step s1">
+            <span class="step-label">Pre-merge score</span>
+            <h3>What a merge injects</h3>
+            <p>The merge applies \(c\,\bar\delta\), where \(c\) is a global multiplier on the averaged task vector, by default \(c=1/K\). Assume that, at a coordinate of layer \(l\), the scaled task vectors share a signal and have independent, <span class="nw">zero-mean</span> disturbances of common variance \(v_l\). For a nonnegative coefficient \(c\), adding \(c\,\bar\delta\) introduces disturbance standard deviation \(c\sqrt{v_l/K}\) and power \(c^2v_l/K\). Using \(\overline{I}_l\) as an empirical proxy for \(v_l\) gives the screening scale</p>
+            <p class="formula">\[c\sqrt{\overline{I}_l/K}\]</p>
+            <p>available before merging. The estimated disturbance power of the mean update grows as \(c^2\) at fixed interference.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Cancellation ratio</span>
+            <h3>Cancellation and dispersion</h3>
+            <p>Low coherence has two causes. Cancellation is specialists writing comparable magnitudes with opposing signs, so the aggregate nearly vanishes. Dispersion includes one specialist writing a large value while the others sit near zero, <span class="nw">task-exclusive</span> drift that can carry useful signal. With \(\mathrm{Pos}(i)\) and \(\mathrm{Neg}(i)\) the positive and negative mass at coordinate \(i\), the cancellation power is</p>
+            <p class="formula fit eq-cancel">\[C(i) = \min\Big(\tfrac{2}{K}\min\big(\mathrm{Pos}(i),\mathrm{Neg}(i)\big)^2,\; I(i)\Big)\]</p>
+            <p>and \(D(i) = I(i) - C(i)\). Summing over all merged coordinates yields the empirical cancellation ratio</p>
+            <p class="formula fit eq-rho">\[\textstyle \rho = \big(\sum_l n_l\overline{C}_l\big)\big/\big(\sum_l n_l\overline{I}_l+\epsilon_g\big)\in[0,1],\]</p>
+            <p>where \(\overline{C}_l\) is the mean of \(C\) over layer \(l\). High \(\rho\) marks a <span class="nw">conflict-dominated</span> merge and low \(\rho\) a <span class="nw">dispersion-dominated</span> one.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section band" id="method">
+      <div class="wrap">
+        <h2>Repairing a Dangerous Merge with PRISM</h2>
+        <div class="prose">
+          <p>PRISM averages first and shrinks the aggregate using the interference scale \(\sigma_l\), denoising the consensus with the <span class="nw">Donoho–Johnstone</span> universal soft threshold, used here as a <span class="nw">tuning-free</span> default.</p>
+        </div>
+        <ol class="steps">
+          <li class="step s2">
+            <span class="step-label">Soft threshold</span>
+            <h3>Interference-calibrated soft thresholding</h3>
+            <p class="formula fit eq-shrink">\[\tilde{\delta}(i) = \operatorname{sgn}(\bar{\delta}(i)) \max\big(0,\, |\bar{\delta}(i)| - \lambda_l\big)\]</p>
+            <p class="formula">\[\lambda_l = \kappa\, \sigma_l \sqrt{2 \log n_l}\]</p>
+            <p>The threshold scale \(\kappa\) is fixed at 1.0. At fixed total power, <span class="nw">high-coherence</span> layers have smaller interference scales and thresholds. A coordinate survives only when its aggregate magnitude exceeds \(\lambda_l\), and its magnitude is then reduced by \(\lambda_l\). When fewer than 0.1% of a projection matrix's coordinates survive, a <span class="nw">keep-rate</span> floor lowers the threshold to the smallest magnitude among its top 0.1% and applies soft thresholding again.</p>
+          </li>
+          <li class="step s2">
+            <span class="step-label">Gate</span>
+            <h3>The \(\rho\)-gate</h3>
+            <p>For <span class="nw">one-sided</span> drift, where one specialist moves while the others do not, \(\sigma_l\) can be large even when the update carries useful specialist signal. The cancellation ratio \(\rho\) measures how much interference comes from opposing signs, so PRISM gates on it with a threshold \(\tau_g\).</p>
+            <p class="formula fit eq-gate">\[\lambda_l = \begin{cases} \kappa\,\sigma_l\sqrt{2\log n_l} &amp; \text{if } \rho \ge \tau_g, \\ 0 &amp; \text{if } \rho &lt; \tau_g, \end{cases} \qquad \tau_g = 0.1\]</p>
+            <p>Under dispersion, PRISM sets \(\lambda_l=0\), leaves the mean unchanged, and yields the <span class="nw">Task-Arithmetic</span> model with the same scaling and coefficient. With the reported ratios, any threshold strictly between 0.093 and 0.229 makes the same decisions as the default \(\tau_g=0.1\) on every setting of the paper.</p>
+          </li>
+        </ol>
+        <div class="prose">
+          <p>The merged model is \(\theta_{\text{merged}} = \theta_{\text{base}} + c\,\tilde{\delta}\) with norm scaling \(s_k = \min_j \|\tau_j\|_2 / \|\tau_k\|_2\), so PRISM shrinks the aggregate once and then scales the resulting vector by \(c\). PRISM is applied to the multilayer perceptron (MLP) projections, and attention stays at its base values in the default comparison, since MLP layers are the primary locus of <span class="nw">domain-specific</span> knowledge. One threshold scale serves all settings without data or tuning.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="screening">
+      <div class="wrap">
+        <h2>The Same Scale Supports Pre-Merge Screening</h2>
+        <div class="prose">
+          <p>The same \(\overline{I}\) that sets the threshold defines the <span class="nw">pre-merge</span> score \(c\sqrt{\overline{I}/K}\), computed with \(\overline{I}\) the <span class="nw">parameter-count-weighted</span> MLP mean interference. The paper tests whether this score separates destructive and harmless merges on <span class="nw">twenty-two</span> configurations across four families and \(K\in[2,8]\). Seven are destructive (perplexity \(&gt;100\) or mean \(&gt;10\)pp below base). Fifteen are harmless (within 1pp or better), with no intermediate cases. The score exceeds the threshold of \(1.9\times10^{-3}\) for five of the seven destructive merges and for none of the harmless ones.</p>
+        </div>
+        <figure class="fig">
+          <a class="plate" href="assets/screening.webp" data-zoom>
+            <img src="assets/screening.webp" width="2400" height="777" loading="lazy" alt="Five panels. Panel a plots densities of the score c times the square root of I bar over K on a logarithmic axis from 10 to the minus 6 to 10 to the minus 2. The blue harmless density lies below 10 to the minus 3, and the red destructive density has a tall peak to the right of a dashed vertical line, the frozen threshold, with two small bumps to its left. Panels b, c and d plot densities of rho, K, and c over the square root of K, where the harmless and destructive densities overlap. Panel e, Titration, plots the score against training tokens in billions on logarithmic axes. Black points at learning rate 10 to the minus 4 rise along a grey dashed fit to a large blue marker at 1 billion tokens below the dashed threshold, and purple points at learning rate 5 times 10 to the minus 4 then rise steeply past the threshold to a large red marker above a red dotted line that marks the destructive cluster.">
+          </a>
+          <figcaption><b>(a)</b> Densities of the interference score by outcome. <b>(b–d)</b> Densities of \(\rho\), \(K\) and \(c/\sqrt{K}\) overlap. <b>(e)</b> At the lower learning rate, the score grows roughly as the square root of specialist training tokens. Large markers are evaluated merges.</figcaption>
+        </figure>
+        <div class="prose">
+          <p>Interference, total power and signal power reach AUC 0.98 or higher, and interference also sets the repair's variance scale. The two direction statistics, mean incoherence \(1-\overline{\mathrm{CR}}\) and \(\rho\), are <span class="nw">anti-predictive</span>, placing destructive merges below many harmless ones.</p>
+          <p>With the statistic, convention and threshold fixed, twelve of the fourteen predictions made before evaluation were correct across three model families, including the harmless and destructive endpoints of the constructed pair. On the other two merges predicted to be destructive, <span class="nw">R1-Distill</span> + Coder and <span class="nw">Math-PRM</span> + Coder, naive averaging falls 18.4 and 14.4pp below the base, whereas PRISM keeps both within 0.5pp of the base.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Pre-merge screening table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" scope="col">Setting</th><th scope="col">\(K\)</th><th scope="col">\(c\)</th><th scope="col">\(\rho\)</th><th scope="col">\(c\sqrt{\overline{I}/K}\) \((\times10^{-3})\)</th><th scope="col">Base</th><th scope="col">TA</th><th scope="col">PRISM</th></tr>
+              </thead>
+              <tbody>
+                <tr class="group"><th class="it" colspan="8" scope="rowgroup"><span>naive averaging destroys the model</span></th></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-1.5B</span> ja + med, constructed<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.342</td><td>5.19</td><td>56.1</td><td>35.8</td><td>55.9</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-1.5B</span> Math + Coder</th><td>2</td><td>0.50</td><td>0.246</td><td>4.94</td><td>56.3</td><td>37.1</td><td>55.8</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Math + Coder</th><td>2</td><td>0.50</td><td>0.293</td><td>4.25</td><td>68.0</td><td>49.5</td><td>67.8</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">R1-Distill</span> + Coder<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.291</td><td>4.24</td><td>68.1</td><td>49.7</td><td>67.7</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">Math-PRM</span> + Coder<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.285</td><td>4.17</td><td>68.1</td><td>53.7</td><td>67.6</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Math + Finance<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.036<sup>g</sup></td><td>0.653</td><td>68.1</td><td>37.0</td><td>37.0<sup>g</sup></td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Coder + <span class="nw">Coder-Instruct</span><sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.013<sup>g</sup></td><td>0.190</td><td>68.1</td><td>39.3</td><td>39.3<sup>g</sup></td></tr>
+              </tbody>
+              <tbody>
+                <tr class="group"><th class="it" colspan="8" scope="rowgroup"><span>merging is harmless</span></th></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">DeepSeek-7B</span> math + chat</th><td>2</td><td>0.50</td><td>0.348</td><td>0.228</td><td>46.8</td><td>48.1</td><td>46.6</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">self-SFT</span> at 10× learning rate<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.349</td><td>0.227</td><td>68.1</td><td>68.8</td><td>68.2</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Llama-3.1-8B</span> <span class="nw">R1-Distill</span> + <span class="nw">Tulu-3</span><sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.346</td><td>0.089</td><td>59.3</td><td>62.6</td><td>59.6</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Aloe medical + Math<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.279</td><td>0.082</td><td>68.1</td><td>68.0</td><td>68.1</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> HuatuoGPT + <span class="nw">R1-Distill</span><sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.349</td><td>0.076</td><td>68.1</td><td>68.9</td><td>68.1</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Math + Coder + Instruct</th><td>3</td><td>0.33</td><td>0.443</td><td>0.042</td><td>68.0</td><td>68.6</td><td>68.1</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Mistral-7B</span> MetaMath + Code</th><td>2</td><td>0.50</td><td>0.093<sup>g</sup></td><td>0.030</td><td>57.4</td><td>59.9</td><td>59.9<sup>g</sup></td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">self-SFT</span>, \(K=2\)</th><td>2</td><td>0.50</td><td>0.333</td><td>0.027</td><td>68.1</td><td>68.4</td><td>68.2</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Mistral-7B</span> SaulLM legal + BioMistral<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.322</td><td>0.025</td><td>57.3</td><td>57.8</td><td>57.4</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> Math + EVA roleplay<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.229</td><td>0.019</td><td>68.1</td><td>68.1</td><td>68.1</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Llama-3.1-8B</span> Swallow ja + Guard<sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.290</td><td>0.012</td><td>60.2</td><td>60.0</td><td>59.7</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Llama-3.1-8B</span> OpenMath2 + <span class="nw">Hermes-3</span> + Guard</th><td>3</td><td>0.33</td><td>0.435</td><td>0.008</td><td>60.2</td><td>60.0</td><td>59.7</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">off-the-shelf</span> ×6</th><td>6</td><td>0.17</td><td>0.516</td><td>0.005</td><td>68.1</td><td>68.0</td><td>68.2</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Qwen2.5-7B</span> <span class="nw">self-SFT</span>, \(K=8\)</th><td>8</td><td>0.13</td><td>0.720</td><td>0.003</td><td>68.1</td><td>68.0</td><td>68.0</td></tr>
+                <tr><th class="l stick" scope="row"><span class="nw">Llama-3.1-8B</span> <span class="nw">Tulu-3</span> + <span class="nw">Tulu-3-DPO</span><sup>⋆</sup></th><td>2</td><td>0.50</td><td>0.003<sup>g</sup></td><td>0.002</td><td>59.3</td><td>64.5</td><td>64.5<sup>g</sup></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long">The interference score exceeds the threshold of \(1.9\times10^{-3}\) only for destructive merges. Means are <span class="nw">six-task</span> accuracies, and <span class="nw">self-SFT</span> specialists are fine-tuned by us from the base. <sup>⋆</sup>Outcome predicted before evaluation. <sup>g</sup>Gated, so PRISM equals Task Arithmetic (TA).</p>
+        </div>
+        <div class="prose">
+          <p>A controlled titration continued pretraining two <span class="nw">Qwen2.5-1.5B</span> specialists on disjoint Japanese web text and biomedical abstracts. At learning rate \(10^{-4}\), eight measured checkpoints follow an approximate <span class="nw">square-root</span> law through a harmless endpoint at one billion tokens for each specialist, and extrapolated, the fitted law crosses the threshold near 7.5 billion tokens. Continuing at 5× the rate reaches the destructive cluster within a further billion tokens and improves <span class="nw">own-domain</span> perplexity (Japanese 16.7 → 12.2, PubMed 7.2 → 7.0). As predicted before evaluation, the merge at this endpoint is destructive. Naive averaging loses 20.3pp against the base, while PRISM stays within 0.3pp of it.</p>
+          <p>The recipe uses naive averaging below the fixed score threshold and the gated shrinkage above it. All fifteen harmless configurations scored below the threshold and therefore keep the plain average, which scores 62.6 against the base's 59.3 on <span class="nw">Llama-3.1-8B</span> <span class="nw">R1-Distill</span> with <span class="nw">Tulu-3</span>. The <span class="nw">twenty-eight</span> public pairs without a code specialist that were screened across three families all scored below half the threshold.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="results">
+      <div class="wrap">
+        <h2>Merging Under Severe Conflict</h2>
+        <div class="prose">
+          <p>The merge studied most closely combines a math specialist with a code specialist, <span class="nw">Qwen2.5-7B</span> Math and Coder at \(K=2\). The evaluation covers six benchmarks under <code>lm-evaluation-harness</code>, plus <span class="nw">WikiText-2</span> perplexity, and a <span class="nw">six-task</span> mean carries a propagated standard error of at most 0.8pp, so <span class="nw">sub-pp</span> gaps are treated as ties. PRISM leads Task Arithmetic, TIES and DELLA on the <span class="nw">six-task</span> mean by at least 6.7pp and exceeds <span class="nw">calibration-guided</span> LEWIS without using calibration data. Task Arithmetic falls to 13.4 on HumanEval, whereas PRISM leads every baseline on all four generation metrics, by at least 25.0pp on HumanEval.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Qwen2.5-7B Math and Coder merge table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method</th><th class="grp" colspan="7" scope="col"><span>Six-task evaluation</span></th><th class="grp" colspan="4" scope="col"><span>Generation</span></th></tr>
+                <tr><th scope="col">GSM8K</th><th scope="col">ARC</th><th scope="col">MMLU</th><th scope="col">TQA</th><th scope="col">HellaS.</th><th scope="col">WinoG.</th><th scope="col">Avg.</th><th scope="col">GSM8K</th><th scope="col">MATH</th><th scope="col">HumanE.</th><th scope="col">MBPP</th></tr>
+              </thead>
+              <tbody>
+                <tr class="muted"><th class="l stick" scope="row">Math specialist</th><td>84.4</td><td>49.2</td><td>60.2</td><td>47.9</td><td>58.8</td><td>68.4</td><td>61.5</td><td>83.8</td><td>53.6</td><td>34.1</td><td>56.2</td></tr>
+                <tr class="muted"><th class="l stick" scope="row">Coder specialist</th><td>81.8</td><td>49.0</td><td>69.5</td><td>49.8</td><td>66.4</td><td>72.0</td><td>64.8</td><td>82.4</td><td>41.4</td><td>59.8</td><td>68.4</td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Task Arithmetic</th><td>22.0</td><td>47.0</td><td>55.7</td><td>50.0</td><td>55.4</td><td>66.6</td><td>49.5</td><td>23.0</td><td>5.8</td><td>13.4</td><td>27.4</td></tr>
+                <tr><th class="l stick" scope="row">TIES</th><td><u>67.2</u></td><td><b>53.4</b></td><td>64.3</td><td>50.2</td><td>60.6</td><td><u>71.0</u></td><td><u>61.1</u></td><td>65.8</td><td><u>24.6</u></td><td>17.7</td><td>43.0</td></tr>
+                <tr><th class="l stick" scope="row">DELLA</th><td>65.2</td><td><u>51.6</u></td><td>64.2</td><td>50.3</td><td>59.8</td><td>70.4</td><td>60.3</td><td>64.0</td><td>22.0</td><td>17.7</td><td>42.4</td></tr>
+                <tr><th class="l stick" scope="row">LEWIS<sup>†</sup></th><td>43.0</td><td>44.2</td><td><u>69.1</u></td><td><u>50.7</u></td><td><u>62.8</u></td><td>66.6</td><td>56.1</td><td><u>74.2</u></td><td>15.4</td><td><u>26.2</u></td><td><u>52.6</u></td></tr>
+                <tr class="ours"><th class="l stick" scope="row">PRISM (ours)</th><td><b>81.4</b></td><td>51.4</td><td><b>74.3</b></td><td><b>55.2</b></td><td><b>67.4</b></td><td><b>77.0</b></td><td><b>67.8</b></td><td><b>82.4</b></td><td><b>30.2</b></td><td><b>51.2</b></td><td><b>62.8</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Qwen2.5-7B</span> Math+Coder base checkpoints. Generation: GSM8K <span class="nw">5-shot</span>, <span class="nw">MATH-500</span> <span class="nw">4-shot</span>, harness HumanEval/MBPP pass@1 with completion prompts. LEWIS uses <span class="nw">activation-based</span> six-task/HumanEval/MBPP results and <span class="nw">weight-sparsity</span> GSM8K/MATH generation. Bold: best merged; underline: second best; <sup>†</sup>: calibration for <span class="nw">activation-based</span> LEWIS.</p>
+        </div>
+        <div class="prose">
+          <p>The setting repeats on <span class="nw">Qwen2.5-1.5B</span> with <span class="nw">instruction-tuned</span> checkpoints, where Task Arithmetic collapses outright and PRISM leads the strongest baseline by 3.5pp. <span class="nw">Instruct + Coder-Instruct</span> merges at 3B and 14B score far below the threshold, and the plain averages that the recipe keeps gain 0.8 and 1.0pp over the base.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sweep">
+      <div class="wrap">
+        <h2>Robustness to the Scaling Coefficient</h2>
+        <div class="prose">
+          <p>Under the working model, injected interference power grows as \(c^2\), and PRISM shrinks the update before applying the coefficient. Across the sweep, PRISM holds a <span class="nw">64.8–68.0%</span> mean. At \(c=0.7\), the four evaluated baselines sit 19 to 33 points below the base at perplexities from 100 to 961. In the generation evaluation at \(c=1.0\), Task Arithmetic, TIES and DELLA score zero on GSM8K. The best baseline in the plotted sweep, LEWIS at 67.6 (\(c=0.3\)), is tied within evaluation uncertainty with the 67.8 that untuned PRISM posts at the shared default.</p>
+        </div>
+        <div class="fig-pair">
+          <figure class="fig">
+            <a class="plate" href="assets/sweep.webp" data-zoom>
+              <img src="assets/sweep.webp" width="1000" height="1049" loading="lazy" alt="Two line plots of accuracy against the coefficient c at 0.3, 0.5, 0.7 and 1.0, with a shaded collapse zone, perplexity above 100, from c equal to 0.7 onward. Panel a, six-task mean: PRISM stays near 68 percent and ends near 65, the norm-matched control squares sit near 68, and Task Arithmetic falls from about 63 to below 30, while TIES, DELLA and LEWIS fall to between about 30 and 39 at c equal to 1.0. Panel b, generation, GSM8K and MATH mean: PRISM falls from about 58 to about 39 percent, LEWIS from about 52 to about 9, TIES and DELLA reach 0 at c equal to 1.0, and Task Arithmetic reaches 0 at c equal to 0.7.">
+            </a>
+            <figcaption>Coefficient sweep on <span class="nw">Qwen2.5-7B</span> Math+Coder: <b>(a)</b> <span class="nw">six-task</span> evaluation and <b>(b)</b> separately prompted generation. Squares mark the <span class="nw">norm-matched</span> control.</figcaption>
+          </figure>
+          <figure class="fig">
+            <a class="plate" href="assets/softhard.webp" data-zoom>
+              <img src="assets/softhard.webp" width="1000" height="1049" loading="lazy" alt="Two bar charts comparing a hard threshold, in grey, with a soft threshold, in blue. Panel a, six-task evaluation: the soft threshold is 19.2 points higher on GSM8K and 5.4 points higher on WinoGrande, and the bars are close on ARC, MMLU, TruthfulQA and HellaSwag. Panel b, generation: the soft threshold is higher by 21.6 points on GSM8K, 22.4 on MATH, 28.6 on HumanEval and 16.8 on MBPP.">
+            </a>
+            <figcaption>Soft and hard thresholding at the same interference scale on <span class="nw">Qwen2.5-7B</span> Math+Coder. Labels mark gaps above five points; GSM8K<sup>*</sup> uses the <span class="nw">generation-format</span> evaluation.</figcaption>
+          </figure>
+        </div>
+        <div class="prose">
+          <p>On the same merge, soft thresholding beats hard truncation at the same threshold by 4.4pp on the <span class="nw">six-task</span> mean. Truncation's cost falls almost entirely on tasks that produce text, at 19.2pp on GSM8K and up to 28.6pp on HumanEval against 1.4pp averaged over the five <span class="nw">multiple-choice</span> benchmarks. Across threshold scales from \(\kappa=0.25\) to 3, the <span class="nw">six-task</span> mean varies by at most 0.5pp, and the default scores highest.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="controls">
+      <div class="wrap">
+        <h2>Is It Just Conservative Shrinkage?</h2>
+        <div class="prose">
+          <p>A control matched to the update norm of PRISM tests whether generic shrinkage explains the preserved capability. The baseline operators and community defaults write updates with 46 to 285% of the norm of the plain average, while PRISM writes 2.2%. For the matched control, one scalar multiplies every coordinate of the plain average to reach the same norm.</p>
+        </div>
+        <div class="table-block wide">
+          <div class="table-wrap" role="region" aria-label="Update norm, six-task mean and coding table" tabindex="0">
+            <table class="tbl">
+              <thead>
+                <tr><th class="l stick" rowspan="2" scope="col">Method</th><th scope="col">Norm</th><th scope="col">Coords</th><th class="grp" colspan="2" scope="col"><span>Mean</span></th><th scope="col">PPL</th><th class="grp" colspan="4" scope="col"><span>Coding (EvalPlus)</span></th></tr>
+                <tr><th scope="col">\(\|\delta\|/\|\bar\delta\|\)</th><th scope="col">%</th><th scope="col">\(c=0.5\)</th><th scope="col">\(c=1\)</th><th scope="col">\(c=1\)</th><th scope="col">HumanEval</th><th scope="col">HumanEval+</th><th scope="col">MBPP</th><th scope="col">MBPP+</th></tr>
+              </thead>
+              <tbody>
+                <tr class="muted"><th class="l stick" scope="row">Base model, unmerged</th><td>0</td><td>0.0</td><td>68.0</td><td>68.0</td><td>8.6</td><td>62.8</td><td>57.9</td><td>69.8</td><td>59.5</td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Task Arithmetic</th><td>1.00</td><td>99.7</td><td>49.5</td><td>28.8</td><td>4.6×10<sup>5</sup></td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">TIES</th><td>0.80</td><td>34.8</td><td>61.1</td><td>30.4</td><td>1.1×10<sup>4</sup></td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">DELLA</th><td>0.82</td><td>34.9</td><td>60.3</td><td>30.9</td><td>1.6×10<sup>4</sup></td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">DARE (drop 0.9)<sup>§</sup></th><td>2.85</td><td>19.0</td><td>30.0</td><td>29.8</td><td>7.2×10<sup>6</sup></td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">LEWIS<sup>†</sup></th><td>0.55</td><td>5.0</td><td>56.1</td><td>38.7</td><td>5.9×10<sup>3</sup></td><td>0.0</td><td>0.0</td><td>0.3</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">SLERP (\(t=0.5\))</th><td>1.27</td><td>99.9</td><td class="c" colspan="2">30.0</td><td>1.0×10<sup>6</sup></td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+                <tr><th class="l stick" scope="row">Model Stock</th><td>0.46</td><td>99.6</td><td class="c" colspan="2">53.2</td><td>35.0</td><td>0.6</td><td>0.6</td><td>0.0</td><td>0.0</td></tr>
+                <tr class="sep"><th class="l stick" scope="row">Uniform, norm-matched</th><td>0.022</td><td>85.1</td><td>68.1</td><td>68.0</td><td>8.7</td><td>62.2</td><td>57.3</td><td>69.6</td><td>59.0</td></tr>
+                <tr><th class="l stick" scope="row">Hard threshold, same \(\lambda\)</th><td>0.126</td><td>0.1</td><td>63.4</td><td>57.2</td><td>18.4</td><td>51.8</td><td>48.2</td><td>60.1</td><td>51.6</td></tr>
+                <tr class="ours"><th class="l stick" scope="row">PRISM</th><td>0.022</td><td>0.1</td><td>67.8</td><td>64.8</td><td>11.1</td><td><b>65.9</b></td><td><b>59.1</b></td><td><b>71.2</b></td><td><b>61.1</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="scroll-hint">Scroll sideways to see every column.</p>
+          <p class="caption long"><span class="nw">Qwen2.5-7B</span> Math+Coder. Coding: <span class="nw">vendor-native</span> EvalPlus pass@1 at \(c=0.5\) where applicable, not comparable with the table in <a href="#results">Merging Under Severe Conflict</a>. LEWIS: <span class="nw">activation-based</span> Mean/PPL, <span class="nw">weight-sparsity</span> fallback for Norm/Coords/Coding. Bold: above the unmerged base. <sup>§</sup>: rescaled; <sup>†</sup>: calibration for <span class="nw">activation-based</span> LEWIS; SLERP and Model Stock: no coefficient.</p>
+        </div>
+        <div class="prose">
+          <p>The <span class="nw">norm-matched</span> control avoids collapse at both evaluated coefficients and stays close to the unmerged base on the <span class="nw">six-task</span> mean, perplexity and all four coding metrics. Its norm, however, is taken from PRISM, whose thresholds set that norm from each layer's interference without data or tuning. Where the control spreads this norm across 85.1% of the coordinates, PRISM concentrates it on the 0.1% retained by thresholding. The coding scores of PRISM are higher than both the control's and the base's on all four EvalPlus metrics, reaching 65.9 on HumanEval against 62.2 and 62.8. Model Stock applies 2.4× interpolation shrinkage toward the base and still loses 14.8pp.</p>
+          <p>Data-dependent baselines need data to reach parity. AdaMerging reaches 67.9 at its best point, a tie with the 67.8 of PRISM, after entropy minimization on unlabeled C4 text and a coefficient sweep.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bibtex">
+      <div class="wrap">
+        <h2>BibTeX</h2>
+        <div class="bib">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@misc{lee2026prism,
+  title = {Predicting and Repairing Merge Collapse in Large Language Models},
+  author = {Jungseob Lee and Seungyoon Lee and Sugyeong Eo and Hyeonseok Moon and Jaehyung Seo and Heuiseok Lim},
+  year = {2026},
+  journal = {arXiv preprint},
+  eprint = {2610.03199},
+  archivePrefix = {arXiv},
+  url = {https://arxiv.org/abs/2610.03199},
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band more" id="more" hidden>
+      <div class="wrap">
+        <h2>More Projects</h2>
+        <ul class="more-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 <a href="../">Jungseob Lee</a></p>
+  </footer>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
+  <script src="../assets/project/page.js" defer></script>
+</body>
+</html>
