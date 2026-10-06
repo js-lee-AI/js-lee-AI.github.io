@@ -23,7 +23,10 @@
       "venueFull": "Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing (Main)",
       "year": 2026,
       "citations": 0,
-      "links": {}
+      "links": {
+        "arxiv": "https://arxiv.org/abs/2608.23149",
+        "code": "https://github.com/dltmddbs100/CRPO"
+      }
     },
     {
       "id": 32,
@@ -62,7 +65,8 @@
       "year": 2026,
       "citations": 0,
       "links": {
-        "pdf": "https://openreview.net/pdf?id=NvKvW5k6Kk"
+        "pdf": "https://openreview.net/pdf?id=NvKvW5k6Kk",
+        "arxiv": "https://arxiv.org/abs/2604.05684"
       }
     },
     {
@@ -292,7 +296,8 @@
       "citations": 3,
       "links": {
         "project": "CLO/",
-        "pdf": "https://aclanthology.org/2025.acl-long.734.pdf"
+        "pdf": "https://aclanthology.org/2025.acl-long.734.pdf",
+        "arxiv": "https://arxiv.org/abs/2505.14297"
       }
     },
     {
@@ -435,7 +440,8 @@
       "year": 2022,
       "citations": 2,
       "links": {
-        "pdf": "https://aclanthology.org/2022.coling-1.460.pdf"
+        "pdf": "https://aclanthology.org/2022.coling-1.460.pdf",
+        "arxiv": "https://arxiv.org/abs/2209.15285"
       }
     },
     {
