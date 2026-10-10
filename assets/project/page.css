@@ -1653,8 +1653,10 @@ html:has(dialog[open]) {
     margin-top: 0.5rem;
   }
 
+  /* Set on one line, the values may break between words. */
   .lane-meta span {
     display: inline;
+    white-space: normal;
   }
 
   .lane-meta span + span::before {
