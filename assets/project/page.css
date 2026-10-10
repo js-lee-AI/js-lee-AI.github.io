@@ -1018,12 +1018,14 @@ code {
   height: 0.625rem;
 }
 
+/* The baseline bars carry the comparison, so their grays are plain colors
+   that every browser draws. */
 .lane-rail {
   position: absolute;
   inset: 0;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--ink) 8%, #fff);
+  background: #ededee;
 }
 
 .lane.ours .lane-rail {
@@ -1049,7 +1051,7 @@ code {
 .lane-fill {
   width: calc(var(--f, 0) * 100%);
   height: 100%;
-  background: color-mix(in srgb, var(--ink) 48%, #fff);
+  background: #939598;
 }
 
 .lane.ours .lane-fill {
@@ -1064,7 +1066,7 @@ code {
   bottom: 0;
   left: calc(var(--k, 0) * 100%);
   width: max(0%, calc((var(--f, 0) - var(--k, 0)) * 100%));
-  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--ink) 30%, #fff) 0, color-mix(in srgb, var(--ink) 30%, #fff) 2.5px, color-mix(in srgb, var(--ink) 14%, #fff) 2.5px, color-mix(in srgb, var(--ink) 14%, #fff) 5px);
+  background: repeating-linear-gradient(135deg, #bcbdbf 0, #bcbdbf 2.5px, #e0e0e1 2.5px, #e0e0e1 5px);
   opacity: 0;
 }
 
@@ -1113,7 +1115,7 @@ code {
 }
 
 .lane-time {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
 }
 
@@ -1494,8 +1496,30 @@ html:has(dialog[open]) {
     scroll-behavior: auto;
   }
 
-  .btn {
+  .btn,
+  .race-bar button {
     transition: none;
+  }
+}
+
+/* In a forced-color theme the bars keep their own colors, since they are the
+   content, and the controls get a real outline in place of the drawn one. */
+@media (forced-colors: active) {
+  .lane-rail,
+  .lane-rail::after,
+  .lane-fill,
+  .lane-late,
+  .lane-tick,
+  .lane-tick::before {
+    forced-color-adjust: none;
+  }
+
+  .race-bar button {
+    border: 1.5px solid ButtonText;
+  }
+
+  .lane-text {
+    border-color: Canvas;
   }
 }
 
