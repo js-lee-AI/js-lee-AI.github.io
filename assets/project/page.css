@@ -1241,7 +1241,7 @@ code {
   transform: translateY(-0.08em) rotate(45deg);
 }
 
-/* The output scrolls up from the bottom edge like a terminal, two lines
+/* The output scrolls up from the bottom edge like a terminal, three lines
    deep, in a shallow inset of its own. The inset's margin is a transparent
    border, so the text is clipped inside it and never shows in the margin. */
 .lane-text {
@@ -1251,7 +1251,7 @@ code {
   flex-direction: column;
   justify-content: flex-end;
   grid-column: 1 / -1;
-  height: calc(3em + 0.7rem);
+  height: calc(4.5em + 0.7rem);
   margin: 0;
   overflow: hidden;
   border: solid transparent;
@@ -1259,7 +1259,7 @@ code {
   border-radius: 8px;
   background: var(--inset);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   line-height: 1.5;
   color: var(--ink-soft);
   white-space: pre-wrap;
@@ -1282,7 +1282,7 @@ code {
   right: 0;
   left: 0;
   z-index: 1;
-  height: 1.1em;
+  height: 0.7em;
   background: linear-gradient(to bottom, var(--inset), transparent);
   pointer-events: none;
 }
@@ -1295,6 +1295,14 @@ code {
 
 .lane.ours .lane-text mark {
   background: color-mix(in srgb, var(--accent-b) 36%, #fff);
+}
+
+/* Beside a label that carries the headline count the lane is taller, and
+   the inset takes that room: five lines. */
+@media (min-width: 48rem) {
+  .lane:has(> .lane-id > .lane-count) .lane-text {
+    height: calc(7.5em + 0.7rem);
+  }
 }
 
 /* Without color-mix() the tints of the replay would have no color at all,

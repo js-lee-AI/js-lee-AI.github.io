@@ -76,10 +76,16 @@
       lanes = run.lanes.map(function (rec, j) {
         var el = laneEls[j];
         var pieces = run.texts[rec.text || 0];
+        // The inset is a few lines deep, so it draws no empty lines: a line
+        // break that follows a line break adds nothing to the lane's text.
         var full = '';
         var edge = [0];
         for (var k = 0; k < rec.n; k += 1) {
-          full += pieces[k];
+          var piece = pieces[k].replace(/\n+/g, '\n');
+          if (piece.charAt(0) === '\n' && (full === '' || full.charAt(full.length - 1) === '\n')) {
+            piece = piece.slice(1);
+          }
+          full += piece;
           edge.push(full.length);
         }
 
