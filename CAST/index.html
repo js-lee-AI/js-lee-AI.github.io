@@ -101,6 +101,78 @@
       </div>
     </section>
 
+    <section class="section" id="race">
+      <div class="wrap">
+        <h2>One Prompt, Four Decoders</h2>
+        <div class="prose">
+          <p>Four decoders answer the same prompt with <span class="nw">Qwen3-8B</span> on one RTX A6000. Each lane replays a recorded run at its real speed. The prompt was picked as a case where CAST is especially fast, so the lanes show an example and not an average.</p>
+        </div>
+        <div class="race passed" data-race>
+          <div class="race-head">
+            <p class="race-prompt"><b>Prompt</b><span>Write a solution to the following problem and make sure that it passes the tests: ```python def double_the_difference(lst): &#x27;&#x27;&#x27; Given a list of numbers, return the sum of squares of the numbers in the list that are odd. Ignore numbers that are negative or not integers. double_the_difference([1, 3, 2, 0]) == 1 + 9 + 0 + 0 = 10 double_the_difference([-1, -2, 0]) == 0 double_the_difference([9, -2]) == 81 double_the_difference([0]) == 0 If the input list is empty, return 0. &#x27;&#x27;&#x27; ```</span></p>
+            <div class="race-bar">
+              <div class="race-actions">
+                <button type="button" class="race-slow" aria-pressed="false">Slow motion</button>
+                <button type="button" class="race-replay">Play</button>
+              </div>
+            </div>
+          </div>
+          <ul class="race-lanes">
+            <li class="lane ours done">
+              <div class="lane-id">
+                <span class="lane-name">CAST <span class="muted">(\(N^\ast{=}95\))</span></span>
+                <span class="lane-x"><b>8.0×</b><small>over AR</small></span>
+                <span class="lane-meta"><span>3.99 ms/token</span><span>12.1 tokens/round</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:1.0000"><div class="lane-rail"><div class="lane-fill"></div></div></div>
+                <div class="lane-read"><span class="lane-count">256 / 256 tokens</span><span class="lane-time">1.02 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">DFlash <span class="muted">(16)</span></span>
+                <span class="lane-x"><b>6.7×</b><small>over AR</small></span>
+                <span class="lane-meta"><span>4.75 ms/token</span><span>8.9 tokens/round</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:0.8633;--k:0.8633"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">221 / 256 tokens</span><span class="lane-time">1.02 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">EAGLE-3 <span class="muted">(60)</span></span>
+                <span class="lane-x"><b>2.7×</b><small>over AR</small></span>
+                <span class="lane-meta"><span>11.77 ms/token</span><span>4.7 tokens/round</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:0.2852;--k:0.2852"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">73 / 256 tokens</span><span class="lane-time">1.02 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">AR <span class="muted">autoregressive</span></span>
+                <span class="lane-x"><b>1×</b><small>baseline</small></span>
+                <span class="lane-meta"><span>31.9 ms/token</span><span>1 token/pass</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:0.1250;--k:0.1250"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">32 / 256 tokens</span><span class="lane-time">1.02 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+          </ul>
+          <script type="application/json">{"runs":[{"label":"HumanEval","prompt":"Write a solution to the following problem and make sure that it passes the tests:\n```python\n\ndef double_the_difference(lst):\n    '''\n    Given a list of numbers, return the sum of squares of the numbers\n    in the list that are odd. Ignore numbers that are negative or not integers.\n    \n    double_the_difference([1, 3, 2, 0]) == 1 + 9 + 0 + 0 = 10\n    double_the_difference([-1, -2, 0]) == 0\n    double_the_difference([9, -2]) == 81\n    double_the_difference([0]) == 0  \n   \n    If the input list is empty, return 0.\n    '''\n\n```","total":256,"lanes":[{"n":256,"end":1021.5,"t":[38.5,85.1,131.4,177.2,223.8,270.1,316.4,363.0,410.2,456.9,503.3,549.6,596.2,642.9,690.0,737.3,785.2,832.7,879.9,927.0,973.8],"c":[5,11,20,23,39,55,71,87,91,107,123,135,151,167,183,199,210,219,229,245,256],"x":"8.0","meta":["3.99 ms/token","12.1 tokens/round"],"text":0},{"n":256,"end":1216.4,"t":[35.6,76.2,116.0,156.4,197.1,239.3,280.9,321.3,361.8,402.0,442.3,482.9,523.6,565.1,606.1,647.3,687.9,728.4,768.5,808.9,849.7,889.7,931.9,972.9,1013.4,1054.2,1094.8,1135.3,1175.7,1216.1],"c":[3,4,7,11,17,21,23,39,55,71,87,90,91,107,123,134,135,151,167,181,197,202,217,218,221,227,237,250,253,256],"x":"6.7","meta":["4.75 ms/token","8.9 tokens/round"],"text":0},{"n":256,"end":3012.1,"t":[40.3,95.1,146.8,198.9,251.0,302.7,361.7,420.1,471.6,523.6,575.5,626.9,678.8,731.1,788.9,840.6,893.5,946.4,1000.0,1052.2,1105.2,1165.9,1217.9,1271.9,1324.9,1378.1,1430.5,1486.1,1543.2,1595.6,1647.9,1701.1,1755.0,1807.0,1863.7,1920.6,1972.6,2025.0,2077.2,2129.1,2181.9,2242.3,2294.5,2347.0,2399.4,2450.9,2504.4,2557.9,2618.9,2671.0,2723.5,2776.0,2827.7,2880.2,2936.1],"c":[4,6,10,12,13,17,21,30,31,32,33,36,38,47,56,61,70,72,73,74,83,92,94,95,96,105,111,112,118,126,127,134,135,137,146,149,153,162,164,171,176,185,194,201,209,215,220,221,226,227,231,237,246,250,256],"x":"2.7","meta":["11.77 ms/token","4.7 tokens/round"],"text":0},{"n":256,"end":8171.8,"t":[37.7,69.6,102.8,134.4,165.8,197.2,233.0,264.5,295.8,326.9,358.6,390.2,421.9,455.7,487.0,518.3,549.8,583.8,615.2,646.4,677.7,709.6,741.4,773.5,806.8,838.2,869.5,901.2,933.0,965.6,996.9,1028.2,1059.7,1091.8,1123.2,1156.5,1187.9,1219.7,1251.4,1283.0,1317.3,1348.7,1380.0,1411.6,1443.2,1474.9,1508.4,1539.7,1570.9,1602.9,1634.6,1669.9,1701.3,1732.6,1763.9,1796.1,1827.6,1861.1,1892.5,1923.9,1956.0,1988.2,2022.0,2053.8,2085.1,2116.3,2148.1,2179.9,2213.4,2244.8,2276.4,2308.4,2340.2,2372.1,2406.3,2437.7,2469.1,2500.7,2532.5,2565.9,2597.3,2628.6,2660.2,2691.8,2723.8,2758.2,2789.6,2820.8,2858.1,2889.9,2922.3,2953.8,2985.2,3016.9,3048.5,3080.5,3114.4,3145.9,3177.2,3208.6,3240.5,3273.1,3304.3,3336.1,3368.1,3399.8,3431.1,3464.7,3496.1,3527.4,3558.6,3590.7,3623.7,3655.0,3686.3,3718.1,3749.7,3781.5,3816.1,3847.5,3878.7,3909.9,3941.9,3975.2,4006.5,4037.9,4069.7,4101.3,4133.0,4164.4,4198.0,4229.3,4260.7,4292.5,4325.6,4356.9,4388.3,4420.7,4452.6,4484.4,4516.2,4550.8,4582.2,4613.3,4645.1,4677.8,4709.0,4740.2,4771.9,4803.5,4835.1,4866.8,4902.3,4933.7,4965.1,4997.9,5029.5,5060.9,5092.2,5124.2,5156.0,5187.8,5219.6,5254.8,5286.3,5317.7,5349.5,5380.9,5412.3,5443.8,5475.9,5507.7,5539.4,5571.5,5606.4,5637.7,5673.5,5705.4,5736.8,5768.2,5799.5,5831.4,5863.1,5895.3,5926.8,5962.1,5993.6,6024.8,6056.4,6088.4,6120.0,6151.7,6183.7,6215.4,6247.1,6278.8,6310.5,6344.5,6375.7,6407.3,6439.1,6471.1,6503.4,6535.4,6567.1,6598.8,6630.5,6662.3,6697.3,6729.0,6760.4,6792.0,6823.9,6855.3,6886.9,6918.7,6950.3,6981.8,7013.5,7048.9,7080.7,7112.1,7143.8,7175.7,7207.3,7238.8,7270.2,7301.6,7333.3,7365.2,7400.3,7432.1,7463.5,7494.8,7526.5,7558.5,7590.9,7622.6,7654.3,7686.2,7718.1,7752.1,7784.1,7815.5,7846.9,7878.8,7910.3,7941.8,7973.6,8005.3,8037.1,8069.1,8100.7,8140.3,8171.8],"x":"1","meta":["31.9 ms/token","1 token/pass"],"text":0}],"texts":[["Here","'s"," a"," correct"," and"," complete"," implementation"," of"," the"," `","double","_the","_difference","`"," function"," that"," satisfies"," all"," the"," given"," conditions"," and"," test"," cases",":\n\n","```","python","\n","def"," double","_the","_difference","(lst","):\n","   "," '''\n","   "," Given"," a"," list"," of"," numbers",","," return"," the"," sum"," of"," squares"," of"," the"," numbers","\n","   "," in"," the"," list"," that"," are"," odd","."," Ignore"," numbers"," that"," are"," negative"," or"," not"," integers",".\n","    \n","   "," double","_the","_difference","([","1",","," ","3",","," ","2",","," ","0","])"," =="," ","1","0","\n","   "," double","_the","_difference","([-","1",","," -","2",","," ","0","])"," =="," ","0","\n","   "," double","_the","_difference","([","9",","," -","2","])"," =="," ","8","1","\n","   "," double","_the","_difference","([","0","])"," =="," ","0","  \n","   \n","   "," If"," the"," input"," list"," is"," empty",","," return"," ","0",".\n","   "," '''\n","   "," total"," ="," ","0","\n","   "," for"," num"," in"," lst",":\n","       "," if"," isinstance","(num",","," int",")"," and"," num"," >="," ","0"," and"," num"," %"," ","2"," =="," ","1",":\n","           "," total"," +="," num"," **"," ","2","\n","   "," return"," total","\n","``","`\n\n","###"," Explanation",":\n","-"," We"," iterate"," through"," each"," number"," in"," the"," list",".\n","-"," We"," check"," if"," the"," number"," is"," an"," integer"," (`","is","instance","(num",","," int",")`","),"," non","-negative"," (`","num"," >="," ","0","`","),"," and"," odd"," (`","num"," %"," ","2"," =="," ","1","`",").\n","-"," If"," all"," conditions"," are"," met",","," we"," square"]]}]}</script>
+        </div>
+        <p class="caption long">Recorded runs, replayed in real time. <span class="nw">Qwen3-8B</span> in bf16 at batch 1 on one RTX A6000, greedy decoding, 256 new tokens, and the decode-only timer of the paper. CAST uses the width \(N^\ast = 95\) predicted for this GPU, DFlash its block of 16, and <span class="nw">EAGLE-3</span> the official code with a <span class="nw">60-token</span> draft tree. Every ms/token and speedup counts the 256 tokens kept over the time until the decoder returns, and tokens per round counts the last round in full. The prompt is one of the 164 HumanEval problems, chosen as a case where CAST is especially fast. These runs were recorded for this page and are not among the paper's results. The tables below give the paper's averages, with speedups over AR measured on an H100 SXM. A highlighted span is the round committed last, and the tick on a baseline marks where it stood when CAST finished.</p>
+      </div>
+    </section>
+
     <section class="section band" id="abstract">
       <div class="wrap">
         <h2>Abstract</h2>
@@ -320,5 +392,6 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
   <script src="../assets/project/page.js" defer></script>
+  <script src="../assets/project/race.js" defer></script>
 </body>
 </html>

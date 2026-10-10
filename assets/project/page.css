@@ -797,6 +797,397 @@ code {
   color: var(--gain);
 }
 
+/* ---------- Decoding replay ---------- */
+
+/* The replay sits on the same white ground as the teaser above it, so the gap
+   between them is one section padding, not two. */
+.teaser + #race {
+  padding-top: 0;
+}
+
+/* One plate, framed like a figure: a head strip, then one row per decoder.
+   Rows run edge to edge, so the plate clips them to its rounded corners. */
+.race {
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.prose + .race {
+  margin-top: 1.75rem;
+}
+
+.race-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 0.9rem 1.3rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.race-bar,
+.race-tabs,
+.race-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.race-bar {
+  justify-content: flex-end;
+  gap: 0.45rem 1rem;
+}
+
+/* The controls follow the buttons under the title: pills in the accent
+   color. The one that runs the replay is filled, the others are outlined. */
+.race-bar button {
+  min-height: 2.4rem;
+  padding: 0 1.05rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pill) 40%, #fff);
+  color: var(--pill);
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.race-bar button:hover {
+  box-shadow: inset 0 0 0 1.5px var(--pill);
+}
+
+.race-bar button:focus-visible {
+  border-radius: 999px;
+}
+
+.race-bar button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--pill) 11%, #fff);
+  box-shadow: inset 0 0 0 1.5px var(--pill);
+}
+
+/* The label of this button changes with the run. A fixed minimum width keeps
+   the button next to it in place. */
+.race-bar .race-replay {
+  min-width: 6.2rem;
+  background: var(--pill);
+  box-shadow: none;
+  color: #fff;
+}
+
+.race-bar .race-replay:hover {
+  background: var(--pill-hover);
+  box-shadow: none;
+}
+
+.race-prompt {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.race-prompt b {
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* The prompt is context, so it keeps to two lines and the lanes stay in view. */
+.race-prompt span {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.race-lanes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lane {
+  position: relative;
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr);
+  gap: 0.2rem 1.75rem;
+  align-items: center;
+  padding: 1.1rem 1.3rem 1.15rem;
+}
+
+.lane + .lane {
+  border-top: 1px solid var(--rule);
+}
+
+/* The proposed method is the one tinted row, with the title gradient running
+   down its left edge. */
+.lane.ours {
+  background: var(--ours);
+}
+
+.lane.ours::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent-a), var(--accent-b));
+}
+
+.lane-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.lane-name .muted {
+  font-weight: 400;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+
+.lane-x {
+  display: block;
+  margin-top: 0.05rem;
+  font-family: var(--font-display);
+  font-size: 2.15rem;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.lane-x small {
+  margin-left: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-mute);
+}
+
+.lane.ours .lane-x b {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lane-x b {
+  font-weight: inherit;
+  color: var(--ink-soft);
+}
+
+/* Measured values are set in the code face, like readings on an instrument. */
+.lane-meta {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.lane-meta span {
+  display: block;
+}
+
+.lane-run {
+  min-width: 0;
+}
+
+.lane-track {
+  position: relative;
+  height: 0.625rem;
+}
+
+.lane-rail {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, #fff);
+}
+
+.lane.ours .lane-rail {
+  background: color-mix(in srgb, var(--accent-a) 15%, #fff);
+}
+
+/* Hairline gaps at each quarter of the token budget give the bars a common
+   scale to read against. */
+.lane-rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--gap, #fff), var(--gap, #fff)) 25% 0 / 1.5px 100% no-repeat,
+    linear-gradient(var(--gap, #fff), var(--gap, #fff)) 50% 0 / 1.5px 100% no-repeat,
+    linear-gradient(var(--gap, #fff), var(--gap, #fff)) 75% 0 / 1.5px 100% no-repeat;
+}
+
+.lane.ours .lane-rail::after {
+  --gap: var(--ours);
+}
+
+.lane-fill {
+  width: calc(var(--f, 0) * 100%);
+  height: 100%;
+  background: color-mix(in srgb, var(--ink) 48%, #fff);
+}
+
+.lane.ours .lane-fill {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+}
+
+/* What a baseline writes after the proposed method has finished is hatched,
+   so the finished picture still shows who was where at that moment. */
+.lane-late {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--k, 0) * 100%);
+  width: max(0%, calc((var(--f, 0) - var(--k, 0)) * 100%));
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--ink) 30%, #fff) 0, color-mix(in srgb, var(--ink) 30%, #fff) 2.5px, color-mix(in srgb, var(--ink) 14%, #fff) 2.5px, color-mix(in srgb, var(--ink) 14%, #fff) 5px);
+  opacity: 0;
+}
+
+.race.passed .lane-late {
+  opacity: 1;
+}
+
+/* Where a baseline stood at the moment the proposed method finished. */
+.lane-tick {
+  position: absolute;
+  top: -0.3rem;
+  bottom: -0.3rem;
+  left: calc(var(--k, 0) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent-a);
+  opacity: 0;
+}
+
+.lane-tick::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-a);
+}
+
+.race.passed .lane-tick {
+  opacity: 1;
+}
+
+.lane-read {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.lane-time {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lane.done.ours .lane-time {
+  color: var(--accent-a);
+}
+
+/* A finished lane gets a check before its time. */
+.lane.done .lane-time::before {
+  content: "";
+  display: inline-block;
+  width: 0.36em;
+  height: 0.68em;
+  margin-right: 0.55em;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-0.08em) rotate(45deg);
+}
+
+/* The output scrolls up from the bottom edge like a terminal, three lines
+   deep, in a shallow inset of its own. The inset's margin is a transparent
+   border, so the text is clipped inside it and never shows in the margin. */
+.lane-text {
+  --inset: color-mix(in srgb, var(--ink) 3.5%, #fff);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: calc(4.5em + 0.9rem);
+  margin: 0.55rem 0 0;
+  overflow: hidden;
+  border: solid transparent;
+  border-width: 0.45rem 0.75rem;
+  border-radius: 8px;
+  background: var(--inset);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lane.ours .lane-text {
+  --inset: color-mix(in srgb, var(--ours) 30%, #fff);
+}
+
+.lane-text > span {
+  display: block;
+}
+
+/* Older lines fade toward the top of the inset. */
+.lane-text::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 1.6em;
+  background: linear-gradient(to bottom, var(--inset), transparent);
+  pointer-events: none;
+}
+
+.lane-text mark {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 12%, #fff);
+  color: var(--ink);
+}
+
+.lane.ours .lane-text mark {
+  background: color-mix(in srgb, var(--accent-b) 36%, #fff);
+}
+
 /* ---------- More projects and footer ---------- */
 
 .more[hidden] {
@@ -1042,6 +1433,60 @@ html:has(dialog[open]) {
     padding: 3.3rem 1rem 1rem;
     font-size: 0.8rem;
   }
+
+  /* The controls move under the prompt and keep to the right edge. */
+  .race-head {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.8rem 0.95rem;
+  }
+
+  /* A lane becomes one column: its name and speedup share a line above the bar. */
+  .lane {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.55rem;
+    padding: 0.9rem 0.95rem 0.95rem;
+  }
+
+  .lane-id {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0 0.75rem;
+  }
+
+  .lane-x {
+    grid-row: 1;
+    grid-column: 2;
+    margin-top: 0;
+    font-size: 1.5rem;
+    text-align: right;
+  }
+
+  .lane-meta {
+    grid-column: 1 / -1;
+  }
+
+  .lane-meta span {
+    display: inline;
+  }
+
+  .lane-meta span + span::before {
+    content: " \00b7\00a0";
+  }
+
+  /* Two lines of output keep all four lanes close to one screen. */
+  .lane-text {
+    height: calc(3em + 0.8rem);
+    border-width: 0.4rem 0.65rem;
+  }
+
+  .lane-text::before {
+    height: 1.1em;
+  }
+
+  .race-bar button {
+    padding: 0 0.85rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1082,6 +1527,7 @@ html:has(dialog[open]) {
   .topbar,
   .links,
   .copy,
+  .race-bar,
   .more,
   .footer,
   .scroll-hint,
@@ -1121,13 +1567,37 @@ html:has(dialog[open]) {
     padding-left: 0.3rem;
   }
 
-  .title .name {
+  .title .name,
+  .lane.ours .lane-x b {
     background: none;
     color: var(--accent-a);
   }
 
+  /* The bars are the content of the replay, so they print even when the
+     reader leaves background graphics off. */
+  .lane.ours,
+  .lane.ours::before,
+  .lane-rail,
+  .lane-rail::after,
+  .lane-fill,
+  .lane-late,
+  .lane-tick,
+  .lane-tick::before,
+  .lane-text,
+  .lane-text::before,
+  .lane-text mark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   /* A section heading stays on the same sheet as the text it introduces. */
   .section h2 {
+    break-after: avoid;
+  }
+
+  /* A card label and title stay on the same sheet as the card text. */
+  .step-label,
+  .step h3 {
     break-after: avoid;
   }
 }
