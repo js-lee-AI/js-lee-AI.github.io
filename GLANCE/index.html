@@ -132,6 +132,63 @@
       </div>
     </section>
 
+    <section class="section" id="race" aria-label="Decoding replay">
+      <div class="wrap">
+        <div class="race passed" data-race>
+          <div class="race-head pictured brief">
+            <a class="race-image" href="assets/replay-chart.webp" data-zoom><img src="assets/replay-chart.webp" alt="Bar chart from Our World in Data. Share that agrees that vaccines are important for children to have, 2018: United Arab Emirates 94%, Mauritania 91%, Spain 88%, Armenia 73%, South Korea 72%." width="850" height="600"></a>
+            <p class="race-prompt"><b>Prompt</b><span>Read the chart and answer the question. State the exact values and labels you read off the chart, then explain. Question: How many colors are used in the graph?</span></p>
+            <div class="race-bar">
+              <div class="race-actions">
+                <button type="button" class="race-rate" data-rate="0.25" aria-pressed="false">Slow motion</button>
+                <button type="button" class="race-replay">Play</button>
+              </div>
+            </div>
+          </div>
+          <ul class="race-lanes">
+            <li class="lane ours done">
+              <div class="lane-id">
+                <span class="lane-name">GLANCE <span class="muted">(1 draft pass)</span></span>
+                <span class="lane-x"><b>3.1×</b><small>over AR</small></span>
+                <span class="lane-meta"><span>7.74 ms/token</span><span>4.9 tokens/round</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:1.0000"><div class="lane-rail"><div class="lane-fill"></div></div></div>
+                <div class="lane-read"><span class="lane-count">256 / 256 tokens</span><span class="lane-time">1.97 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">EAGLE3-VL <span class="muted">(8 draft passes)</span></span>
+                <span class="lane-x"><b>2.4×</b><small>over AR</small></span>
+                <span class="lane-meta"><span>10.29 ms/token</span><span>3.8 tokens/round</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:0.7539;--k:0.7539"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">193 / 256 tokens</span><span class="lane-time">1.97 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">AR <span class="muted">autoregressive</span></span>
+                <span class="lane-x"><b>1×</b><small>baseline</small></span>
+                <span class="lane-meta"><span>24.3 ms/token</span><span>1 token/pass</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track" style="--f:0.3203;--k:0.3203"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">82 / 256 tokens</span><span class="lane-time">1.97 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+              </div>
+            </li>
+          </ul>
+          <script type="application/json">{"runs":[{"label":"ChartQA","prompt":"Read the chart and answer the question. State the exact values and labels you read off the chart, then explain.\nQuestion: How many colors are used in the graph?","total":256,"lanes":[{"n":256,"end":1973.7,"t":[38.3,82.0,119.1,156.4,193.5,231.1,268.1,305.3,342.3,379.4,416.7,454.1,490.9,528.0,565.1,602.3,639.5,676.5,714.2,752.4,795.2,832.4,869.8,907.5,944.8,982.4,1019.7,1057.2,1094.6,1133.4,1171.1,1208.2,1245.7,1283.3,1321.0,1358.6,1396.0,1433.4,1472.2,1516.3,1552.7,1589.9,1627.4,1665.7,1703.0,1740.9,1778.6,1816.5,1860.5,1898.4,1935.8,1973.7],"c":[5,7,13,15,17,20,21,23,28,33,42,48,54,63,72,81,90,94,100,102,106,115,120,124,126,130,134,136,141,145,153,156,159,164,170,173,177,183,187,193,195,201,210,219,225,232,235,240,245,248,254,256],"text":0,"x":"3.1","meta":["7.74 ms/token","4.9 tokens/round"]},{"n":256,"end":2625.1,"t":[39.7,78.5,117.4,156.5,195.2,233.9,272.7,311.7,350.5,389.2,428.0,467.2,506.3,544.9,583.8,622.6,661.9,700.9,739.6,778.7,817.9,857.1,896.2,935.1,974.1,1013.7,1052.8,1092.0,1130.9,1170.4,1209.5,1248.6,1287.8,1326.8,1366.3,1405.6,1444.4,1483.9,1523.2,1562.3,1601.6,1640.5,1679.6,1719.5,1760.1,1798.8,1838.1,1877.4,1916.5,1955.7,1994.8,2034.0,2073.5,2113.0,2151.8,2191.2,2231.2,2270.4,2309.7,2349.0,2388.3,2428.3,2468.1,2507.0,2546.6,2586.2,2625.1],"c":[6,10,14,17,20,22,27,32,36,39,42,48,49,56,62,67,76,77,86,92,93,97,99,100,102,104,106,110,114,118,120,124,125,128,130,133,135,138,139,141,145,154,157,162,165,170,175,178,187,193,195,200,205,212,215,216,218,224,232,235,240,244,247,248,250,254,256],"text":0,"x":"2.4","meta":["10.29 ms/token","3.8 tokens/round"]},{"n":256,"end":6188.0,"t":[24.2,48.4,72.8,97.3,121.5,145.6,169.8,194.0,218.5,242.7,266.9,291.0,315.1,339.4,363.7,387.8,412.0,436.2,460.6,484.8,509.1,533.2,557.5,582.8,606.0,630.4,654.2,678.4,702.6,726.8,751.1,775.5,799.7,824.0,848.1,872.3,896.6,921.0,945.8,969.4,993.8,1017.5,1041.8,1066.4,1090.5,1114.7,1139.2,1163.6,1187.7,1211.9,1236.2,1260.3,1284.6,1309.1,1333.3,1357.6,1381.6,1406.1,1430.2,1454.3,1478.6,1502.9,1527.1,1551.4,1575.7,1599.8,1624.1,1648.3,1672.6,1696.7,1720.8,1744.9,1769.5,1793.6,1817.9,1842.4,1866.6,1891.0,1915.1,1939.3,1963.5,1987.8,2011.8,2036.2,2060.6,2084.6,2108.7,2133.2,2157.4,2182.3,2205.8,2230.2,2254.5,2278.7,2302.8,2326.9,2351.4,2376.2,2400.1,2424.2,2448.3,2472.6,2496.8,2521.2,2545.4,2569.8,2593.9,2618.2,2642.5,2666.8,2691.1,2715.2,2739.9,2763.8,2787.8,2811.9,2836.2,2860.6,2884.8,2909.1,2933.5,2957.8,2982.1,3006.5,3030.7,3054.9,3079.3,3103.7,3127.8,3151.8,3175.9,3200.4,3224.6,3249.0,3273.1,3297.6,3322.0,3346.4,3370.5,3394.9,3419.0,3444.3,3467.8,3491.9,3515.9,3540.2,3564.3,3588.6,3612.9,3637.6,3661.5,3685.8,3710.0,3734.3,3758.4,3782.7,3808.0,3831.6,3855.8,3879.8,3904.1,3928.4,3952.8,3977.0,4001.3,4026.0,4049.9,4073.9,4098.4,4123.3,4147.0,4171.9,4195.8,4219.9,4244.1,4268.3,4292.7,4317.0,4341.3,4365.6,4389.9,4414.2,4438.4,4462.7,4486.9,4511.2,4535.8,4559.9,4583.9,4608.1,4632.4,4656.8,4681.0,4705.5,4729.6,4753.9,4778.3,4802.5,4826.7,4851.1,4875.5,4900.0,4924.1,4948.1,4972.3,4996.7,5021.0,5045.3,5069.4,5093.7,5117.8,5142.2,5166.6,5191.1,5215.4,5240.8,5264.3,5288.5,5312.8,5337.0,5361.4,5385.8,5410.1,5434.3,5458.7,5483.0,5507.4,5531.6,5555.9,5580.1,5604.9,5628.9,5653.1,5677.4,5701.7,5726.1,5750.4,5774.8,5799.1,5823.3,5847.7,5872.0,5896.2,5920.6,5945.5,5969.2,5993.4,6017.6,6041.8,6066.3,6090.3,6115.0,6139.2,6163.6,6188.0],"text":0,"x":"1","meta":["24.3 ms/token","1 token/pass"]}],"texts":[["Based"," on"," the"," chart"," provided",","," here"," are"," the"," exact"," values"," and"," labels"," read"," off"," the"," graph",":\n\n","**","Labels"," (","Country"," Names","):","**\n","-"," United"," Arab"," Emirates","\n","-"," Maurit","ania","\n","-"," Spain","\n","-"," Armenia","\n","-"," South"," Korea","\n\n","**","Values"," (","Percent","ages","):","**\n","-"," United"," Arab"," Emirates",":"," ","9","4","%\n","-"," Maurit","ania",":"," ","9","1","%\n","-"," Spain",":"," ","8","8","%\n","-"," Armenia",":"," ","7","3","%\n","-"," South"," Korea",":"," ","7","2","%\n\n","**","Axis"," Labels",":","**\n","-"," X","-axis",":"," \"","0","%\","," \"","2","0","%\","," \"","4","0","%\","," \"","6","0","%\","," \"","8","0","%\"\n","-"," Y","-axis",":"," (","No"," explicit"," label",","," but"," the"," categories"," are"," the"," country"," names"," listed"," on"," the"," left",")\n\n","**","Source",":","**\n","-"," Well","come"," Trust"," Global"," Monitor"," (","2","0","1","9",")\n","-"," Our","World","In","Data",".org","/v","acc","ination"," •"," CC"," BY","\n\n","**","Chart"," Title",":","**\n","-"," \"","Share"," that"," agrees"," that"," vaccines"," are"," important"," for"," children"," to"," have",","," ","2","0","1","8","\"\n\n","**","Subtitle",":","**\n","-"," \"","The"," share"," of"," people"," who"," responded"," that"," they"," '","strong","ly"," agree","'"," or"," '","som","ewhat"," agree","'"," with"," the"," statement"," '","V","acc","ines"," are"," important"," for"," children"," to"," have","'",".\"\n\n","**","Logo",":","**\n","-"," \"","Our"," World"," in"," Data","\"\n\n","---\n\n","**","Explanation"," for"," the"," Question",":","**\n\n","The"," question"," asks",":"]]}]}</script>
+        </div>
+        <p class="caption"><span class="nw">Qwen3-VL-8B</span> on one RTX A6000</p>
+      </div>
+    </section>
+
     <section class="section band" id="abstract">
       <div class="wrap">
         <h2>Abstract</h2>
@@ -362,5 +419,6 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
   <script src="../assets/project/page.js" defer></script>
+  <script src="../assets/project/race.js" defer></script>
 </body>
 </html>

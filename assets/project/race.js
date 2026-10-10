@@ -9,13 +9,16 @@
 
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  // Characters of finished output kept in a lane, far more than its lines show.
+  var KEEP = 2000;
+
   function seconds(ms) {
     return (ms / 1000).toFixed(2) + ' s';
   }
 
   // Tokens known at time t as [start of the latest round, end of it].
-  // Every decoder holds its first token when the decode clock starts, since
-  // that token comes out of the prefill.
+  // A decoder timed from the end of the prefill holds its first token when
+  // the clock starts. A run timed from the request says so with first = 0.
   function roundAt(rec, t) {
     var lo = 0;
     var hi = rec.t.length;
@@ -23,10 +26,11 @@
       var mid = (lo + hi) >> 1;
       if (rec.t[mid] <= t) lo = mid + 1; else hi = mid;
     }
+    var first = rec.first === undefined ? 1 : rec.first;
     function at(i) {
       if (i < 0) return 0;
-      if (i === 0) return 1;
-      return Math.min(rec.n, rec.c ? rec.c[i - 1] : i + 1);
+      if (i === 0) return first;
+      return Math.min(rec.n, rec.c ? rec.c[i - 1] : i + first);
     }
     if (t >= rec.end) return [at(lo - 1), rec.n];
     return [at(lo - 1), at(lo)];
@@ -41,11 +45,12 @@
     var laneEls = Array.prototype.slice.call(root.querySelectorAll('.lane'));
     var promptEl = root.querySelector('.race-prompt span');
     var tabs = Array.prototype.slice.call(root.querySelectorAll('[data-run]'));
-    var slowBtn = root.querySelector('.race-slow');
+    var rateBtn = root.querySelector('.race-rate');
     var playBtn = root.querySelector('.race-replay');
 
     var lanes = [];
     var total = 1;
+    var shared = true;
     var oursEnd = 0;
     var lastEnd = 0;
 
@@ -62,9 +67,11 @@
     function load(index) {
       var run = data.runs[index];
       total = run.total;
+      // Lanes that write different amounts have no common denominator, so
+      // each one counts its own tokens.
+      shared = run.lanes.every(function (rec) { return rec.n === total; });
       oursEnd = 0;
       lastEnd = 0;
-      if (promptEl) promptEl.textContent = run.prompt;
 
       lanes = run.lanes.map(function (rec, j) {
         var el = laneEls[j];
@@ -94,21 +101,53 @@
         if (ours) oursEnd = rec.end;
         lastEnd = Math.max(lastEnd, rec.end);
 
+        // A headline count holds the number alone, with its unit set beside it.
+        var figure = el.querySelector('.lane-count b');
+
         return {
           el: el, rec: rec, ours: ours, full: full, edge: edge, past: past, fresh: fresh,
           track: el.querySelector('.lane-track'),
-          count: el.querySelector('.lane-count'),
+          count: figure || el.querySelector('.lane-count'), bare: !!figure,
           time: el.querySelector('.lane-time'),
           shown: -1, done: null, label: ''
         };
       });
 
+      // A lane that writes less than the scale gets a rail of its own length.
       // Where each baseline stands when the proposed method finishes.
       lanes.forEach(function (lane) {
+        var short = lane.rec.n !== total;
+        lane.track.classList.toggle('short', short);
+        if (short) lane.track.style.setProperty('--n', (lane.rec.n / total).toFixed(4));
+        else lane.track.style.removeProperty('--n');
         if (!lane.ours) {
           lane.track.style.setProperty('--k', (roundAt(lane.rec, oursEnd)[1] / total).toFixed(4));
         }
       });
+    }
+
+    // The markup holds the first run's prompt, with its formulas typeset.
+    // Another run brings its prompt as text, and a widget marked for math has
+    // the TeX between dollar signs typeset the same way.
+    function show(prompt) {
+      if (!promptEl) return;
+      var line = document.createElement('span');
+      line.textContent = prompt;
+      promptEl.textContent = '';
+      promptEl.appendChild(line);
+      if (!root.hasAttribute('data-math') || typeof window.renderMathInElement !== 'function') return;
+      try {
+        window.renderMathInElement(line, {
+          delimiters: [
+            { left: '$$', right: '$$', display: false },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false }
+          ],
+          throwOnError: false
+        });
+      } catch (err) {
+        // The TeX source stays readable as plain text.
+      }
     }
 
     // The whole picture is a function of the clock, so any moment can be drawn
@@ -122,12 +161,17 @@
         var to = span[1];
         if (to !== lane.shown || done !== lane.done) {
           var from = done ? to : span[0];
+          var head = lane.edge[from];
+          // Only the last lines are in view. A long output keeps its tail,
+          // cut at a line start, where the cut cannot move a line break.
+          var cut = head > KEEP ? lane.full.lastIndexOf('\n', head - KEEP) + 1 : 0;
           lane.shown = to;
           lane.done = done;
-          lane.past.data = lane.full.slice(0, lane.edge[from]);
+          lane.past.data = lane.full.slice(cut, head);
           lane.fresh.textContent = lane.full.slice(lane.edge[from], lane.edge[to]);
           lane.track.style.setProperty('--f', (to / total).toFixed(4));
-          lane.count.textContent = to + ' / ' + total + ' tokens';
+          var tokens = to.toLocaleString('en-US');
+          lane.count.textContent = lane.bare ? tokens : shared ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
           lane.el.classList.toggle('done', done);
         }
         var label = seconds(Math.max(0, Math.min(t, rec.end)));
@@ -216,21 +260,29 @@
       tab.addEventListener('click', function () {
         tabs.forEach(function (other) { other.setAttribute('aria-pressed', String(other === tab)); });
         load(index);
+        show(data.runs[index].prompt);
         play();
       });
     });
 
-    if (slowBtn) {
-      slowBtn.addEventListener('click', function () {
-        var slow = slowBtn.getAttribute('aria-pressed') !== 'true';
-        slowBtn.setAttribute('aria-pressed', String(slow));
-        rate = slow ? 0.25 : 1;
+    // The rate button names the playback rate it holds while pressed.
+    // Released, the replay runs in real time.
+    function pace() {
+      var on = !!rateBtn && rateBtn.getAttribute('aria-pressed') === 'true';
+      rate = on ? Number(rateBtn.getAttribute('data-rate')) || 1 : 1;
+    }
+
+    if (rateBtn) {
+      rateBtn.addEventListener('click', function () {
+        rateBtn.setAttribute('aria-pressed', String(rateBtn.getAttribute('aria-pressed') !== 'true'));
+        pace();
       });
     }
 
     if (playBtn) playBtn.addEventListener('click', toggle);
 
     load(0);
+    pace();
     label('Play');
 
     if (reduce) {
