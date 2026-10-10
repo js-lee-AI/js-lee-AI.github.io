@@ -1,8 +1,8 @@
 /*
   Copyright (c) 2026 Jungseob Lee. All Rights Reserved.
-  Replay of recorded decoding runs on the paper project pages.
+  Replay of decoding runs on the paper project pages.
   Every lane is one method writing its output for the same prompt, and it
-  advances at the recorded time of each committed round.
+  advances at the time of each committed round in the page's data.
 */
 (function () {
   'use strict';
@@ -48,6 +48,16 @@
     var rateBtn = root.querySelector('.race-rate');
     var playBtn = root.querySelector('.race-replay');
 
+    // Runs given as counts of decoder steps are read in that unit: the clock
+    // ticks once for each step instead of running in seconds.
+    var tick = data.tick || null;
+
+    function reading(ms) {
+      if (!tick) return seconds(ms);
+      var steps = Math.floor(ms / tick.ms + 1e-6);
+      return steps + ' ' + (steps === 1 ? tick.one : tick.unit);
+    }
+
     var lanes = [];
     var total = 1;
     var shared = true;
@@ -75,12 +85,13 @@
 
       lanes = run.lanes.map(function (rec, j) {
         var el = laneEls[j];
-        var pieces = run.texts[rec.text || 0];
+        // A run given as counts and rates alone has no output to write.
+        var pieces = run.texts ? run.texts[rec.text || 0] : null;
         // The inset is a few lines deep, so it draws no empty lines: a line
         // break that follows a line break adds nothing to the lane's text.
         var full = '';
         var edge = [0];
-        for (var k = 0; k < rec.n; k += 1) {
+        for (var k = 0; pieces && k < rec.n; k += 1) {
           var piece = pieces[k].replace(/\n+/g, '\n');
           if (piece.charAt(0) === '\n' && (full === '' || full.charAt(full.length - 1) === '\n')) {
             piece = piece.slice(1);
@@ -89,14 +100,18 @@
           edge.push(full.length);
         }
 
-        var box = el.querySelector('.lane-text');
-        var body = document.createElement('span');
-        var past = document.createTextNode('');
-        var fresh = document.createElement('mark');
-        body.appendChild(past);
-        body.appendChild(fresh);
-        box.textContent = '';
-        box.appendChild(body);
+        var box = pieces ? el.querySelector('.lane-text') : null;
+        var past = null;
+        var fresh = null;
+        if (box) {
+          var body = document.createElement('span');
+          past = document.createTextNode('');
+          fresh = document.createElement('mark');
+          body.appendChild(past);
+          body.appendChild(fresh);
+          box.textContent = '';
+          box.appendChild(body);
+        }
 
         el.querySelector('.lane-x b').textContent = rec.x + '×';
         var meta = el.querySelectorAll('.lane-meta span');
@@ -166,21 +181,23 @@
         var span = t < 0 ? [0, 0] : roundAt(rec, t);
         var to = span[1];
         if (to !== lane.shown || done !== lane.done) {
-          var from = done ? to : span[0];
-          var head = lane.edge[from];
-          // Only the last lines are in view. A long output keeps its tail,
-          // cut at a line start, where the cut cannot move a line break.
-          var cut = head > KEEP ? lane.full.lastIndexOf('\n', head - KEEP) + 1 : 0;
           lane.shown = to;
           lane.done = done;
-          lane.past.data = lane.full.slice(cut, head);
-          lane.fresh.textContent = lane.full.slice(lane.edge[from], lane.edge[to]);
+          if (lane.past) {
+            var from = done ? to : span[0];
+            var head = lane.edge[from];
+            // Only the last lines are in view. A long output keeps its tail,
+            // cut at a line start, where the cut cannot move a line break.
+            var cut = head > KEEP ? lane.full.lastIndexOf('\n', head - KEEP) + 1 : 0;
+            lane.past.data = lane.full.slice(cut, head);
+            lane.fresh.textContent = lane.full.slice(lane.edge[from], lane.edge[to]);
+          }
           lane.track.style.setProperty('--f', (to / total).toFixed(4));
           var tokens = to.toLocaleString('en-US');
-          lane.count.textContent = lane.bare ? tokens : shared ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
+          lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
           lane.el.classList.toggle('done', done);
         }
-        var label = seconds(Math.max(0, Math.min(t, rec.end)));
+        var label = reading(Math.max(0, Math.min(t, rec.end)));
         if (label !== lane.label) {
           lane.label = label;
           lane.time.textContent = label;
