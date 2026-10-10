@@ -826,7 +826,7 @@ code {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem 1.5rem;
-  padding: 0.9rem 1.3rem;
+  padding: 0.8rem 1.3rem;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -909,7 +909,8 @@ code {
 }
 
 /* A long prompt is context, so it keeps to two lines and the lanes stay in
-   view. A brief one is the whole question and is shown in full. */
+   view. A brief one is the whole question and is shown in full, and so is a
+   long one on a page that replays a single example. */
 .race-prompt > span {
   display: -webkit-box;
   min-width: 0;
@@ -920,9 +921,28 @@ code {
   overflow-wrap: anywhere;
 }
 
-.race-head.brief .race-prompt > span {
+.race-head.brief .race-prompt > span,
+.race-head.full .race-prompt > span {
   display: block;
   overflow: visible;
+}
+
+/* Beside several lines of prompt the controls stay at the first line, and
+   the text runs on under its label to use the whole width. */
+.race-head.full {
+  align-items: flex-start;
+}
+
+.race-head.full .race-prompt {
+  display: block;
+}
+
+.race-head.full .race-prompt b {
+  margin-right: 0.6rem;
+}
+
+.race-head.full .race-prompt > span {
+  display: inline;
 }
 
 /* A prompt that comes with a picture shows it small beside the text, and a
@@ -954,13 +974,23 @@ code {
   list-style: none;
 }
 
+/* A lane is kept shallow so that all of them and the prompt fit one screen:
+   the label takes two rows, and the bar shares its row with its readings. */
 .lane {
   position: relative;
   display: grid;
-  grid-template-columns: 13.5rem minmax(0, 1fr);
-  gap: 0.2rem 1.75rem;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: 0.2rem 1.5rem;
   align-items: center;
-  padding: 1.1rem 1.3rem 1.15rem;
+  padding: 0.6rem 1.3rem 0.65rem;
+}
+
+/* The name, then the speedup with the two measured values beside it. */
+.lane-id {
+  display: grid;
+  grid-template-columns: 8.6rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.5rem;
 }
 
 .lane + .lane {
@@ -985,6 +1015,7 @@ code {
 
 .lane-name {
   display: block;
+  grid-column: 1 / -1;
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
@@ -997,11 +1028,14 @@ code {
   white-space: nowrap;
 }
 
+/* The speedup may run past its column where no values sit beside it. */
 .lane-x {
   display: block;
-  margin-top: 0.05rem;
+  grid-row: 2;
+  grid-column: 1 / -1;
+  white-space: nowrap;
   font-family: var(--font-display);
-  font-size: 2.15rem;
+  font-size: 1.85rem;
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.015em;
@@ -1009,12 +1043,14 @@ code {
 }
 
 /* Where the result is the number of tokens, the running count is a second
-   figure under the speedup, a step smaller. */
+   figure under the speedup, a step smaller, and the values go below both. */
 .lane-id .lane-count {
   display: block;
-  margin-top: 0.15rem;
+  grid-row: 3;
+  grid-column: 1 / -1;
+  margin-top: 0.1rem;
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.015em;
@@ -1047,19 +1083,33 @@ code {
 /* Measured values are set in the code face, like readings on an instrument. */
 .lane-meta {
   display: block;
-  margin-top: 0.3rem;
+  grid-row: 2;
+  grid-column: 2;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
-  line-height: 1.5;
+  font-size: 0.72rem;
+  line-height: 1.45;
   color: var(--ink-mute);
   font-variant-numeric: tabular-nums lining-nums;
 }
 
 .lane-meta span {
   display: block;
+  white-space: nowrap;
 }
 
+.lane-id .lane-count ~ .lane-meta {
+  grid-row: 4;
+  grid-column: 1 / -1;
+  margin-top: 0.25rem;
+}
+
+/* The readings keep one width, so every bar has the same length and the
+   bars can be read against each other. */
 .lane-run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13rem;
+  align-items: center;
+  gap: 0.4rem 1rem;
   min-width: 0;
 }
 
@@ -1162,7 +1212,6 @@ code {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   line-height: 1.4;
@@ -1192,7 +1241,7 @@ code {
   transform: translateY(-0.08em) rotate(45deg);
 }
 
-/* The output scrolls up from the bottom edge like a terminal, three lines
+/* The output scrolls up from the bottom edge like a terminal, two lines
    deep, in a shallow inset of its own. The inset's margin is a transparent
    border, so the text is clipped inside it and never shows in the margin. */
 .lane-text {
@@ -1201,11 +1250,12 @@ code {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  height: calc(4.5em + 0.9rem);
-  margin: 0.55rem 0 0;
+  grid-column: 1 / -1;
+  height: calc(3em + 0.7rem);
+  margin: 0;
   overflow: hidden;
   border: solid transparent;
-  border-width: 0.45rem 0.75rem;
+  border-width: 0.35rem 0.75rem;
   border-radius: 8px;
   background: var(--inset);
   font-family: var(--font-mono);
@@ -1232,7 +1282,7 @@ code {
   right: 0;
   left: 0;
   z-index: 1;
-  height: 1.6em;
+  height: 1.1em;
   background: linear-gradient(to bottom, var(--inset), transparent);
   pointer-events: none;
 }
@@ -1460,6 +1510,19 @@ html:has(dialog[open]) {
   .table-block.wide tbody tr.ours > .stick {
     background: var(--ours);
   }
+
+  /* The bar takes the full width of its column and its readings go under it. */
+  .lane-run {
+    display: block;
+  }
+
+  .lane-read {
+    margin-top: 0.4rem;
+  }
+
+  .lane-text {
+    margin-top: 0.45rem;
+  }
 }
 
 /* ---------- Small screens ---------- */
@@ -1528,6 +1591,10 @@ html:has(dialog[open]) {
     flex-basis: 100%;
   }
 
+  .race-head.full .race-prompt {
+    font-size: 0.84rem;
+  }
+
   /* With a picture, the controls sit beside it and the prompt takes the full
      width below, so the question itself stays in view. */
   .race-head.pictured {
@@ -1546,8 +1613,8 @@ html:has(dialog[open]) {
   /* A lane becomes one column: its name and speedup share a line above the bar. */
   .lane {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.55rem;
-    padding: 0.9rem 0.95rem 0.95rem;
+    gap: 0.5rem;
+    padding: 0.75rem 0.95rem 0.8rem;
   }
 
   .lane-id {
@@ -1557,22 +1624,33 @@ html:has(dialog[open]) {
     gap: 0 0.75rem;
   }
 
+  .lane-name {
+    grid-column: 1;
+  }
+
   .lane-x {
     grid-row: 1;
     grid-column: 2;
-    margin-top: 0;
     font-size: 1.5rem;
     text-align: right;
   }
 
   .lane-id .lane-count {
+    grid-row: auto;
     grid-column: 1 / -1;
     margin-top: 0;
     font-size: 1.3rem;
   }
 
-  .lane-meta {
+  .lane-meta,
+  .lane-id .lane-count ~ .lane-meta {
+    grid-row: auto;
     grid-column: 1 / -1;
+    margin-top: 0.15rem;
+  }
+
+  .lane-read {
+    margin-top: 0.5rem;
   }
 
   .lane-meta span {
@@ -1583,14 +1661,9 @@ html:has(dialog[open]) {
     content: " \00b7\00a0";
   }
 
-  /* Two lines of output keep all four lanes close to one screen. */
   .lane-text {
-    height: calc(3em + 0.8rem);
-    border-width: 0.4rem 0.65rem;
-  }
-
-  .lane-text::before {
-    height: 1.1em;
+    margin-top: 0.5rem;
+    border-width: 0.35rem 0.65rem;
   }
 
   .race-bar button {
