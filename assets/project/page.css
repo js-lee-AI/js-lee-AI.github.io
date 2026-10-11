@@ -1381,11 +1381,116 @@ code {
   transform: translateY(-0.08em) rotate(45deg);
 }
 
+/* A question whose answer is known shows it under the question. Each lane
+   then says whether its own answer is that one, in a word with a mark that
+   reads without the word. */
+.race-ask {
+  display: grid;
+  flex: 1 1 16rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2rem 0.75rem;
+  min-width: 0;
+}
+
+/* The two lines share the label column of the block where the browser can
+   pass it down, and keep a label column of their own where it cannot. */
+.race-ask > p {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: subgrid;
+  gap: 0 0.75rem;
+}
+
+.race-key {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.race-key b,
+.race-key span {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: lining-nums;
+}
+
+.lane-x small.hit,
+.lane-x small.miss {
+  font-weight: 600;
+}
+
+.lane-x small.hit {
+  color: #1a7f37;
+}
+
+.lane-x small.miss {
+  color: #c4352b;
+}
+
+.lane-x small.hit::before {
+  content: "";
+  display: inline-block;
+  width: 0.38em;
+  height: 0.74em;
+  margin: 0 0.5em 0 0.15em;
+  border: solid currentColor;
+  border-width: 0 0.17em 0.17em 0;
+  transform: translateY(-0.04em) rotate(45deg);
+}
+
+.lane-x small.miss::before {
+  content: "\00d7";
+  margin-right: 0.3em;
+  font-size: 1.3em;
+  font-weight: 700;
+  line-height: 0;
+}
+
+/* The name of the proposed method may be set in the title gradient, with
+   the picture from the title under it. */
+.lane-name .blend {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lane-logo {
+  display: block;
+  grid-row: 2;
+  grid-column: 1 / -1;
+  align-self: start;
+  width: auto;
+  height: 2.75rem;
+  margin: 0.2rem 0;
+}
+
+/* In the line under such a replay, the name of the second model takes its
+   color, and the word for that color is set the way the text is marked. */
+.caption .guest {
+  font-weight: 500;
+  color: var(--accent-a);
+}
+
+.caption .guest.chip {
+  padding: 0.05em 0.35em;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent-a) 16%, #fff);
+}
+
 /* Beside a label that carries the headline count the lane is taller, and
    the inset takes that room: five lines. */
 @media (min-width: 48rem) {
   .lane:has(> .lane-id > .lane-count) .lane-text {
     height: calc(7.5em + 0.7rem);
+  }
+
+  /* Under a picture the figure and the values go one row down. */
+  .lane-id.badged .lane-x,
+  .lane-id.badged .lane-meta {
+    grid-row: 3;
   }
 }
 
@@ -1425,6 +1530,10 @@ code {
   .lane-text mark.guest,
   .lane.ours .lane-text mark.guest {
     background: var(--accent-a);
+  }
+
+  .caption .guest.chip {
+    background: #e6e6e7;
   }
 }
 
@@ -1692,7 +1801,8 @@ html:has(dialog[open]) {
     padding: 0.8rem 0.95rem;
   }
 
-  .race-prompt {
+  .race-prompt,
+  .race-ask {
     flex-basis: 100%;
   }
 
@@ -1771,6 +1881,10 @@ html:has(dialog[open]) {
   .lane-text {
     margin-top: 0.5rem;
     border-width: 0.35rem 0.65rem;
+  }
+
+  .lane-logo {
+    height: 2.25rem;
   }
 
   .race-bar button {
@@ -1881,6 +1995,7 @@ html:has(dialog[open]) {
   }
 
   .title .name,
+  .lane-name .blend,
   .lane.ours .lane-x b,
   .lane.ours .lane-id .lane-count b {
     background: none;
@@ -1901,6 +2016,7 @@ html:has(dialog[open]) {
   .lane-text::before,
   .lane-text mark,
   .lane-text .guest,
+  .caption .guest.chip,
   .lane-mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
