@@ -1028,6 +1028,35 @@ code {
   white-space: nowrap;
 }
 
+/* A baseline with a public source links to it: its code, or its paper where
+   no code is out. The name keeps its ink, and the small word after it says
+   what the link holds. */
+.lane-src,
+.lane-src:hover {
+  color: inherit;
+}
+
+.lane-src small {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.45rem;
+  border: 1px solid;
+  border-color: color-mix(in srgb, var(--pill) 40%, #fff);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--pill);
+  vertical-align: 0.14em;
+}
+
+.lane-src:hover small {
+  border-color: var(--pill);
+  background: var(--pill);
+  color: #fff;
+}
+
 /* The speedup may run past its column where no values sit beside it. */
 .lane-x {
   display: block;
@@ -1355,22 +1384,31 @@ code {
   display: none;
 }
 
-/* The clock of such a replay is only the pace of the picture. A lane reads
-   its token count alone, and the check of a finished lane goes before it. */
-.race.sourced .lane-time {
+/* The clock of such a replay is only the pace of the picture, and so is the
+   clock of a replay that runs its text at a speed measured elsewhere. A lane
+   reads its token count alone, and the check of a finished lane goes before it. */
+.race.sourced .lane-time,
+.race.paced .lane-time {
   display: none;
 }
 
-.race.sourced .lane-read {
+.race.sourced .lane-read,
+.race.paced .lane-read {
   justify-content: flex-end;
 }
 
-.race.sourced .lane-read .lane-count {
+.race.sourced .lane-read .lane-count,
+.race.paced .lane-read .lane-count {
   font-weight: 500;
   color: var(--ink);
 }
 
-.race.sourced .lane.done .lane-read .lane-count::before {
+.race.paced .lane.done.ours .lane-read .lane-count {
+  color: var(--accent-a);
+}
+
+.race.sourced .lane.done .lane-read .lane-count::before,
+.race.paced .lane.done .lane-read .lane-count::before {
   content: "";
   display: inline-block;
   width: 0.36em;

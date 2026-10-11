@@ -106,15 +106,12 @@
 
     <section class="section" id="race" aria-label="Decoding replay">
       <div class="wrap">
-        <div class="race passed replied" data-race>
+        <div class="race passed paced" data-race>
           <div class="race-head full">
-            <div class="race-ask">
-              <p class="race-prompt"><b>Prompt</b><span>Memorize the six-digit access code embedded below. This passage discusses memory bandwidth, language model inference, scheduling, and systems evaluation without mentioning any digits. <span class="race-skip">[… the same sentence for 6,479 more tokens …]</span> The access code is 332236. Keep it for the final question. <span class="race-skip">[… the same sentence for 123,495 tokens …]</span> What is the six-digit access code? Reply with the code only.</span></p>
-              <p class="race-key"><b>Answer</b><span>332236</span></p>
-            </div>
+            <p class="race-prompt"><b>Prompt</b><span>Read the articles below and answer the question that follows them. <span class="race-skip">[… 27 Wikipedia articles of WikiText-2, 130,777 tokens …]</span> Question: Who was Osbert de Bayeux? Answer in four sentences.</span></p>
             <div class="race-bar">
               <div class="race-actions">
-                <button type="button" class="race-rate" data-rate="0.01" aria-pressed="true">100× slower</button>
+                <button type="button" class="race-rate" data-rate="0.25" aria-pressed="false">Slow motion</button>
                 <button type="button" class="race-replay">Play</button>
               </div>
             </div>
@@ -127,49 +124,33 @@
                 <span class="lane-meta"><span>11.17 ms/token</span><span>keeps 50% + 30%</span></span>
               </div>
               <div class="lane-run">
-                <div class="lane-track stepped" style="--f:1.0000;--steps:3"><div class="lane-rail"><div class="lane-fill"></div></div></div>
-                <div class="lane-read"><span class="lane-count">3 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <div class="lane-track short" style="--f:0.8696;--n:0.8696"><div class="lane-rail"><div class="lane-fill"></div></div></div>
+                <div class="lane-read"><span class="lane-count">100 tokens</span><span class="lane-time">1.12 s</span></div>
                 <p class="lane-text" aria-hidden="true"></p>
-                <span class="lane-result hit">correct</span>
               </div>
             </li>
             <li class="lane">
               <div class="lane-id">
-                <span class="lane-name">KV selection <span class="muted">SnapKV-style</span></span>
+                <span class="lane-name"><a class="lane-src" href="https://github.com/FasterDecoding/SnapKV" target="_blank" rel="noopener">KV selection <span class="muted">SnapKV-style<small>code</small></span></a></span>
                 <span class="lane-x"><b>1.54×</b><small>faster</small></span>
                 <span class="lane-meta"><span>13.85 ms/token</span><span>keeps 30% of KV</span></span>
               </div>
               <div class="lane-run">
-                <div class="lane-track stepped" style="--f:0.8063;--k:0.8063;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
-                <div class="lane-read"><span class="lane-count">2 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <div class="lane-track" style="--f:0.6957;--k:0.6957"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">80 tokens</span><span class="lane-time">1.12 s</span></div>
                 <p class="lane-text" aria-hidden="true"></p>
-                <span class="lane-result hit">correct</span>
               </div>
             </li>
             <li class="lane">
               <div class="lane-id">
-                <span class="lane-name">KV window <span class="muted">sinks + recent</span></span>
-                <span class="lane-x"><b>1.34×</b><small>faster</small></span>
-                <span class="lane-meta"><span>15.89 ms/token</span><span>keeps 30% of KV</span></span>
-              </div>
-              <div class="lane-run">
-                <div class="lane-track stepped" style="--f:0.7025;--k:0.7025;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
-                <div class="lane-read"><span class="lane-count">2 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
-                <p class="lane-text" aria-hidden="true"></p>
-                <span class="lane-result miss">wrong</span>
-              </div>
-            </li>
-            <li class="lane">
-              <div class="lane-id">
-                <span class="lane-name">Activation sparsity <span class="muted">TEAL</span></span>
+                <span class="lane-name"><a class="lane-src" href="https://github.com/FasterDecoding/TEAL" target="_blank" rel="noopener">Activation sparsity <span class="muted">TEAL<small>code</small></span></a></span>
                 <span class="lane-x"><b>1.15×</b><small>faster</small></span>
                 <span class="lane-meta"><span>18.61 ms/token</span><span>keeps 50%</span></span>
               </div>
               <div class="lane-run">
-                <div class="lane-track stepped" style="--f:0.5999;--k:0.5999;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
-                <div class="lane-read"><span class="lane-count">1 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <div class="lane-track short" style="--f:0.5130;--k:0.5130;--n:0.8435"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">59 tokens</span><span class="lane-time">1.12 s</span></div>
                 <p class="lane-text" aria-hidden="true"></p>
-                <span class="lane-result hit">correct</span>
               </div>
             </li>
             <li class="lane">
@@ -179,16 +160,15 @@
                 <span class="lane-meta"><span>21.37 ms/token</span><span></span></span>
               </div>
               <div class="lane-run">
-                <div class="lane-track stepped" style="--f:0.5225;--k:0.5225;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
-                <div class="lane-read"><span class="lane-count">1 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <div class="lane-track short" style="--f:0.4522;--k:0.4522;--n:0.9478"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">52 tokens</span><span class="lane-time">1.12 s</span></div>
                 <p class="lane-text" aria-hidden="true"></p>
-                <span class="lane-result hit">correct</span>
               </div>
             </li>
           </ul>
-          <script type="application/json">{"runs":[{"label":"Passkey","prompt":"Memorize the six-digit access code embedded below. This passage discusses memory bandwidth, language model inference, scheduling, and systems evaluation without mentioning any digits. [… the same sentence for 6,479 more tokens …] The access code is 332236. Keep it for the final question. [… the same sentence for 123,495 tokens …] What is the six-digit access code? Reply with the code only.","total":3,"lanes":[{"n":3,"first":0,"t":[11.17,22.34,33.5],"end":33.5,"x":"1.91","meta":["11.17 ms/token","keeps 50% + 30%"],"text":0},{"n":3,"first":0,"t":[13.85,27.7,41.55],"end":41.55,"x":"1.54","meta":["13.85 ms/token","keeps 30% of KV"],"text":0},{"n":3,"first":0,"t":[15.89,31.79,47.68],"end":47.68,"x":"1.34","meta":["15.89 ms/token","keeps 30% of KV"],"text":1},{"n":3,"first":0,"t":[18.61,37.23,55.84],"end":55.84,"x":"1.15","meta":["18.61 ms/token","keeps 50%"],"text":0},{"n":3,"first":0,"t":[21.37,42.74,64.11],"end":64.11,"x":"1","meta":["21.37 ms/token",""],"text":0}],"texts":[["332","236",""],["123","456",""]]}],"glide":true}</script>
+          <script type="application/json">{"runs":[{"label":"Long answer","prompt":"Read the articles below and answer the question that follows them. [… 27 Wikipedia articles of WikiText-2, 130,777 tokens …] Question: Who was Osbert de Bayeux? Answer in four sentences.","total":115,"lanes":[{"n":100,"first":0,"t":[11.17,22.34,33.5,44.67,55.84,67.01,78.18,89.34,100.51,111.68,122.85,134.02,145.18,156.35,167.52,178.69,189.86,201.02,212.19,223.36,234.53,245.7,256.86,268.03,279.2,290.37,301.54,312.7,323.87,335.04,346.21,357.38,368.54,379.71,390.88,402.05,413.22,424.38,435.55,446.72,457.89,469.06,480.22,491.39,502.56,513.73,524.9,536.06,547.23,558.4,569.57,580.74,591.9,603.07,614.24,625.41,636.58,647.74,658.91,670.08,681.25,692.42,703.58,714.75,725.92,737.09,748.26,759.43,770.59,781.76,792.93,804.1,815.27,826.43,837.6,848.77,859.94,871.11,882.27,893.44,904.61,915.78,926.95,938.11,949.28,960.45,971.62,982.79,993.95,1005.12,1016.29,1027.46,1038.63,1049.79,1060.96,1072.13,1083.3,1094.47,1105.63,1116.8],"end":1116.8,"x":"1.91","meta":["11.17 ms/token","keeps 50% + 30%"],"text":0},{"n":115,"first":0,"t":[13.85,27.7,41.55,55.41,69.26,83.11,96.96,110.81,124.66,138.52,152.37,166.22,180.07,193.92,207.77,221.62,235.48,249.33,263.18,277.03,290.88,304.73,318.59,332.44,346.29,360.14,373.99,387.84,401.69,415.55,429.4,443.25,457.1,470.95,484.8,498.66,512.51,526.36,540.21,554.06,567.91,581.77,595.62,609.47,623.32,637.17,651.02,664.87,678.73,692.58,706.43,720.28,734.13,747.98,761.84,775.69,789.54,803.39,817.24,831.09,844.94,858.8,872.65,886.5,900.35,914.2,928.05,941.91,955.76,969.61,983.46,997.31,1011.16,1025.01,1038.87,1052.72,1066.57,1080.42,1094.27,1108.12,1121.98,1135.83,1149.68,1163.53,1177.38,1191.23,1205.08,1218.94,1232.79,1246.64,1260.49,1274.34,1288.19,1302.05,1315.9,1329.75,1343.6,1357.45,1371.3,1385.15,1399.01,1412.86,1426.71,1440.56,1454.41,1468.26,1482.12,1495.97,1509.82,1523.67,1537.52,1551.37,1565.22,1579.08,1592.93],"end":1592.93,"x":"1.54","meta":["13.85 ms/token","keeps 30% of KV"],"text":1},{"n":97,"first":0,"t":[18.61,37.23,55.84,74.45,93.07,111.68,130.29,148.91,167.52,186.13,204.75,223.36,241.98,260.59,279.2,297.82,316.43,335.04,353.66,372.27,390.88,409.5,428.11,446.72,465.34,483.95,502.56,521.18,539.79,558.4,577.02,595.63,614.24,632.86,651.47,670.09,688.7,707.31,725.93,744.54,763.15,781.77,800.38,818.99,837.61,856.22,874.83,893.45,912.06,930.67,949.29,967.9,986.51,1005.13,1023.74,1042.35,1060.97,1079.58,1098.19,1116.81,1135.42,1154.04,1172.65,1191.26,1209.88,1228.49,1247.1,1265.72,1284.33,1302.94,1321.56,1340.17,1358.78,1377.4,1396.01,1414.62,1433.24,1451.85,1470.46,1489.08,1507.69,1526.3,1544.92,1563.53,1582.15,1600.76,1619.37,1637.99,1656.6,1675.21,1693.83,1712.44,1731.05,1749.67,1768.28,1786.89,1805.51],"end":1805.51,"x":"1.15","meta":["18.61 ms/token","keeps 50%"],"text":2},{"n":109,"first":0,"t":[21.37,42.74,64.11,85.48,106.84,128.21,149.58,170.95,192.32,213.69,235.06,256.43,277.8,299.17,320.53,341.9,363.27,384.64,406.01,427.38,448.75,470.12,491.49,512.85,534.22,555.59,576.96,598.33,619.7,641.07,662.44,683.81,705.18,726.54,747.91,769.28,790.65,812.02,833.39,854.76,876.13,897.5,918.86,940.23,961.6,982.97,1004.34,1025.71,1047.08,1068.45,1089.82,1111.19,1132.55,1153.92,1175.29,1196.66,1218.03,1239.4,1260.77,1282.14,1303.51,1324.87,1346.24,1367.61,1388.98,1410.35,1431.72,1453.09,1474.46,1495.83,1517.2,1538.56,1559.93,1581.3,1602.67,1624.04,1645.41,1666.78,1688.15,1709.52,1730.88,1752.25,1773.62,1794.99,1816.36,1837.73,1859.1,1880.47,1901.84,1923.2,1944.57,1965.94,1987.31,2008.68,2030.05,2051.42,2072.79,2094.16,2115.53,2136.89,2158.26,2179.63,2201.0,2222.37,2243.74,2265.11,2286.48,2307.85,2329.21],"end":2329.21,"x":"1","meta":["21.37 ms/token",""],"text":3}],"texts":[["Os","bert"," de"," Bay","e","ux"," was"," a"," medieval"," English"," cleric"," and"," arch","de","acon"," in"," the"," Di","ocese"," of"," York","."," He"," was"," a"," relative"," of"," Thur","stan",","," the"," Archbishop"," of"," York",","," and"," was"," likely"," appointed"," to"," his"," position"," due"," to"," his"," family"," connection","."," Os","bert"," was"," opposed"," to"," the"," election"," of"," William"," fit","z","Her","bert"," as"," Archbishop"," of"," York"," and"," worked"," to"," secure"," the"," deposition"," and"," replacement"," of"," William"," by"," Henry"," Mur","dac","."," He"," was"," eventually"," stripped"," of"," his"," cler","ical"," status"," and"," became"," a"," lay","man"," before"," ","115","8",".",""],["Os","bert"," de"," Bay","e","ux"," was"," a"," medieval"," English"," cleric"," and"," arch","de","acon"," in"," the"," Di","ocese"," of"," York","."," He"," was"," a"," relative"," of"," Thur","stan",","," the"," Archbishop"," of"," York",","," and"," likely"," owed"," his"," ecc","lesi","ast","ical"," positions"," to"," this"," relative","."," Os","bert"," was"," opposed"," to"," one"," of"," the"," candidates"," for"," the"," arch","bishop","ric",","," William"," fit","z","Her","bert",","," and"," worked"," to"," secure"," fit","z","Her","bert","'s"," deposition"," and"," replacement"," by"," Henry"," Mur","dac","."," He"," was"," eventually"," accused"," of"," murdering"," fit","z","Her","bert",","," but"," was"," never"," convicted"," and"," was"," stripped"," of"," his"," cler","ical"," status"," before"," ","115","8",".",""],["Os","bert"," de"," Bay","e","ux"," was"," a"," medieval"," English"," cleric"," and"," arch","de","acon"," in"," the"," Di","ocese"," of"," York","."," He"," was"," a"," relative"," of"," Thur","stan",","," the"," Archbishop"," of"," York",","," and"," was"," likely"," appointed"," to"," his"," positions"," due"," to"," this"," relationship","."," Os","bert"," was"," opposed"," to"," the"," election"," of"," William"," fit","z","Her","bert"," as"," Archbishop"," of"," York"," and"," supported"," Henry"," Mur","dac",","," who"," eventually"," became"," the"," arch","bishop","."," He"," was"," accused"," of"," murdering"," William"," fit","z","Her","bert",","," but"," was"," never"," convicted"," of"," the"," crime",".",""],["Os","bert"," de"," Bay","e","ux"," was"," a"," medieval"," English"," cleric"," and"," arch","de","acon"," in"," the"," Di","ocese"," of"," York","."," He"," was"," a"," relative"," of"," Thur","stan",","," the"," Archbishop"," of"," York",","," and"," was"," likely"," appointed"," to"," his"," ecc","lesi","ast","ical"," positions"," due"," to"," this"," relationship","."," Os","bert"," was"," opposed"," to"," the"," election"," of"," William"," fit","z","Her","bert"," as"," Archbishop"," of"," York"," and"," supported"," Henry"," Mur","dac"," instead","."," He"," was"," accused"," of"," murdering"," William"," fit","z","Her","bert",","," but"," was"," never"," convicted"," and"," was"," stripped"," of"," his"," cler","ical"," status"," and"," became"," a"," lay","man"," in"," ","115","8",".",""]]}]}</script>
         </div>
-        <p class="caption"><span class="nw">Llama-3.1-8B</span> on one A100, speed measured at 128K tokens of context, played 100× slower</p>
+        <p class="caption"><span class="nw">Llama-3.1-8B</span> on one A100, speed measured at 128K tokens of context</p>
       </div>
     </section>
 
