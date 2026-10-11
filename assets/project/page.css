@@ -1421,15 +1421,18 @@ code {
   font-weight: 600;
 }
 
-.lane-x small.hit {
+.lane-x small.hit,
+.lane-result.hit {
   color: #1a7f37;
 }
 
-.lane-x small.miss {
+.lane-x small.miss,
+.lane-result.miss {
   color: #c4352b;
 }
 
-.lane-x small.hit::before {
+.lane-x small.hit::before,
+.lane-result.hit::before {
   content: "";
   display: inline-block;
   width: 0.38em;
@@ -1440,7 +1443,8 @@ code {
   transform: translateY(-0.04em) rotate(45deg);
 }
 
-.lane-x small.miss::before {
+.lane-x small.miss::before,
+.lane-result.miss::before {
   content: "\00d7";
   margin-right: 0.3em;
   font-size: 1.3em;
@@ -1478,6 +1482,59 @@ code {
   padding: 0.05em 0.35em;
   border-radius: 3px;
   background: color-mix(in srgb, var(--accent-a) 16%, #fff);
+}
+
+/* Where every lane writes only a short answer, the answer sits beside its
+   bar in an inset one line deep, and a finished lane says next to it whether
+   that is the answer in the head. Such a run is a few steps long, so its
+   count and its clock are not drawn. */
+.race.replied .lane-read {
+  display: none;
+}
+
+.race.replied .lane-run {
+  grid-template-columns: minmax(0, 1fr) 5.6rem 5.2rem;
+}
+
+.race.replied .lane-text {
+  grid-column: auto;
+  height: calc(1.5em + 0.5rem);
+  border-width: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.race.replied .lane-text::before {
+  content: none;
+}
+
+.lane-result {
+  visibility: hidden;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lane.done .lane-result {
+  visibility: visible;
+}
+
+/* A run of a few long steps has one gap at the end of each step in place of
+   the quarters. */
+.lane-track.stepped .lane-rail::after {
+  background: repeating-linear-gradient(90deg,
+    transparent 0, transparent calc(100% / var(--steps) - 1.5px),
+    var(--gap, #fff) calc(100% / var(--steps) - 1.5px), var(--gap, #fff) calc(100% / var(--steps)));
+}
+
+/* What a long prompt leaves out is named in a quieter voice. */
+.race-skip {
+  font-size: 0.94em;
+  font-style: italic;
+  color: var(--ink-mute);
 }
 
 /* Beside a label that carries the headline count the lane is taller, and
@@ -1736,6 +1793,17 @@ html:has(dialog[open]) {
 
   .lane-text {
     margin-top: 0.45rem;
+  }
+
+  /* A short answer and its mark share the row under the bar. */
+  .race.replied .lane-run {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 4.6rem;
+    gap: 0 0.9rem;
+  }
+
+  .race.replied .lane-track {
+    grid-column: 1 / -1;
   }
 }
 

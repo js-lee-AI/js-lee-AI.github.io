@@ -56,6 +56,21 @@
     return [at(lo - 1), at(lo)];
   }
 
+  // The tokens of a run at time t when the part of the step in progress
+  // counts too: a run of a few long steps would stand still between them, so
+  // its bar moves with the clock while its count and its text wait for the step.
+  function passedAt(rec, t) {
+    if (t <= 0) return 0;
+    if (t >= rec.end) return rec.n;
+    var lo = 0;
+    while (lo < rec.t.length && rec.t[lo] <= t) lo += 1;
+    var start = lo ? rec.t[lo - 1] : 0;
+    var stop = lo < rec.t.length ? rec.t[lo] : rec.end;
+    var known = roundAt(rec, t)[1];
+    var coming = lo < rec.t.length ? roundAt(rec, rec.t[lo])[1] : rec.n;
+    return known + (coming - known) * (t - start) / (stop - start);
+  }
+
   function setup(root) {
     var source = root.querySelector('script[type="application/json"]');
     var data = null;
@@ -71,6 +86,9 @@
     // Runs given as counts of decoder steps are read in that unit: the clock
     // ticks once for each step instead of running in seconds.
     var tick = data.tick || null;
+
+    // Bars that move inside a step, for runs that say so.
+    var glide = !!data.glide;
 
     function reading(ms) {
       if (!tick) return seconds(ms);
@@ -157,7 +175,7 @@
           track: el.querySelector('.lane-track'),
           count: figure || el.querySelector('.lane-count'), bare: !!figure,
           time: el.querySelector('.lane-time'),
-          shown: -1, done: null, label: ''
+          shown: -1, done: null, label: '', fill: ''
         };
       });
 
@@ -169,7 +187,8 @@
         if (short) lane.track.style.setProperty('--n', (lane.rec.n / total).toFixed(4));
         else lane.track.style.removeProperty('--n');
         if (!lane.ours) {
-          lane.track.style.setProperty('--k', (roundAt(lane.rec, oursEnd)[1] / total).toFixed(4));
+          var stood = glide ? passedAt(lane.rec, oursEnd) : roundAt(lane.rec, oursEnd)[1];
+          lane.track.style.setProperty('--k', (stood / total).toFixed(4));
         }
       });
     }
@@ -231,10 +250,17 @@
           lane.pins.forEach(function (pin, k) {
             if (lane.spans[k]) pin.classList.toggle('on', to >= lane.spans[k][2]);
           });
-          lane.track.style.setProperty('--f', (to / total).toFixed(4));
+          if (!glide) lane.track.style.setProperty('--f', (to / total).toFixed(4));
           var tokens = to.toLocaleString('en-US');
           lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
           lane.el.classList.toggle('done', done);
+        }
+        if (glide) {
+          var fill = (passedAt(rec, t) / total).toFixed(4);
+          if (fill !== lane.fill) {
+            lane.fill = fill;
+            lane.track.style.setProperty('--f', fill);
+          }
         }
         var label = reading(Math.max(0, Math.min(t, rec.end)));
         if (label !== lane.label) {

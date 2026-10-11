@@ -104,6 +104,94 @@
       </div>
     </section>
 
+    <section class="section" id="race" aria-label="Decoding replay">
+      <div class="wrap">
+        <div class="race passed replied" data-race>
+          <div class="race-head full">
+            <div class="race-ask">
+              <p class="race-prompt"><b>Prompt</b><span>Memorize the six-digit access code embedded below. This passage discusses memory bandwidth, language model inference, scheduling, and systems evaluation without mentioning any digits. <span class="race-skip">[… the same sentence for 6,479 more tokens …]</span> The access code is 332236. Keep it for the final question. <span class="race-skip">[… the same sentence for 123,495 tokens …]</span> What is the six-digit access code? Reply with the code only.</span></p>
+              <p class="race-key"><b>Answer</b><span>332236</span></p>
+            </div>
+            <div class="race-bar">
+              <div class="race-actions">
+                <button type="button" class="race-rate" data-rate="0.01" aria-pressed="true">100× slower</button>
+                <button type="button" class="race-replay">Play</button>
+              </div>
+            </div>
+          </div>
+          <ul class="race-lanes">
+            <li class="lane ours done">
+              <div class="lane-id">
+                <span class="lane-name"><span class="blend">Activation + KV sparsity</span> <span class="muted"></span></span>
+                <span class="lane-x"><b>1.91×</b><small>faster</small></span>
+                <span class="lane-meta"><span>11.17 ms/token</span><span>keeps 50% + 30%</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track stepped" style="--f:1.0000;--steps:3"><div class="lane-rail"><div class="lane-fill"></div></div></div>
+                <div class="lane-read"><span class="lane-count">3 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+                <span class="lane-result hit">correct</span>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">KV selection <span class="muted">SnapKV-style</span></span>
+                <span class="lane-x"><b>1.54×</b><small>faster</small></span>
+                <span class="lane-meta"><span>13.85 ms/token</span><span>keeps 30% of KV</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track stepped" style="--f:0.8063;--k:0.8063;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">2 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+                <span class="lane-result hit">correct</span>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">KV window <span class="muted">sinks + recent</span></span>
+                <span class="lane-x"><b>1.34×</b><small>faster</small></span>
+                <span class="lane-meta"><span>15.89 ms/token</span><span>keeps 30% of KV</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track stepped" style="--f:0.7025;--k:0.7025;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">2 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+                <span class="lane-result miss">wrong</span>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">Activation sparsity <span class="muted">TEAL</span></span>
+                <span class="lane-x"><b>1.15×</b><small>faster</small></span>
+                <span class="lane-meta"><span>18.61 ms/token</span><span>keeps 50%</span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track stepped" style="--f:0.5999;--k:0.5999;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">1 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+                <span class="lane-result hit">correct</span>
+              </div>
+            </li>
+            <li class="lane">
+              <div class="lane-id">
+                <span class="lane-name">Dense <span class="muted"></span></span>
+                <span class="lane-x"><b>1×</b><small>baseline</small></span>
+                <span class="lane-meta"><span>21.37 ms/token</span><span></span></span>
+              </div>
+              <div class="lane-run">
+                <div class="lane-track stepped" style="--f:0.5225;--k:0.5225;--steps:3"><div class="lane-rail"><div class="lane-fill"></div><div class="lane-late"></div></div><div class="lane-tick"></div></div>
+                <div class="lane-read"><span class="lane-count">1 / 3 tokens</span><span class="lane-time">0.03 s</span></div>
+                <p class="lane-text" aria-hidden="true"></p>
+                <span class="lane-result hit">correct</span>
+              </div>
+            </li>
+          </ul>
+          <script type="application/json">{"runs":[{"label":"Passkey","prompt":"Memorize the six-digit access code embedded below. This passage discusses memory bandwidth, language model inference, scheduling, and systems evaluation without mentioning any digits. [… the same sentence for 6,479 more tokens …] The access code is 332236. Keep it for the final question. [… the same sentence for 123,495 tokens …] What is the six-digit access code? Reply with the code only.","total":3,"lanes":[{"n":3,"first":0,"t":[11.17,22.34,33.5],"end":33.5,"x":"1.91","meta":["11.17 ms/token","keeps 50% + 30%"],"text":0},{"n":3,"first":0,"t":[13.85,27.7,41.55],"end":41.55,"x":"1.54","meta":["13.85 ms/token","keeps 30% of KV"],"text":0},{"n":3,"first":0,"t":[15.89,31.79,47.68],"end":47.68,"x":"1.34","meta":["15.89 ms/token","keeps 30% of KV"],"text":1},{"n":3,"first":0,"t":[18.61,37.23,55.84],"end":55.84,"x":"1.15","meta":["18.61 ms/token","keeps 50%"],"text":0},{"n":3,"first":0,"t":[21.37,42.74,64.11],"end":64.11,"x":"1","meta":["21.37 ms/token",""],"text":0}],"texts":[["332","236",""],["123","456",""]]}],"glide":true}</script>
+        </div>
+        <p class="caption"><span class="nw">Llama-3.1-8B</span> on one A100, speed measured at 128K tokens of context, played 100× slower</p>
+      </div>
+    </section>
+
     <section class="section band" id="abstract">
       <div class="wrap">
         <h2>Abstract</h2>
@@ -350,5 +438,6 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
   <script src="../assets/project/page.js" defer></script>
+  <script src="../assets/project/race.js" defer></script>
 </body>
 </html>
