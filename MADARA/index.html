@@ -118,6 +118,60 @@
       </div>
     </section>
 
+    <section class="section" id="race" aria-label="Pipeline replay">
+      <div class="wrap">
+        <div class="race passed flow" data-race>
+          <div class="race-head full">
+            <div class="race-ask">
+              <p class="race-prompt"><b>Question</b><span>who holds the record for most gold medals</span></p>
+              <p class="race-key"><b>Answer</b><span>Michael Phelps</span></p>
+            </div>
+            <div class="race-bar">
+              <div class="race-actions">
+                <button type="button" class="race-rate" data-rate="0.25" aria-pressed="false">Slow motion</button>
+                <button type="button" class="race-replay">Play</button>
+              </div>
+            </div>
+          </div>
+          <ul class="race-lanes">
+            <li class="lane done">
+              <div class="lane-id">
+                <span class="lane-name">No Filter <span class="muted"></span></span>
+                <span class="lane-x"><b></b><small class="miss">wrong</small></span>
+                <span class="lane-meta"><span></span><span></span></span>
+              </div>
+              <div class="lane-run">
+                <ol class="lane-flow">
+                  <li class="flow-row on"><span class="flow-from"><b>Docs 1–5</b><i>read together in one prompt</i></span><span class="flow-says"><span class="flow-chip">Larisa Latynina holds the record for most gold medals.</span></span><span class="flow-weight"></span></li>
+                </ol>
+              </div>
+            </li>
+            <li class="lane ours done">
+              <div class="lane-id">
+                <span class="lane-name"><span class="blend">MADARA</span> <span class="muted">per-document extraction</span></span>
+                <span class="lane-x"><b></b><small class="hit">correct</small></span>
+                <span class="lane-meta"><span></span><span></span></span>
+              </div>
+              <div class="lane-run">
+                <ol class="lane-flow">
+                  <li class="flow-row on"><span class="flow-from"><b>Doc 5</b><i>Who has the most Olympic medals? The countries and athletes with ...</i></span><span class="flow-says"><span class="flow-chip">Larisa Latynina</span></span><span class="flow-weight">3.35</span></li>
+                  <li class="flow-row on"><span class="flow-from"><b>Doc 8</b><i>Michael Phelps | Biography, Olympic Medals, Records</i></span><span class="flow-says"><span class="flow-chip">Mark Spitz</span></span><span class="flow-weight">3.35</span></li>
+                  <li class="flow-row won on"><span class="flow-from"><b>Doc 7</b><i>All-time most gold medals won at Summer Olympics 2024 | Statista</i></span><span class="flow-says"><span class="flow-chip">Michael Phelps</span></span><span class="flow-weight">2.75</span></li>
+                  <li class="flow-row won on"><span class="flow-from"><b>Doc 6</b><i>Most gold medals won at the Olympics (male)</i></span><span class="flow-says"><span class="flow-chip">Michael Phelps</span></span><span class="flow-weight">1.80</span></li>
+                  <li class="flow-row won on"><span class="flow-from"><b>Doc 1</b><i>List of multiple Olympic gold medalists - Wikipedia</i></span><span class="flow-says"><span class="flow-chip">Michael Phelps</span></span><span class="flow-weight">1.65</span></li>
+                  <li class="flow-row tally won on"><span class="flow-from"><b>Vote</b><i>docs 7, 6, 1</i></span><span class="flow-says"><span class="flow-chip">Michael Phelps</span><span class="flow-bar" style="--share:1.0000"></span></span><span class="flow-weight">6.20</span></li>
+                  <li class="flow-row tally on"><span class="flow-from"><b>Vote</b><i>doc 5</i></span><span class="flow-says"><span class="flow-chip">Larisa Latynina</span><span class="flow-bar" style="--share:0.5403"></span></span><span class="flow-weight">3.35</span></li>
+                  <li class="flow-row tally on"><span class="flow-from"><b>Vote</b><i>doc 8</i></span><span class="flow-says"><span class="flow-chip">Mark Spitz</span><span class="flow-bar" style="--share:0.5403"></span></span><span class="flow-weight">3.35</span></li>
+                </ol>
+              </div>
+            </li>
+          </ul>
+          <script type="application/json">{"runs":[{"label":"CONFLICTS","prompt":"who holds the record for most gold medals","total":8,"lanes":[{"n":1,"first":0,"t":[900.0],"end":900.0,"x":"","xs":"","meta":["",""]},{"n":8,"first":0,"t":[900.0,1800.0,2700.0,3600.0,4500.0,5400.0,6300.0,7200.0],"end":7200.0,"x":"","xs":"","meta":["",""]}]}],"tick":{"ms":20,"unit":"frames","one":"frame"}}</script>
+        </div>
+        <p class="caption"><span class="nw">Llama-3.1-8B</span> on one question of CONFLICTS, the number beside a document is its assessment score</p>
+      </div>
+    </section>
+
     <section class="section band" id="abstract">
       <div class="wrap">
         <h2>Abstract</h2>
@@ -409,5 +463,6 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/katex.min.js" integrity="sha384-CwjPRVHTvLiMBFjEoij+QZViMV5rhTOIp7CJzl24JEqpRDA1sJFHVXXLURktbYYp" crossorigin="anonymous"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.47/dist/contrib/auto-render.min.js" integrity="sha384-bjyGPfbij8/NDKJhSGZNP/khQVgtHUE5exjm4Ydllo42FwIgYsdLO2lXGmRBf5Mz" crossorigin="anonymous"></script>
   <script src="../assets/project/page.js" defer></script>
+  <script src="../assets/project/race.js" defer></script>
 </body>
 </html>

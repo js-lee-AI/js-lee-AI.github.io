@@ -143,6 +143,9 @@
         var spans = (rec.marks || []).map(function (m) { return [edge[m[0]], edge[m[1]], m[1]]; });
         var pins = Array.prototype.slice.call(el.querySelectorAll('.lane-mark'));
 
+        // A lane that lists the steps of a pipeline has one row for each step.
+        var rows = Array.prototype.slice.call(el.querySelectorAll('.flow-row'));
+
         var box = pieces ? el.querySelector('.lane-text') : null;
         var past = null;
         var fresh = null;
@@ -171,7 +174,7 @@
 
         return {
           el: el, rec: rec, ours: ours, full: full, edge: edge, past: past, fresh: fresh,
-          spans: spans, pins: pins,
+          spans: spans, pins: pins, rows: rows,
           track: el.querySelector('.lane-track'),
           count: figure || el.querySelector('.lane-count'), bare: !!figure,
           time: el.querySelector('.lane-time'),
@@ -182,6 +185,7 @@
       // A lane that writes less than the scale gets a rail of its own length.
       // Where each baseline stands when the proposed method finishes.
       lanes.forEach(function (lane) {
+        if (!lane.track) return;
         var short = lane.rec.n !== total;
         lane.track.classList.toggle('short', short);
         if (short) lane.track.style.setProperty('--n', (lane.rec.n / total).toFixed(4));
@@ -250,11 +254,19 @@
           lane.pins.forEach(function (pin, k) {
             if (lane.spans[k]) pin.classList.toggle('on', to >= lane.spans[k][2]);
           });
-          if (!glide) lane.track.style.setProperty('--f', (to / total).toFixed(4));
-          var tokens = to.toLocaleString('en-US');
-          lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
+          lane.rows.forEach(function (row, k) {
+            row.classList.toggle('on', k < to);
+          });
+          if (lane.track && !glide) lane.track.style.setProperty('--f', (to / total).toFixed(4));
+          if (lane.count) {
+            var tokens = to.toLocaleString('en-US');
+            // An output shown in part counts against its whole length.
+            if (rec.of) tokens += ' of ' + rec.of.toLocaleString('en-US');
+            lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
+          }
           lane.el.classList.toggle('done', done);
         }
+        if (!lane.track) return;
         if (glide) {
           var fill = (passedAt(rec, t) / total).toFixed(4);
           if (fill !== lane.fill) {

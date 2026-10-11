@@ -1419,6 +1419,53 @@ code {
   transform: translateY(-0.08em) rotate(45deg);
 }
 
+/* Where every lane runs at one pace, the order in which the lanes finish is
+   no result, so no lane shows where it stood when another one finished. */
+.race.even .lane-late,
+.race.even .lane-tick {
+  display: none;
+}
+
+/* An output shown only in part is not finished where the picture stops, so
+   its count gets no check. */
+.race.paced .lane.cut.done .lane-read .lane-count::before {
+  content: none;
+}
+
+/* A replay may mark the passage where each output first states its answer.
+   Those marks take the page's second accent, a shade darker where it is the
+   color of text, and so does the value that says how early the passage is. */
+.race.flagged {
+  --flag: var(--accent-b);
+  --flag: color-mix(in srgb, var(--accent-b) 82%, #000);
+}
+
+.race.flagged .lane-mark {
+  background: var(--accent-b);
+}
+
+.race.flagged .lane-text .guest {
+  background: color-mix(in srgb, var(--accent-b) 16%, #fff);
+  color: var(--flag);
+}
+
+.race.flagged .lane-meta span + span {
+  font-weight: 500;
+  color: var(--flag);
+}
+
+/* The newest tokens of the tinted lane would take the second accent too,
+   and on such a page that is the color of the marks, so they take the first. */
+.race.flagged .lane.ours .lane-text mark {
+  background: color-mix(in srgb, var(--accent-a) 20%, #fff);
+}
+
+.race.flagged .lane-text mark.guest,
+.race.flagged .lane.ours .lane-text mark.guest {
+  background: var(--flag);
+  color: #fff;
+}
+
 /* A question whose answer is known shows it under the question. Each lane
    then says whether its own answer is that one, in a word with a mark that
    reads without the word. */
@@ -1522,6 +1569,15 @@ code {
   background: color-mix(in srgb, var(--accent-a) 16%, #fff);
 }
 
+.caption .guest.second {
+  color: var(--accent-b);
+  color: color-mix(in srgb, var(--accent-b) 82%, #000);
+}
+
+.caption .guest.chip.second {
+  background: color-mix(in srgb, var(--accent-b) 16%, #fff);
+}
+
 /* Where every lane writes only a short answer, the answer sits beside its
    bar in an inset one line deep, and a finished lane says next to it whether
    that is the answer in the head. Such a run is a few steps long, so its
@@ -1573,6 +1629,161 @@ code {
   font-size: 0.94em;
   font-style: italic;
   color: var(--ink-mute);
+}
+
+/* A replay of a pipeline draws no bar. Each lane lists what the pipeline
+   read and what it answered from it, one row for each step, and then how the
+   answers were weighed. A row keeps its place before its step and shows with
+   it, so the lanes do not move while the replay runs. */
+.race.flow .lane {
+  align-items: start;
+}
+
+.race.flow .lane-id {
+  padding-top: 0.15rem;
+}
+
+/* The figure of such a lane is the word for its answer, and it is known only
+   once the last row is in. */
+.race.flow .lane-x {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.race.flow .lane-x small {
+  margin-left: 0;
+  font-size: 0.95rem;
+}
+
+.race.flow .lane:not(.done) .lane-x {
+  visibility: hidden;
+}
+
+.lane-flow {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0 0.9rem;
+  min-height: 1.7rem;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.flow-row.on {
+  opacity: 1;
+}
+
+/* The vote is set apart from the rows that are counted in it. */
+.flow-row:not(.tally) + .flow-row.tally {
+  margin-top: 0.3rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.flow-from {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.flow-from b {
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.flow-from i {
+  overflow: hidden;
+  font-style: normal;
+  color: var(--ink-mute);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flow-says {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+/* What was answered, led by an arrow from what was read. */
+.flow-says::before {
+  content: "\2192";
+  flex: none;
+  color: var(--ink-mute);
+}
+
+.flow-chip {
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  background: #ededee;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/* The answer that wins the vote takes the page's accent wherever it is given. */
+.flow-row.won .flow-chip {
+  background: color-mix(in srgb, var(--accent-a) 14%, #fff);
+  color: var(--accent-a);
+}
+
+/* The bars of the vote start on one line, whatever the length of the answers. */
+.flow-chip {
+  min-width: 0;
+}
+
+.flow-bar {
+  flex: 0 0 38%;
+  height: 0.4rem;
+  margin-left: auto;
+}
+
+.flow-bar::before {
+  content: "";
+  display: block;
+  width: calc(var(--share, 0) * 100%);
+  height: 100%;
+  border-radius: 999px;
+  background: #939598;
+}
+
+.flow-row.won .flow-bar::before {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+}
+
+.flow-weight {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  text-align: right;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.flow-row.tally .flow-weight {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.flow-row.tally.won .flow-weight {
+  color: var(--accent-a);
 }
 
 /* Beside a label that carries the headline count the lane is taller, and
@@ -1629,6 +1840,19 @@ code {
 
   .caption .guest.chip {
     background: #e6e6e7;
+  }
+
+  .race.flagged .lane-text .guest {
+    background: #e6e6e7;
+  }
+
+  .race.flagged .lane-text mark.guest,
+  .race.flagged .lane.ours .lane-text mark.guest {
+    background: var(--accent-b);
+  }
+
+  .flow-row.won .flow-chip {
+    background: #ededee;
   }
 }
 
@@ -1996,6 +2220,24 @@ html:has(dialog[open]) {
   .race-bar button {
     padding: 0 0.85rem;
   }
+
+  /* A row of a pipeline takes two lines: what was read, then the answer. */
+  .race.flow .lane-x {
+    font-size: 1rem;
+  }
+
+  .flow-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.15rem 0.6rem;
+  }
+
+  .flow-from {
+    grid-column: 1 / -1;
+  }
+
+  .lane-flow {
+    gap: 0.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2004,7 +2246,8 @@ html:has(dialog[open]) {
   }
 
   .btn,
-  .race-bar button {
+  .race-bar button,
+  .flow-row {
     transition: none;
   }
 }
@@ -2019,7 +2262,9 @@ html:has(dialog[open]) {
   .lane-tick,
   .lane-tick::before,
   .lane-mark,
-  .lane-text .guest {
+  .lane-text .guest,
+  .flow-chip,
+  .flow-bar::before {
     forced-color-adjust: none;
   }
 
@@ -2123,7 +2368,9 @@ html:has(dialog[open]) {
   .lane-text mark,
   .lane-text .guest,
   .caption .guest.chip,
-  .lane-mark {
+  .lane-mark,
+  .flow-chip,
+  .flow-bar::before {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
