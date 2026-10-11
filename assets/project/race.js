@@ -16,6 +16,26 @@
     return (ms / 1000).toFixed(2) + ' s';
   }
 
+  // The finished text of a lane in which a second model wrote some segments,
+  // from one character to another, with those segments set apart.
+  function paint(lane, cut, head) {
+    var box = lane.past;
+    var at = cut;
+    box.textContent = '';
+    lane.spans.forEach(function (span) {
+      var a = Math.max(span[0], cut);
+      var b = Math.min(span[1], head);
+      if (a >= b) return;
+      if (a > at) box.appendChild(document.createTextNode(lane.full.slice(at, a)));
+      var part = document.createElement('span');
+      part.className = 'guest';
+      part.textContent = lane.full.slice(a, b);
+      box.appendChild(part);
+      at = b;
+    });
+    if (head > at) box.appendChild(document.createTextNode(lane.full.slice(at, head)));
+  }
+
   // Tokens known at time t as [start of the latest round, end of it].
   // A decoder timed from the end of the prefill holds its first token when
   // the clock starts. A run timed from the request says so with first = 0.
@@ -100,12 +120,17 @@
           edge.push(full.length);
         }
 
+        // Segments a second model wrote: their characters in the lane's text
+        // and the token each one ends at, with one mark on the rail for each.
+        var spans = (rec.marks || []).map(function (m) { return [edge[m[0]], edge[m[1]], m[1]]; });
+        var pins = Array.prototype.slice.call(el.querySelectorAll('.lane-mark'));
+
         var box = pieces ? el.querySelector('.lane-text') : null;
         var past = null;
         var fresh = null;
         if (box) {
           var body = document.createElement('span');
-          past = document.createTextNode('');
+          past = spans.length ? document.createElement('span') : document.createTextNode('');
           fresh = document.createElement('mark');
           body.appendChild(past);
           body.appendChild(fresh);
@@ -113,7 +138,8 @@
           box.appendChild(body);
         }
 
-        el.querySelector('.lane-x b').textContent = rec.x + '×';
+        // The figure of a lane is a ratio unless the run says what follows it.
+        el.querySelector('.lane-x b').textContent = rec.x + (rec.xs === undefined ? '×' : rec.xs);
         var meta = el.querySelectorAll('.lane-meta span');
         meta[0].textContent = rec.meta[0];
         meta[1].textContent = rec.meta[1];
@@ -127,6 +153,7 @@
 
         return {
           el: el, rec: rec, ours: ours, full: full, edge: edge, past: past, fresh: fresh,
+          spans: spans, pins: pins,
           track: el.querySelector('.lane-track'),
           count: figure || el.querySelector('.lane-count'), bare: !!figure,
           time: el.querySelector('.lane-time'),
@@ -189,9 +216,21 @@
             // Only the last lines are in view. A long output keeps its tail,
             // cut at a line start, where the cut cannot move a line break.
             var cut = head > KEEP ? lane.full.lastIndexOf('\n', head - KEEP) + 1 : 0;
-            lane.past.data = lane.full.slice(cut, head);
-            lane.fresh.textContent = lane.full.slice(lane.edge[from], lane.edge[to]);
+            var tail = lane.edge[to];
+            if (lane.spans.length) {
+              paint(lane, cut, head);
+              // The newest tokens are the second model's when one of its segments holds them.
+              lane.fresh.className = tail > head && lane.spans.some(function (span) {
+                return span[0] <= head && tail <= span[1];
+              }) ? 'guest' : '';
+            } else {
+              lane.past.data = lane.full.slice(cut, head);
+            }
+            lane.fresh.textContent = lane.full.slice(head, tail);
           }
+          lane.pins.forEach(function (pin, k) {
+            if (lane.spans[k]) pin.classList.toggle('on', to >= lane.spans[k][2]);
+          });
           lane.track.style.setProperty('--f', (to / total).toFixed(4));
           var tokens = to.toLocaleString('en-US');
           lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';

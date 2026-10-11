@@ -1297,6 +1297,90 @@ code {
   background: color-mix(in srgb, var(--accent-b) 36%, #fff);
 }
 
+/* Where a second model writes a few segments of the output, those segments
+   take the page's first accent: in the text, and as marks on the rail at
+   their place in the output. The bar takes the second accent, the color of
+   the model that writes the rest, and so does the marker of where a
+   baseline stood. */
+.race.sourced .lane.ours .lane-fill {
+  background: var(--accent-b);
+}
+
+.race.sourced .lane.ours .lane-rail {
+  background: color-mix(in srgb, var(--accent-b) 16%, #fff);
+}
+
+.race.sourced .lane-tick,
+.race.sourced .lane-tick::before {
+  background: var(--accent-b);
+}
+
+.lane-mark {
+  position: absolute;
+  top: -0.25rem;
+  bottom: -0.25rem;
+  left: calc(var(--at, 0) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent-a);
+  opacity: 0;
+}
+
+.lane-mark.on {
+  opacity: 1;
+}
+
+.lane-text .guest {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-a) 16%, #fff);
+  color: var(--accent-a);
+  font-weight: 500;
+}
+
+/* The segment that has just landed is the one solid piece of the lane. */
+.lane-text mark.guest,
+.lane.ours .lane-text mark.guest {
+  background: var(--accent-a);
+  color: #fff;
+}
+
+.race.sourced .lane.ours .lane-meta span + span {
+  font-weight: 500;
+  color: var(--accent-a);
+}
+
+/* A lane with nothing to state beside its figure leaves that place empty. */
+.lane-meta span:empty {
+  display: none;
+}
+
+/* The clock of such a replay is only the pace of the picture. A lane reads
+   its token count alone, and the check of a finished lane goes before it. */
+.race.sourced .lane-time {
+  display: none;
+}
+
+.race.sourced .lane-read {
+  justify-content: flex-end;
+}
+
+.race.sourced .lane-read .lane-count {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.race.sourced .lane.done .lane-read .lane-count::before {
+  content: "";
+  display: inline-block;
+  width: 0.36em;
+  height: 0.68em;
+  margin-right: 0.55em;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-0.08em) rotate(45deg);
+}
+
 /* Beside a label that carries the headline count the lane is taller, and
    the inset takes that room: five lines. */
 @media (min-width: 48rem) {
@@ -1328,6 +1412,19 @@ code {
   .lane-text mark,
   .lane.ours .lane-text mark {
     background: #e0e0e1;
+  }
+
+  .race.sourced .lane.ours .lane-rail {
+    background: #ededee;
+  }
+
+  .lane-text .guest {
+    background: #e6e6e7;
+  }
+
+  .lane-text mark.guest,
+  .lane.ours .lane-text mark.guest {
+    background: var(--accent-a);
   }
 }
 
@@ -1700,7 +1797,9 @@ html:has(dialog[open]) {
   .lane-fill,
   .lane-late,
   .lane-tick,
-  .lane-tick::before {
+  .lane-tick::before,
+  .lane-mark,
+  .lane-text .guest {
     forced-color-adjust: none;
   }
 
@@ -1800,7 +1899,9 @@ html:has(dialog[open]) {
   .lane-tick::before,
   .lane-text,
   .lane-text::before,
-  .lane-text mark {
+  .lane-text mark,
+  .lane-text .guest,
+  .lane-mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
