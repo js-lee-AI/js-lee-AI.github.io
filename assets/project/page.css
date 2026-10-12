@@ -2430,6 +2430,44 @@ html:has(dialog[open]) {
   }
 }
 
+/* Between a phone and a wide screen the rows of a pipeline have too little
+   room beside the name of their lane: what was read is cut short and an answer
+   breaks inside a word. The name goes above its rows there, with the result at
+   the end of its line, and every row keeps one line. The two arms of an
+   experiment keep their own two-line rows. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  .race.flow:not(.arms) .lane {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.45rem;
+  }
+
+  .race.flow:not(.arms) .lane-id {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0 0.75rem;
+    padding-top: 0;
+  }
+
+  .race.flow:not(.arms) .lane-name {
+    grid-column: 1;
+  }
+
+  .race.flow:not(.arms) .lane-x {
+    grid-row: 1;
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .race.flow:not(.arms) .lane-meta {
+    grid-row: auto;
+    grid-column: 1 / -1;
+  }
+
+  .race.flow:not(.arms) .flow-row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 2.6rem;
+  }
+}
+
 /* ---------- Small screens ---------- */
 
 @media (max-width: 47.99rem) {
