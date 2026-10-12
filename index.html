@@ -45,7 +45,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230b0b10'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='%23c8a45c' font-family='serif' font-size='16' font-weight='bold'>JL</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script>try{const c=JSON.parse(localStorage.getItem('jl-cv-config')||'{}');if(c.theme)document.documentElement.setAttribute('data-theme',c.theme);}catch(e){}</script>
   <style>
     :root,[data-theme="obsidian"]{--bg-primary:#0b0b10;--bg-secondary:#111118;--bg-tertiary:#181822;--bg-card:#14141c;--text-primary:#e8e5df;--text-secondary:#9a97a8;--text-muted:#6b6878;--accent:#c8a45c;--accent-hover:#ddb96f;--accent-dim:rgba(200,164,92,.12);--accent-glow:rgba(200,164,92,.06);--border:#1f1f2c;--border-light:#2a2a38;--grain-opacity:.025;--font-display:'Cormorant Garamond',Georgia,serif;--font-body:'Outfit',system-ui,sans-serif;--max-width:1100px;--section-gap:120px}
@@ -120,14 +120,23 @@
     .hero-greeting::before{content:'';width:28px;height:1px;background:var(--accent)}
     .hero-name{font-family:var(--font-display);font-size:clamp(42px,5.5vw,64px);font-weight:700;line-height:1.05;color:var(--text-primary);margin-bottom:14px;letter-spacing:-.02em}
     .hero-title{font-family:var(--font-display);font-size:24px;font-weight:300;font-style:italic;color:var(--text-secondary);margin-bottom:32px}
-    .hero-bio{font-size:15px;color:var(--text-secondary);line-height:1.85;max-width:520px;margin-bottom:36px}.hero-bio strong{color:var(--text-primary);font-weight:500}
+    .hero-bio{font-size:15px;color:var(--text-secondary);line-height:1.85;max-width:520px;margin-bottom:6px}.hero-bio strong{color:var(--text-primary);font-weight:500}
+    /* The line under the bio ends its sentence. With the script it shows one interest at a time, written at a prompt. */
+    .hero-typed{display:flex;gap:.7em;margin-bottom:36px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:16px;font-weight:500;line-height:1.85;color:var(--accent)}
+    .hero-prompt{color:var(--text-muted)}
+    .hero-typed .typed{white-space:nowrap}
+    .typed-full{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    /* The caret takes no room of its own, so the text never moves when it blinks. */
+    .typed-caret{position:relative}
+    .typed-caret::after{content:'';position:absolute;left:0;top:50%;width:.6em;height:1.2em;transform:translateY(-50%);border-radius:1px;background:var(--accent);animation:typed-blink 1.06s steps(1) infinite}
+    @keyframes typed-blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
     .hero-links{display:flex;gap:12px;flex-wrap:wrap}
     .hero-link{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border:1px solid var(--border-light);border-radius:8px;font-size:13px;font-weight:500;color:var(--text-secondary);transition:all .4s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(8px);background:rgba(255,255,255,.02)}
     .hero-link:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-dim);transform:translateY(-2px);box-shadow:0 4px 20px var(--accent-glow)}
     .hero-link svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
     /* Hero anim */
     .hero-content>*{opacity:0;transform:translateY(24px);animation:hin .9s cubic-bezier(.16,1,.3,1) forwards}
-    .hero-content>*:nth-child(1){animation-delay:.3s}.hero-content>*:nth-child(2){animation-delay:.45s}.hero-content>*:nth-child(3){animation-delay:.6s}.hero-content>*:nth-child(4){animation-delay:.75s}.hero-content>*:nth-child(5){animation-delay:.9s}
+    .hero-content>*:nth-child(1){animation-delay:.3s}.hero-content>*:nth-child(2){animation-delay:.45s}.hero-content>*:nth-child(3){animation-delay:.6s}.hero-content>*:nth-child(4){animation-delay:.75s}.hero-content>*:nth-child(5){animation-delay:.82s}.hero-content>*:nth-child(6){animation-delay:.95s}
     .hero-photo-wrapper{opacity:0;transform:translateY(30px) scale(.95);animation:pin 1.2s cubic-bezier(.16,1,.3,1) .15s forwards}
     @keyframes hin{to{opacity:1;transform:translateY(0)}}@keyframes pin{to{opacity:1;transform:translateY(0) scale(1)}}
 
@@ -371,7 +380,7 @@
       .hero{padding:100px 24px 60px}.hero-inner{grid-template-columns:1fr;gap:40px;text-align:center}
       .hero-photo{width:220px;height:280px;border-radius:16px}.hero-photo-placeholder{font-size:52px}
       .hero-photo-decor{display:none}
-      .hero-bio{margin:0 auto 32px}.hero-links{justify-content:center}
+      .hero-bio{margin:0 auto 6px}.hero-typed{justify-content:center;margin-bottom:32px}.hero-links{justify-content:center}
       section{padding:0 24px}.news-item{grid-template-columns:80px 1fr;gap:20px}.edu-item{grid-template-columns:1fr;gap:8px}
       .pub-card{padding:20px 24px}.pub-card-header{flex-direction:column-reverse;gap:8px}.pub-links{margin-left:0}
     }
@@ -425,7 +434,8 @@
         <div class="hero-greeting">NLP Researcher</div>
         <h1 class="hero-name"><span class="gradient-text">Jungseob Lee <span style="font-size:0.55em;font-weight:400;opacity:0.7;-webkit-text-fill-color:var(--text-secondary)">(이정섭)</span></span></h1>
         <p class="hero-title">Ph.D. Student, Korea University</p>
-        <p class="hero-bio">I am a Ph.D. student at <strong>Korea University</strong>, advised by Prof. Heuiseok Lim. My research focuses on <strong>Natural Language Processing</strong>, with particular interests in large language models, natural language processing, agentic LLM, and LLM efficiency.</p>
+        <p class="hero-bio">I am a Ph.D. student at <strong>Korea University</strong>, advised by Prof. Heuiseok Lim. My research focuses on <strong>Natural Language Processing</strong>, with particular interests in</p>
+        <p class="hero-typed"><span class="hero-prompt" aria-hidden="true">&gt;</span><span data-typed="large language models|agentic LLM|LLM efficiency">large language models, agentic LLM, and LLM efficiency.</span></p>
         <div class="hero-links">
           <a href="https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ" class="hero-link" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/></svg>Scholar</a>
@@ -1245,6 +1255,110 @@
     });
     themeObserver.observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
 
+  })();
+  </script>
+  <script>
+  // The interests under the bio are written the way a keyboard writes them: the
+  // keys land at an uneven pace, the finished line rests under a blinking caret,
+  // then it is taken back key by key and the next interest is written. Without
+  // this script, or when motion is reduced, the line stays as the whole list, so
+  // the sentence above always has its ending.
+  (function () {
+    'use strict';
+    var host = document.querySelector('[data-typed]');
+    if (!host || !window.requestAnimationFrame) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var items = host.getAttribute('data-typed').split('|');
+
+    // Times in ms: a key on average, the rest on a finished line, one key taken back,
+    // the empty line between two interests, and the wait while the hero fades in.
+    var pace = {key: 62, hold: 2200, back: 26, gap: 380, lead: 1500};
+
+    // A reader of the page's text still gets the whole list, once.
+    var full = document.createElement('span');
+    full.className = 'typed-full';
+    full.textContent = host.textContent;
+    host.parentNode.insertBefore(full, host);
+    host.setAttribute('aria-hidden', 'true');
+
+    var line = document.createElement('span');
+    var caret = document.createElement('span');
+    caret.className = 'typed-caret';
+    host.textContent = '';
+    host.appendChild(line);
+    host.appendChild(caret);
+    // Room for the longest interest and the caret, so a centred line does not shift from one interest to the next.
+    host.style.minWidth = (Math.max.apply(null, items.map(function (s) { return s.length; })) + 1) + 'ch';
+    host.classList.add('typed');
+
+    // A small seeded generator, so that every pass has its own rhythm and a pass can be drawn again.
+    function dice(seed) {
+      return function () {
+        seed = (seed + 0x6D2B79F5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // When every key of a pass lands, counted from the start of the pass.
+    function plan(text, seed, lead) {
+      var roll = dice(seed), t = lead, keys = [];
+      for (var i = 0; i < text.length; i++) {
+        var d = pace.key * (0.55 + 0.9 * roll());
+        if (text.charAt(i - 1) === ' ' && roll() < 0.14) d += pace.key * (2 + 5 * roll());   // a pause before some words
+        t += d;
+        keys.push(t);
+      }
+      var held = t + pace.hold, gone = held + text.length * pace.back;
+      return {keys: keys, held: held, gone: gone, end: gone + pace.gap};
+    }
+
+    var pass = 0, now = null, start = null, at = 0, shown = -1, seen = true, asked = false;
+
+    // How many keys of the line stand at time t of the pass.
+    function count(t) {
+      var n = now.keys.length;
+      if (t >= now.gone) return 0;
+      if (t >= now.held) return Math.max(0, n - Math.ceil((t - now.held) / pace.back));
+      var lo = 0, hi = n;
+      while (lo < hi) { var mid = (lo + hi) >> 1; if (now.keys[mid] <= t) lo = mid + 1; else hi = mid; }
+      return lo;
+    }
+
+    function frame(clock) {
+      asked = false;
+      if (!seen || document.hidden) { start = null; return; }
+      // The wait for the fade-in counts from the load, so a line first seen later starts writing at once.
+      if (!now) now = plan(items[0], 1, Math.max(250, pace.lead - clock));
+      if (start === null) start = clock - at;           // a pass goes on from where it slept
+      var t = clock - start;
+      while (t >= now.end) {
+        start += now.end;
+        t -= now.end;
+        pass += 1;
+        now = plan(items[pass % items.length], pass + 1, 0);
+        shown = -1;
+      }
+      at = t;
+      var k = count(t);
+      if (k !== shown) { line.textContent = items[pass % items.length].slice(0, k); shown = k; }
+      ask();
+    }
+
+    function ask() {
+      if (!asked) { asked = true; window.requestAnimationFrame(frame); }
+    }
+
+    // The loop sleeps while its line is off the screen or the tab is in the background.
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (entries) {
+        seen = entries[entries.length - 1].isIntersecting;
+        if (seen) ask();
+      }).observe(host);
+    }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) ask(); });
+    ask();
   })();
   </script>
 </body>
