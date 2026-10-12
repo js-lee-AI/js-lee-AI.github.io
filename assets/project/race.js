@@ -143,8 +143,20 @@
         var spans = (rec.marks || []).map(function (m) { return [edge[m[0]], edge[m[1]], m[1]]; });
         var pins = Array.prototype.slice.call(el.querySelectorAll('.lane-mark'));
 
-        // A lane that lists the steps of a pipeline has one row for each step.
-        var rows = Array.prototype.slice.call(el.querySelectorAll('.flow-row'));
+        // A lane that lists the steps of a pipeline has one row for each step,
+        // and a row of a table that fills in stages has one part for each stage.
+        var rows = Array.prototype.slice.call(el.querySelectorAll('.flow-row, .stage'));
+
+        // A figure that counts up while its step grows ends on its own value.
+        var counts = rows.map(function (row) {
+          return Array.prototype.map.call(row.querySelectorAll('[data-to]'), function (node) {
+            return {
+              node: node,
+              to: Number(node.getAttribute('data-to')),
+              digits: Number(node.getAttribute('data-digits')) || 0
+            };
+          });
+        });
 
         var box = pieces ? el.querySelector('.lane-text') : null;
         var past = null;
@@ -160,10 +172,14 @@
         }
 
         // The figure of a lane is a ratio unless the run says what follows it.
-        el.querySelector('.lane-x b').textContent = rec.x + (rec.xs === undefined ? '×' : rec.xs);
+        // A row of a table carries its figures in its parts instead.
+        var ratio = el.querySelector('.lane-x b');
+        if (ratio) ratio.textContent = rec.x + (rec.xs === undefined ? '×' : rec.xs);
         var meta = el.querySelectorAll('.lane-meta span');
-        meta[0].textContent = rec.meta[0];
-        meta[1].textContent = rec.meta[1];
+        if (meta.length > 1) {
+          meta[0].textContent = rec.meta[0];
+          meta[1].textContent = rec.meta[1];
+        }
 
         var ours = el.classList.contains('ours');
         if (ours) oursEnd = rec.end;
@@ -174,13 +190,17 @@
 
         return {
           el: el, rec: rec, ours: ours, full: full, edge: edge, past: past, fresh: fresh,
-          spans: spans, pins: pins, rows: rows,
+          spans: spans, pins: pins, rows: rows, counts: counts,
+          grow: rec.g || null, grown: [],
           track: el.querySelector('.lane-track'),
           count: figure || el.querySelector('.lane-count'), bare: !!figure,
           time: el.querySelector('.lane-time'),
           shown: -1, done: null, label: '', fill: ''
         };
       });
+
+      // Where no lane is the proposed method, the still picture is the end.
+      if (!oursEnd) oursEnd = lastEnd;
 
       // A lane that writes less than the scale gets a rail of its own length.
       // Where each baseline stands when the proposed method finishes.
@@ -265,6 +285,21 @@
             lane.count.textContent = lane.bare ? tokens : shared && !tick ? to + ' / ' + total + ' tokens' : tokens + ' tokens';
           }
           lane.el.classList.toggle('done', done);
+        }
+        // A step that grows takes a while to come in. How far it has come is
+        // read from the clock, quick at first and settling at the end, and a
+        // figure in it counts up with it.
+        if (lane.grow) {
+          lane.rows.forEach(function (row, k) {
+            var part = t < 0 ? 0 : Math.max(0, Math.min(1, (t - rec.t[k]) / lane.grow[k]));
+            var come = (1 - Math.pow(1 - part, 3)).toFixed(3);
+            if (come === lane.grown[k]) return;
+            lane.grown[k] = come;
+            row.style.setProperty('--p', come);
+            lane.counts[k].forEach(function (count) {
+              count.node.textContent = (count.to * Number(come)).toFixed(count.digits);
+            });
+          });
         }
         if (!lane.track) return;
         if (glide) {

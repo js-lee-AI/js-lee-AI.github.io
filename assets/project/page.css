@@ -1517,7 +1517,8 @@ code {
 }
 
 .lane-x small.hit::before,
-.lane-result.hit::before {
+.lane-result.hit::before,
+.flow-chip.keep::before {
   content: "";
   display: inline-block;
   width: 0.38em;
@@ -1783,6 +1784,274 @@ code {
 }
 
 .flow-row.tally.won .flow-weight {
+  color: var(--accent-a);
+}
+
+/* The two arms of a controlled experiment are drawn like two pipelines: a
+   row for each stage an arm goes through, the same stages in both lanes, and
+   last the accuracy of the model trained on that arm. That accuracy is the
+   figure of the lane, set as large as a speedup is elsewhere. */
+.race.arms .lane {
+  grid-template-columns: 13rem minmax(0, 1fr);
+}
+
+.race.arms .lane-x {
+  font-size: 1.85rem;
+  line-height: 1.12;
+}
+
+.race.arms .lane-x small {
+  margin-left: 0.45rem;
+  font-size: 0.8rem;
+}
+
+.race.arms .flow-row {
+  grid-template-columns: 14.5rem minmax(0, 1fr) 3rem;
+}
+
+/* A row comes in with the clock of the replay, so any moment of it can be
+   drawn again exactly. The row of the student is there at once, and its bar
+   takes the time to grow. */
+.race.arms .flow-row.on {
+  opacity: var(--p, 1);
+  transition: none;
+}
+
+.race.arms .flow-row.on.tally {
+  opacity: min(1, calc(var(--p, 1) * 4));
+}
+
+/* Only the last row ends in a figure, and the others use that room for
+   their words. */
+.race.arms .flow-row:not(.tally) .flow-says {
+  grid-column: 2 / -1;
+}
+
+.race.arms .flow-row:not(.tally) .flow-weight {
+  display: none;
+}
+
+/* The words an arm adds to its prompt are quoted as they stand. */
+.flow-chip q {
+  quotes: none;
+  font-style: italic;
+}
+
+/* The answer that one arm is shown takes the second accent wherever a row
+   holds it, so the eye finds the one difference between the lanes. */
+.flow-key {
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: var(--accent-b);
+  background: color-mix(in srgb, var(--accent-b) 85%, #000);
+  font-style: normal;
+  color: #fff;
+}
+
+/* A chain the filter keeps. */
+.flow-chip.keep {
+  background: #e3f1e7;
+  font-weight: 600;
+  color: #14622b;
+}
+
+/* The accuracy is a bar on a scale of 100 that grows as its row comes in. */
+.race.arms .flow-bar {
+  flex: 1 1 auto;
+  margin-left: 0;
+}
+
+.race.arms .flow-bar::before {
+  width: calc(var(--share, 0) * var(--p, 1) * 100%);
+}
+
+.race.arms .lane.ours .flow-bar::before {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+}
+
+.race.arms .lane.ours .flow-row.tally .flow-weight {
+  color: var(--accent-a);
+}
+
+/* A screen is a table that fills in from left to right: each row is one
+   candidate, and its parts come in stage by stage, first what is read before
+   any evaluation and then what the evaluation found. A part keeps its place
+   before its stage, so the rows do not move while the replay runs. */
+.screen-top,
+.race.screen .lane {
+  display: grid;
+  grid-template-columns: 11.5rem minmax(0, 1fr) 4.2rem 9.8rem 17rem;
+  align-items: center;
+  gap: 0 1.1rem;
+}
+
+.screen-top {
+  padding: 0.5rem 1.3rem 0.45rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--ink-mute);
+}
+
+.race.screen .lane {
+  padding: 0.6rem 1.3rem;
+  transition: background-color 0.3s ease;
+}
+
+/* A row whose score is over the threshold is tinted once that is known. */
+.race.screen .lane.hot:has(.screen-call.on) {
+  background: color-mix(in srgb, var(--accent-b) 5%, #fff);
+}
+
+@supports not selector(:has(a)) {
+  .race.screen .lane.hot {
+    background: color-mix(in srgb, var(--accent-b) 5%, #fff);
+  }
+}
+
+.race .stage {
+  visibility: hidden;
+}
+
+.race .stage.on {
+  visibility: visible;
+}
+
+.screen-name b,
+.screen-name i {
+  display: block;
+}
+
+.screen-name b {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.screen-name i {
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  color: var(--ink-mute);
+}
+
+/* One cell for each layer, deeper where the layer holds more interference.
+   The cells are uncovered from the first layer to the last. */
+.screen-cells {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: 2px;
+  clip-path: inset(0 calc((1 - var(--p, 1)) * 100%) 0 0);
+}
+
+.screen-cells i {
+  height: 1.5rem;
+  border-radius: 2px;
+  background: var(--accent-b);
+  opacity: calc(0.07 + var(--t, 0) * 0.93);
+}
+
+.screen-score {
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.screen-score b {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.race.screen .lane.hot .screen-score b {
+  font-weight: 600;
+  color: #8f2a20;
+}
+
+/* What the score says before any evaluation, set down like a stamp. */
+.screen-call em {
+  display: inline-block;
+  padding: 0.12rem 0.55rem;
+  border-radius: 6px;
+  background: #e3f1e7;
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #14622b;
+  white-space: nowrap;
+  opacity: var(--p, 1);
+  transform: scale(calc(1.14 - 0.14 * var(--p, 1)));
+}
+
+.screen-call em.bad {
+  background: #f8e4e2;
+  color: #8f2a20;
+}
+
+/* The outcome: one small bar for each model, on one scale in every row. The
+   tick is where the base model stands. */
+.mini {
+  display: grid;
+  grid-template-columns: 5.6rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.mini-track {
+  position: relative;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #f1f2f3;
+}
+
+.mini-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--v, 0) * var(--p, 1) * 100%);
+  border-radius: 999px;
+  background: #939598;
+}
+
+.mini-track u {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: calc(var(--v, 0) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+
+.mini b {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.mini.bad .mini-track i {
+  background: #c4352b;
+}
+
+.mini.bad b {
+  font-weight: 600;
+  color: #c4352b;
+}
+
+.mini.ours .mini-track i {
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+}
+
+.mini.ours b {
+  font-weight: 600;
   color: var(--accent-a);
 }
 
@@ -2067,6 +2336,98 @@ html:has(dialog[open]) {
   .race.replied .lane-track {
     grid-column: 1 / -1;
   }
+
+  /* A row of an arm takes two lines: its stage, then what the stage holds. */
+  .race.arms .flow-row {
+    grid-template-columns: minmax(0, 1fr) 3rem;
+    gap: 0.15rem 0.6rem;
+  }
+
+  .race.arms .flow-from,
+  .race.arms .flow-row:not(.tally) .flow-says {
+    grid-column: 1 / -1;
+  }
+
+  .race.arms .lane-flow {
+    gap: 0.5rem;
+  }
+
+  /* A row of a screen breaks into lines: its name with its score and what
+     the score says, then the layers, then the outcome. The heads of the
+     columns go, and the two parts that need one name it themselves. */
+  .screen-top {
+    display: none;
+  }
+
+  .race.screen .lane {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name score call"
+      "strip strip strip"
+      "bars bars bars";
+    gap: 0.45rem 0.9rem;
+    padding: 0.7rem 1.3rem 0.75rem;
+  }
+
+  .screen-name {
+    grid-area: name;
+  }
+
+  /* The layers are named the way the bars under them are. */
+  .screen-strip {
+    display: grid;
+    grid-area: strip;
+    grid-template-columns: 5.6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0 0.5rem;
+  }
+
+  .screen-strip::before {
+    content: attr(data-label);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .screen-score {
+    grid-area: score;
+  }
+
+  .screen-call {
+    grid-area: call;
+  }
+
+  .screen-bars {
+    display: grid;
+    grid-area: bars;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0 1.5rem;
+  }
+
+  .screen-name {
+    line-height: 1.3;
+  }
+
+  .screen-name b,
+  .screen-name i {
+    display: inline;
+    line-height: inherit;
+  }
+
+  .screen-name i {
+    margin-left: 0.45rem;
+  }
+
+  .screen-score::before {
+    content: attr(data-label) " ";
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    color: var(--ink-mute);
+  }
+
+  .screen-cells i {
+    height: 1.1rem;
+  }
 }
 
 /* ---------- Small screens ---------- */
@@ -2238,6 +2599,25 @@ html:has(dialog[open]) {
   .lane-flow {
     gap: 0.5rem;
   }
+
+  .race.arms .lane {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .race.arms .lane-x {
+    font-size: 1.5rem;
+  }
+
+  /* On a phone the name of a candidate takes the first line alone. */
+  .race.screen .lane {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "name name"
+      "score call"
+      "strip strip"
+      "bars bars";
+    padding: 0.75rem 0.95rem 0.8rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2247,7 +2627,8 @@ html:has(dialog[open]) {
 
   .btn,
   .race-bar button,
-  .flow-row {
+  .flow-row,
+  .race.screen .lane {
     transition: none;
   }
 }
@@ -2264,7 +2645,13 @@ html:has(dialog[open]) {
   .lane-mark,
   .lane-text .guest,
   .flow-chip,
-  .flow-bar::before {
+  .flow-key,
+  .flow-bar::before,
+  .screen-cells i,
+  .screen-call em,
+  .mini-track,
+  .mini-track i,
+  .mini-track u {
     forced-color-adjust: none;
   }
 
@@ -2370,7 +2757,14 @@ html:has(dialog[open]) {
   .caption .guest.chip,
   .lane-mark,
   .flow-chip,
-  .flow-bar::before {
+  .flow-key,
+  .flow-bar::before,
+  .race.screen .lane.hot,
+  .screen-cells i,
+  .screen-call em,
+  .mini-track,
+  .mini-track i,
+  .mini-track u {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
