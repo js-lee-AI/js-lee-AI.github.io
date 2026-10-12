@@ -189,7 +189,55 @@
     .pub-view-more:hover{background:var(--accent-dim);border-color:var(--accent);transform:translateY(-2px)}
     .pub-year-group{margin-bottom:48px}.pub-year-group:last-child{margin-bottom:0}
     .pub-year-heading{font-family:var(--font-display);font-size:28px;font-weight:300;color:var(--text-muted);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-    .pub-year-list{display:flex;flex-direction:column;gap:12px}
+    .pub-year-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .pub-year-list>.pub-card:not(.feature){grid-column:1/-1}
+
+    /* A paper with a project page shows the figure of that page, its one-sentence summary and its two colours,
+       two cards to a row. On a dark ground the two colours are lightened, so the name in the title stays readable. */
+    .pub-card.feature{display:flex;flex-direction:column;padding:0;--ia:var(--la,var(--pa));--ib:var(--lb,var(--pb))}
+    [data-theme="ivory"] .pub-card.feature,[data-theme="arctic"] .pub-card.feature,[data-theme="lavender"] .pub-card.feature,[data-theme="sand"] .pub-card.feature,[data-theme="ice"] .pub-card.feature{--ia:var(--pa);--ib:var(--pb)}
+    .pub-card.feature::before{display:none}
+    /* Under the pointer the card rises on its own ground, so the figure and the text keep their contrast. */
+    .pub-card.feature:hover{background:var(--bg-card);transform:translateY(-4px)}
+    /* Figures are drawn on white, so the figure keeps a white ground in every theme. */
+    .feat-fig{display:grid;place-items:center;height:196px;padding:16px 18px;background:#fff;overflow:hidden;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--pa),var(--pb)) 1}
+    .feat-fig img{display:block;width:auto;max-width:100%;height:auto;max-height:164px;object-fit:contain;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+    .pub-card.feature:hover .feat-fig img{transform:scale(1.03)}
+    .feat-body{display:flex;flex-direction:column;flex:1;min-width:0;padding:18px 24px 22px}
+    .feat-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .feat-year{font-size:12px;color:var(--text-muted)}
+    .feature .pub-title-text{display:block;flex:none;font-size:21px;line-height:1.28;margin-bottom:8px}
+    .feature .pub-title-text .name{background:linear-gradient(90deg,var(--ia),var(--ib));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .feature a.pub-title-text:hover{color:var(--text-primary)}
+    .feature .nw{white-space:nowrap}
+    .feat-icon{height:1.2em;width:auto;vertical-align:-.22em;margin-right:.32em}
+    .feature .pub-authors{margin-bottom:4px}
+    .feature .pub-venue-text{margin-bottom:0}
+    .feat-tldr{font-size:13.5px;line-height:1.65;color:var(--text-secondary);margin:10px 0 14px}
+    /* The links keep to the foot of the card, so two cards in a row end on one line. */
+    .feat-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:auto}
+    .feat-go{display:inline-flex;align-items:center;gap:7px;padding:5px 13px 5px 14px;border-radius:999px;background:var(--pa);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.03em;transition:filter .2s}
+    .feat-go::after{content:'';width:5px;height:5px;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;transform:rotate(45deg);transition:transform .25s}
+    .feat-go:hover{color:#fff;filter:brightness(1.12)}.feature:hover .feat-go::after{transform:translateX(2px) rotate(45deg)}
+    .feat-links .pub-link-btn{border-radius:999px;padding:4px 12px}
+    .feat-replay{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;border:1px solid var(--ia);color:var(--ia);font-size:11px;font-weight:600;letter-spacing:.03em;transition:background .2s}
+    .feat-replay::before{content:'';border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent}
+    .feat-replay:hover{color:var(--ia)}
+    @supports (color:color-mix(in srgb,red,blue)){.feat-replay{border-color:color-mix(in srgb,var(--ia) 45%,transparent)}.feat-replay:hover{background:color-mix(in srgb,var(--ia) 10%,transparent)}}
+    /* A card left alone in its row takes the whole row, with the figure beside the text. */
+    .pub-card.feature.wide{grid-column:1/-1;flex-direction:row;align-items:stretch}
+    .pub-card.feature.wide .feat-fig{flex:0 0 44%;height:auto;min-height:196px;border-bottom:0;border-right:3px solid transparent;border-image:linear-gradient(180deg,var(--pa),var(--pb)) 1}
+    .pub-card.feature.wide .feat-fig img{max-height:220px}
+    /* A narrow window keeps two cards to a row with smaller parts, and a phone gets one card to a row. */
+    @media(max-width:900px){.feat-fig{height:170px}.feat-fig img{max-height:138px}.pub-card.feature.wide .feat-fig{min-height:170px}.pub-card.feature.wide .feat-fig img{max-height:180px}
+      .feat-body{padding:16px 20px 20px}.feature .pub-title-text{font-size:19px}
+      .feat-links{gap:5px}.feat-go{gap:6px;padding:5px 10px 5px 11px}.feat-links .pub-link-btn{padding:4px 9px}.feat-replay{gap:5px;padding:4px 9px}}
+    @media(max-width:720px){.pub-year-list{grid-template-columns:minmax(0,1fr)}.pub-card.feature.wide{flex-direction:column}
+      .pub-card.feature.wide .feat-fig{flex:none;height:170px;min-height:0;border-right:0;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--pa),var(--pb)) 1}
+      .pub-card.feature.wide .feat-fig img{max-height:138px}}
+    /* On the narrowest phones the four links of a card still share one line. */
+    @media(max-width:380px){.feat-go::after{display:none}.feat-go{padding:5px 11px}.feat-go,.feat-links .pub-link-btn,.feat-replay{letter-spacing:0}}
+    @media(prefers-reduced-motion:reduce){.feat-fig img,.feat-go::after{transition:none}.pub-card.feature:hover .feat-fig img{transform:none}}
 
     /* Preprints: the list stays folded until the toggle in the section header is used */
     .section-toggle{order:1;flex-shrink:0;display:inline-flex;align-items:center;gap:10px;padding:6px 16px;border:1px dashed var(--border-light);border-radius:10px;background:none;color:var(--accent);font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:all .3s}
@@ -622,9 +670,20 @@
     function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}'); } catch(e) { return {}; } }
     function getPapers() { return DEFAULT_PAPERS; }
 
+    // What the card of a paper with a project page shows, keyed by the folder of that page.
+    // Without it every paper keeps the plain card.
+    var projectCards = {};
+    var cardsReady = fetch('assets/project/cards.json?v='+Date.now())
+      .then(function(r){ return r.ok ? r.json() : {}; })
+      .then(function(c){ if (c && typeof c === 'object') projectCards = c; })
+      .catch(function(){});
+
     // Fetch data.json for live data (overrides DEFAULT_PAPERS)
     var siteData = null;
     fetch('data.json?v='+Date.now()).then(function(r){return r.json()}).then(function(d) {
+      // The list is drawn once, after the cards of the project pages have answered too.
+      return cardsReady.then(function(){ return d; });
+    }).then(function(d) {
       siteData = d;
       if (d.papers && d.papers.length) DEFAULT_PAPERS.length = 0;
       if (d.papers) d.papers.forEach(function(p){ DEFAULT_PAPERS.push(p); });
@@ -661,7 +720,129 @@
       return escHtml(raw).replace(/\*\*(.+?)\*\*/g, '<span class="me">$1</span>');
     }
 
+    function linksOf(p, config) {
+      return Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
+    }
+
+    // The card data of the project page a paper links to, when it has one.
+    function projectCardOf(p, config) {
+      var slug = String(linksOf(p, config).project || '').replace(/^\/+|\/+$/g, '');
+      return slug && Object.prototype.hasOwnProperty.call(projectCards, slug) ? projectCards[slug] : null;
+    }
+
+    // A colour of a project page, lightened for a dark ground: the share of the colour that stays.
+    function lightened(hex, keep) {
+      var n = parseInt(String(hex).slice(1), 16), out = '#';
+      [16, 8, 0].forEach(function(shift) {
+        var c = (n >> shift) & 255;
+        out += ('0' + Math.round(c * keep + 255 * (1 - keep)).toString(16)).slice(-2);
+      });
+      return out;
+    }
+
     function buildCard(p, config) {
+      var m = projectCardOf(p, config);
+      return m ? buildFeatureCard(p, config, m) : buildPlainCard(p, config);
+    }
+
+    function buildFeatureCard(p, config, m) {
+      var card = document.createElement('div');
+      card.className = 'pub-card feature';
+      card.dataset.pid = p.id;
+      card.style.setProperty('--pa', m.accent[0]);
+      card.style.setProperty('--pb', m.accent[1]);
+      card.style.setProperty('--la', lightened(m.accent[0], 0.5));
+      card.style.setProperty('--lb', lightened(m.accent[1], 0.64));
+      var links = linksOf(p, config);
+      var home = links.project;
+
+      // The figure leads to the same page as the title, so it stays out of the tab order and is not read out twice.
+      var fig = document.createElement('a');
+      fig.className = 'feat-fig';
+      fig.href = home;
+      fig.tabIndex = -1;
+      fig.setAttribute('aria-hidden', 'true');
+      var img = document.createElement('img');
+      img.src = m.figure.src; img.width = m.figure.w; img.height = m.figure.h; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+      img.addEventListener('error', function() { fig.remove(); });
+      fig.appendChild(img);
+
+      var body = document.createElement('div');
+      body.className = 'feat-body';
+      var top = document.createElement('div');
+      top.className = 'feat-top';
+      var tag = document.createElement('span');
+      tag.className = 'pub-venue-tag venue-' + (p.venueType || 'conf');
+      tag.textContent = p.venue;
+      top.appendChild(tag);
+      // The year is written only when the venue does not already say it.
+      if (String(p.venue).indexOf(String(p.year)) < 0) {
+        var year = document.createElement('span');
+        year.className = 'feat-year';
+        year.textContent = p.year;
+        top.appendChild(year);
+      }
+      body.appendChild(top);
+
+      var title = document.createElement('a');
+      title.className = 'pub-title-text';
+      title.href = home;
+      title.innerHTML = m.title;
+      if (m.icon) {
+        var icon = document.createElement('img');
+        icon.className = 'feat-icon'; icon.src = m.icon.src; icon.width = m.icon.w; icon.height = m.icon.h; icon.alt = '';
+        title.insertBefore(icon, title.firstChild);
+      }
+      body.appendChild(title);
+
+      var authors = document.createElement('p');
+      authors.className = 'pub-authors';
+      authors.innerHTML = renderAuthors(p.authors);
+      body.appendChild(authors);
+
+      if (p.venueFull) {
+        var vf = document.createElement('p');
+        vf.className = 'pub-venue-text';
+        vf.textContent = p.venueFull;
+        body.appendChild(vf);
+      }
+
+      var tldr = document.createElement('p');
+      tldr.className = 'feat-tldr';
+      tldr.innerHTML = m.summary;
+      body.appendChild(tldr);
+
+      var row = document.createElement('div');
+      row.className = 'feat-links';
+      var go = document.createElement('a');
+      go.className = 'feat-go'; go.href = home; go.textContent = 'Project page';
+      row.appendChild(go);
+      Object.entries(links).forEach(function(entry) {
+        if (entry[0] === 'project' || !entry[1]) return;
+        var a = document.createElement('a');
+        a.href = entry[1]; a.className = 'pub-link-btn'; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = LABEL[entry[0]] || entry[0];
+        row.appendChild(a);
+      });
+      if (m.replay) {
+        var replay = document.createElement('a');
+        replay.className = 'feat-replay'; replay.href = home + '#race'; replay.textContent = 'Replay';
+        row.appendChild(replay);
+      }
+      body.appendChild(row);
+
+      card.appendChild(fig);
+      card.appendChild(body);
+      return card;
+    }
+
+    // Two cards with a figure share a row. One left over at the end takes a row of its own.
+    function arrange(list) {
+      var feats = Array.prototype.filter.call(list.children, function(c) { return c.classList.contains('feature'); });
+      if (feats.length % 2 === 1) feats[feats.length - 1].classList.add('wide');
+    }
+
+    function buildPlainCard(p, config) {
       const card = document.createElement('div');
       card.className = 'pub-card';
       card.dataset.pid = p.id;
@@ -669,7 +850,7 @@
       // Header
       const header = document.createElement('div');
       header.className = 'pub-card-header';
-      const allLinks = Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
+      const allLinks = linksOf(p, config);
       const mainUrl = allLinks.project || allLinks.pdf || allLinks.doi || allLinks.arxiv || Object.values(allLinks)[0] || '';
       var title;
       if (mainUrl) {
@@ -742,8 +923,7 @@
       // Links
       const linksDiv = document.createElement('div');
       linksDiv.className = 'pub-links';
-      const paperLinks = Object.assign({}, (siteData && siteData.paperLinks && siteData.paperLinks[p.id]) || {}, p.links || {}, (config.paperLinks || {})[p.id] || {});
-      Object.entries(paperLinks).forEach(function(entry) {
+      Object.entries(allLinks).forEach(function(entry) {
         const type = entry[0], url = entry[1];
         if (!url) return;
         const a = document.createElement('a');
@@ -762,15 +942,18 @@
       return card;
     }
 
-    // Preprints: papers flagged "preprint" in data.json, newest first, in their own folded section.
+    // Preprints: papers flagged "preprint" in data.json, in their own folded section. The ones with a
+    // project page come first, so the two-up cards fill whole rows, and each kind runs newest first.
     function renderPreprints(list, config) {
       const section = document.getElementById('preprints');
       const box = document.getElementById('preprint-container');
       const toggle = document.getElementById('preprintToggle');
       if (!section || !box || !toggle) return;
       box.textContent = '';
-      list.sort(function(a, b) { return b.year - a.year || b.id - a.id; })
+      function paged(p) { return projectCardOf(p, config) ? 1 : 0; }
+      list.sort(function(a, b) { return (paged(b) - paged(a)) || b.year - a.year || b.id - a.id; })
           .forEach(function(p) { box.appendChild(buildCard(p, config)); });
+      arrange(box);
       if (list.length) toggle.textContent = list.length + (list.length === 1 ? ' paper' : ' papers');
       // The section keeps its place until data.json has answered, then leaves if it has nothing to show.
       setPreprintsShown(list.length > 0 || !siteData);
@@ -811,9 +994,12 @@
       // Sort years descending
       const years = Object.keys(groups).sort(function(a, b) { return b - a; });
 
+      // Within a year the papers with a project page come first, so the two-up cards fill whole rows.
+      function paged(p) { return projectCardOf(p, config) ? 1 : 0; }
+
       var moreWrapper = null;
       years.forEach(function(year) {
-        const list = groups[year].sort(function(a, b) { return (b.citations||0) - (a.citations||0); });
+        const list = groups[year].sort(function(a, b) { return (paged(b) - paged(a)) || (b.citations||0) - (a.citations||0); });
         const group = document.createElement('div');
         group.className = 'pub-year-group reveal';
         const heading = document.createElement('h3');
@@ -823,6 +1009,7 @@
         const listDiv = document.createElement('div');
         listDiv.className = 'pub-year-list';
         list.forEach(function(p) { listDiv.appendChild(buildCard(p, config)); });
+        arrange(listDiv);
         group.appendChild(listDiv);
         // 2023 and older go into hidden wrapper
         if (parseInt(year) <= 2023) {
@@ -1168,8 +1355,9 @@
           });
         }
       }
-      // 3D tilt — only the card currently under the pointer (no full-list rect scan)
-      var card = (lastTarget && lastTarget.closest) ? lastTarget.closest('.pub-card') : null;
+      // 3D tilt — only the card currently under the pointer (no full-list rect scan).
+      // A card with a figure only rises, by its own style, so its text stays sharp while it is read.
+      var card = (lastTarget && lastTarget.closest) ? lastTarget.closest('.pub-card:not(.feature)') : null;
       if (tiltedCard && tiltedCard !== card) { tiltedCard.style.transform = ''; tiltedCard = null; }
       if (card) {
         var cr = card.getBoundingClientRect();

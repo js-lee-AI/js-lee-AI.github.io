@@ -1,0 +1,258 @@
+{
+ "LayerMix": {
+  "accent": [
+   "#1f77b4",
+   "#d62728"
+  ],
+  "title": "The Hallucination Signal Is a <span class=\"name nw\">Mean Shift</span>: Why Simple Probes Suffice",
+  "summary": "In the paired-example paradigm, the hidden-state signal that separates factual from hallucinated responses is dominated by one direction. Removing it drops detection to chance.",
+  "figure": {
+   "src": "assets/project/thumbs/LayerMix-8c3f9149.webp",
+   "w": 441,
+   "h": 440
+  }
+ },
+ "ThinkFuse": {
+  "accent": [
+   "#4068a5",
+   "#fe8711"
+  ],
+  "title": "<span class=\"name\">ThinkFuse</span>: <span class=\"nw\">Trajectory-Aware</span> <span class=\"nw\">Test-Time</span> Fusion for Small Reasoning Models",
+  "summary": "A training-free test-time fusion framework that intervenes only in reasoning segments whose uncertainty stands out against the primary model's own trajectory.",
+  "figure": {
+   "src": "assets/project/thumbs/ThinkFuse-6e0dfa46.webp",
+   "w": 870,
+   "h": 440
+  },
+  "icon": {
+   "src": "ThinkFuse/assets/icon.png",
+   "w": 165,
+   "h": 160
+  },
+  "replay": true
+ },
+ "skin-deep": {
+  "accent": [
+   "#277f80",
+   "#b88438"
+  ],
+  "title": "<span class=\"name\">Skin-Deep</span>: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations",
+  "summary": "Skin-Deep compares the residual-stream activations of an unmodified aligned checkpoint with its <span class=\"nw\">version-matched</span> base checkpoint and summarizes the geometry in one score, computed without adversarial optimization or downstream <span class=\"nw\">fine-tuning</span>, as a complement to refusal tests.",
+  "figure": {
+   "src": "assets/project/thumbs/skin-deep-0155a01d.webp",
+   "w": 1000,
+   "h": 355
+  }
+ },
+ "DART": {
+  "accent": [
+   "#1b4fb0",
+   "#2f8fe6"
+  ],
+  "title": "<span class=\"name\">DART</span>: Draft-Agreement Routing for Training-Free Adaptive Thinking Budgets in Hybrid Reasoning Models",
+  "summary": "A training-free router for hybrid reasoning models: cheap no-think drafts decide when to think, and how much.",
+  "figure": {
+   "src": "assets/project/thumbs/DART-1a41ff9a.webp",
+   "w": 1000,
+   "h": 332
+  },
+  "icon": {
+   "src": "DART/assets/icon.png",
+   "w": 157,
+   "h": 160
+  },
+  "replay": true
+ },
+ "ACOER": {
+  "accent": [
+   "#2f55a4",
+   "#1b5e20"
+  ],
+  "title": "Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via <span class=\"name\">Adaptive <span class=\"nw\">Correct-Only</span> Rewards</span>",
+  "summary": "A <span class=\"nw\">correct-only</span> length reward with an adaptive budget and weight that trains stably where <span class=\"nw\">length-reward</span> baselines collapse, cutting the tokens generated on <span class=\"nw\">MATH-500</span> by more than half at accuracy on par with the base model.",
+  "figure": {
+   "src": "assets/project/thumbs/ACOER-9a0dbbd5.webp",
+   "w": 1000,
+   "h": 341
+  }
+ },
+ "MADARA": {
+  "accent": [
+   "#245a84",
+   "#c67260"
+  ],
+  "title": "To Isolate or to Score? <span class=\"name\"><span class=\"nw\">Model-Adaptive</span> Assessment</span> for&nbsp;<span class=\"nw\">Cost-Efficient</span> <span class=\"nw\">Multi-Agent</span> RAG",
+  "summary": "A training-free pipeline that diagnoses each model–task pair with a <span class=\"nw\">one-time</span> probe and routes weak baselines to <span class=\"nw\">per-document</span> isolation and strong baselines to a scoring treatment.",
+  "figure": {
+   "src": "assets/project/thumbs/MADARA-9536947c.webp",
+   "w": 1000,
+   "h": 393
+  },
+  "replay": true
+ },
+ "answer-leakage": {
+  "accent": [
+   "#152ec7",
+   "#fd460f"
+  ],
+  "title": "<span class=\"name\"><span class=\"nw\">Answer-Conditioned</span> Chains <span class=\"nw\">of Thought</span></span> Degrade <span class=\"nw\">Verifiable-Reasoning</span> Distillation in Large Language Models",
+  "summary": "Chains of thought written to reach a shown gold answer pass the correctness filter, yet <span class=\"nw\">fine-tuning</span> a strong reasoning model on them sharply lowers its <span class=\"nw\">verifiable-reasoning</span> accuracy.",
+  "figure": {
+   "src": "assets/project/thumbs/answer-leakage-3c3a6096.webp",
+   "w": 1000,
+   "h": 332
+  },
+  "replay": true
+ },
+ "GLANCE": {
+  "accent": [
+   "#1f4e79",
+   "#826ac4"
+  ],
+  "title": "<span class=\"name\">Vision Is Not Overhead</span>: <span class=\"nw\">One-Pass</span> Block Drafting for Lossless Speculative Decoding in <span class=\"nw\">Vision-Language</span> Models",
+  "summary": "GLANCE drafts a whole block in one forward pass over the target's already fused <span class=\"nw\">vision-language</span> states, and the target commits exactly its greedy output.",
+  "figure": {
+   "src": "assets/project/thumbs/GLANCE-bfe89423.webp",
+   "w": 1000,
+   "h": 401
+  },
+  "replay": true
+ },
+ "Redline": {
+  "accent": [
+   "#1f3f6e",
+   "#d6283f"
+  ],
+  "title": "Faster <span class=\"nw\">Block-Diffusion</span> Serving with <span class=\"name\"><span class=\"nw\">Distribution-Free</span> Risk Guarantees</span>",
+  "summary": "Redline deploys the fastest serving configuration whose reference-relative risk it can keep within a user-chosen budget at a user-chosen confidence.",
+  "figure": {
+   "src": "assets/project/thumbs/Redline-967e43ea.webp",
+   "w": 1000,
+   "h": 312
+  },
+  "icon": {
+   "src": "Redline/assets/icon.png",
+   "w": 202,
+   "h": 160
+  },
+  "replay": true
+ },
+ "ByteCross": {
+  "accent": [
+   "#0466e2",
+   "#c35905"
+  ],
+  "title": "Where <span class=\"name\">Activation Sparsity and <span class=\"nw\">KV-Cache Sparsity</span> Cross</span> in LLM Decoding",
+  "summary": "A byte account of the decode step gives the context length at which the savings of activation sparsity and <span class=\"nw\">KV-cache</span> sparsity are equal, from model dimensions and keep ratios alone.",
+  "figure": {
+   "src": "assets/project/thumbs/ByteCross-849278d3.webp",
+   "w": 1000,
+   "h": 290
+  },
+  "replay": true
+ },
+ "PriceCheck": {
+  "accent": [
+   "#a8472e",
+   "#e07b5b"
+  ],
+  "title": "<span class=\"nw\">Risk-Controlled</span> Selective LLM Answering by <span class=\"name\">Pricing <span class=\"nw\">Label-Free</span> Checks</span>",
+  "summary": "PriceCheck prices label-free checks by their agreement rates and cost, composes the prices into schedules, and selects one schedule with a calibration test at a stated selective-risk target.",
+  "figure": {
+   "src": "assets/project/thumbs/PriceCheck-c50ba856.webp",
+   "w": 1000,
+   "h": 435
+  },
+  "icon": {
+   "src": "PriceCheck/assets/icon.png",
+   "w": 135,
+   "h": 160
+  }
+ },
+ "ALR-IRA": {
+  "accent": [
+   "#2f5f98",
+   "#5b8fc7"
+  ],
+  "title": "Recovering <span class=\"name\"><span class=\"nw\">Off-Policy</span> Supervision</span> for Speculative Decoding",
+  "summary": "Without modifying the training corpus, ALR relabels every slot of a draft block from greedy target rollouts and IRA places blocks inside those rollouts, recovering the supervision that erasing <span class=\"nw\">off-policy</span> slots discards.",
+  "figure": {
+   "src": "assets/project/thumbs/ALR-IRA-2da59061.webp",
+   "w": 902,
+   "h": 440
+  },
+  "replay": true
+ },
+ "refusal-relocates": {
+  "accent": [
+   "#2f6db5",
+   "#c0392b"
+  ],
+  "title": "<span class=\"name\">Refusal Localizes, the Damage Relocates</span>: Safety Layers Under <span class=\"nw\">Few-Sample</span> <span class=\"nw\">Fine-Tuning</span>",
+  "summary": "Clean-state patching restores refusal at a reproducible depth, but freezing every layer up to that depth leaves refusal near zero at a hundred harmful examples on all six checkpoints, with recovery transitions above the frozen boundary.",
+  "figure": {
+   "src": "assets/project/thumbs/refusal-relocates-a78d8ec8.webp",
+   "w": 1000,
+   "h": 434
+  }
+ },
+ "CAST": {
+  "accent": [
+   "#c24b00",
+   "#fa9b23"
+  ],
+  "title": "<span class=\"name\">CAST</span>: Cost-Aware Speculative Trees from One-Pass Block Drafters",
+  "summary": "CAST packs the candidates a block drafter has already scored into a tree, verifies it in a single target pass, and sets the tree width from a latency measurement.",
+  "figure": {
+   "src": "assets/project/thumbs/CAST-64e07631.webp",
+   "w": 1000,
+   "h": 369
+  },
+  "icon": {
+   "src": "CAST/assets/icon.png",
+   "w": 144,
+   "h": 160
+  },
+  "replay": true
+ },
+ "directional-verification": {
+  "accent": [
+   "#0043ca",
+   "#309ca1"
+  ],
+  "title": "Distilling <span class=\"name\">Directional Verification</span>",
+  "summary": "A teacher that cannot generate a reverse answer can still score candidates in the direction it knows, and the <span class=\"nw\">best-scoring</span> candidate becomes the student's training target.",
+  "figure": {
+   "src": "assets/project/thumbs/directional-verification-965a0cc8.webp",
+   "w": 1000,
+   "h": 372
+  }
+ },
+ "PRISM": {
+  "accent": [
+   "#725c94",
+   "#d1605e"
+  ],
+  "title": "Predicting and Repairing <span class=\"name\">Merge Collapse</span> in Large Language Models",
+  "summary": "A <span class=\"nw\">pre-merge</span> score built on the variance of task vectors across specialists exceeds its threshold only for destructive merges, and PRISM, which <span class=\"nw\">soft-thresholds</span> the averaged task vector at that variance's scale, keeps those merges near the base without data or tuning.",
+  "figure": {
+   "src": "assets/project/thumbs/PRISM-08ad5865.webp",
+   "w": 1000,
+   "h": 416
+  },
+  "replay": true
+ },
+ "CLO": {
+  "accent": [
+   "#2f6fb7",
+   "#8f4f9b"
+  ],
+  "title": "<span class=\"name\">Cross-Lingual Optimization</span> for Language Transfer in Large Language Models",
+  "summary": "CLO transfers an English-centric LLM to a target language while preserving its English capabilities, using publicly available English SFT data and a translation model.",
+  "figure": {
+   "src": "assets/project/thumbs/CLO-b3225382.webp",
+   "w": 1000,
+   "h": 433
+  }
+ }
+}
