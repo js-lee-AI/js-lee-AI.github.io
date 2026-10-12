@@ -1990,8 +1990,8 @@ code {
   color: #8f2a20;
 }
 
-/* The outcome: one small bar for each model, on one scale in every row. The
-   tick is where the base model stands. */
+/* The outcome: one small bar for each merged model, on one scale in every
+   row. */
 .mini {
   display: grid;
   grid-template-columns: 5.6rem minmax(0, 1fr) 2.6rem;
@@ -2017,16 +2017,6 @@ code {
   width: calc(var(--v, 0) * var(--p, 1) * 100%);
   border-radius: 999px;
   background: #939598;
-}
-
-.mini-track u {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  left: calc(var(--v, 0) * 100%);
-  width: 2px;
-  margin-left: -1px;
-  background: var(--ink);
 }
 
 .mini b {
@@ -2397,10 +2387,14 @@ html:has(dialog[open]) {
     grid-area: call;
   }
 
+  /* The two bars of a row sit side by side where both fit. A row with one
+     bar keeps the same two columns, so a length is the same value in every
+     row. */
   .screen-bars {
     display: grid;
     grid-area: bars;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(max(15rem, 50% - 0.75rem - 0.5px), 1fr));
     gap: 0 1.5rem;
   }
 
@@ -2688,8 +2682,7 @@ html:has(dialog[open]) {
   .screen-cells i,
   .screen-call em,
   .mini-track,
-  .mini-track i,
-  .mini-track u {
+  .mini-track i {
     forced-color-adjust: none;
   }
 
@@ -2801,8 +2794,7 @@ html:has(dialog[open]) {
   .screen-cells i,
   .screen-call em,
   .mini-track,
-  .mini-track i,
-  .mini-track u {
+  .mini-track i {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
