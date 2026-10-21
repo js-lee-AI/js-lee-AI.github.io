@@ -255,6 +255,7 @@
     .project-card{padding:32px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);position:relative;overflow:hidden;transition:all .5s cubic-bezier(.16,1,.3,1)}
     .project-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),transparent);opacity:0;transition:opacity .4s}
     .project-card:hover{border-color:var(--border-light);background:var(--bg-tertiary);transform:translateX(6px);box-shadow:0 8px 32px rgba(0,0,0,.15),0 0 0 1px var(--border-light)}.project-card:hover::before{opacity:1}
+    .project-card+.project-card{margin-top:20px}
     .project-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
     .project-title{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text-primary);line-height:1.4}
     .project-title a{color:var(--text-primary);transition:color .3s}.project-title a:hover{color:var(--accent)}
@@ -511,6 +512,7 @@
     <div class="section-inner">
       <div class="section-header reveal"><h2 class="section-title">News</h2></div>
       <div class="news-list">
+        <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">Model Release</span> <strong>KURE-v3</strong>, a 1.1B Korean-English retrieval embedding model, has been released with open weights and a public API (core contributor).</div></div>
         <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">IEEE BIBM 2026</span> Our paper <strong>"Structured Clinical Memory for Safety-Consistent Diagnosis and Recommendation Generation in Long Medical Dialogues"</strong> has been accepted at <strong>IEEE BIBM 2026</strong> (Short Paper).</div></div>
         <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">Findings of AACL-IJCNLP 2026</span> Our paper <strong>"Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model Representations"</strong> has been accepted at <strong>Findings of AACL-IJCNLP 2026</strong> (co-first author).</div></div>
         <div class="news-item reveal"><div class="news-date">2026</div><div class="news-content"><span class="news-badge badge-acl">EMNLP 2026</span> <strong>Four papers</strong> (2 Main, 2 Findings) have been accepted at <strong>EMNLP 2026</strong>.</div></div>
@@ -568,6 +570,27 @@
         </div>
         <div class="pub-framework">
           <img src="vaetki_performance.PNG" alt="VAETKI benchmark performance comparison" style="max-height:200px">
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-header">
+          <div class="project-title"><a href="https://huggingface.co/nlpai-lab/KURE-v3" target="_blank" rel="noopener">KURE-v3 — Korean-English Retrieval Embedding Model</a></div>
+          <div class="project-period">2026</div>
+        </div>
+        <div class="project-org">Korea University <strong>NLP &amp; AI Lab</strong> and <strong>HIAI Institute</strong> · Released on Oct 20, 2026 with open weights and a public API</div>
+        <div class="project-role">Core Contributor · Data Synthesis, Training Optimization, Experiments</div>
+        <div class="project-desc">
+          <ul>
+            <li>Synthesized the training data, 3M+ query-document triplets with mined hard negatives and false-negative filtering</li>
+            <li>Optimized training with teacher-score distillation (a min-max normalized KL loss), Matryoshka embeddings from 2,048 down to 256 dimensions, and inputs of up to 8,192 tokens</li>
+            <li>Ran the experiments on the nine MTEB(kor, v2) retrieval tasks and English RTEB against 20+ open retrievers</li>
+            <li>With 1.1B parameters, KURE-v3 scores 0.803 average nDCG@10, above much larger dense retrievers such as Qwen3-Embedding-8B and the 27B harrier-oss-v1, and keeps 99% of its score at 1,024 dimensions</li>
+          </ul>
+        </div>
+        <div class="project-links">
+          <a href="https://huggingface.co/nlpai-lab/KURE-v3" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><path d="M37.6 76.8c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm44.8 0c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zM28.4 52.8c-1.6-1.6-1.6-4 0-5.6l8-8c1.6-1.6 4-1.6 5.6 0 1.6 1.6 1.6 4 0 5.6l-8 8c-1.6 1.6-4 1.6-5.6 0zm63.2 0c-1.6 1.6-4 1.6-5.6 0l-8-8c-1.6-1.6-1.6-4 0-5.6 1.6-1.6 4-1.6 5.6 0l8 8c1.6 1.6 1.6 4 0 5.6zM60 24c-22 0-40 18-40 40v20c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16V64c0-22-18-40-40-40z" fill="currentColor"/></svg>Model</a>
+          <a href="https://github.com/nlpai-lab/KURE" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>GitHub</a>
+          <a href="https://kure.kullm.ai/" class="pub-link-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>API</a>
         </div>
       </div>
     </div>
