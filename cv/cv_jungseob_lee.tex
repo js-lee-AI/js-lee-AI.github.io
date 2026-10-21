@@ -1,200 +1,103 @@
 \documentclass[11pt,a4paper]{article}
-
-% ═══ Packages ═══
-\usepackage[margin=2cm]{geometry}
-\usepackage{kotex}
+\usepackage[top=1.7cm, bottom=2.1cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{SourceSansPro}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Semibold, ItalicFont=*-RegularIt, BoldItalicFont=*-SemiboldIt]
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fontawesome5}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
 \usepackage{enumitem}
 \usepackage{titlesec}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{fancyhdr}
 \usepackage{tabularx}
-\usepackage{fontawesome5}
-\usepackage{graphicx}
-\usepackage{wrapfig}
-
-% ═══ Colors ═══
+\usepackage{array}
+\usepackage{needspace}
+\usepackage{etoolbox}
+\usepackage{hyperref}
 \definecolor{accent}{HTML}{2856A0}
-\definecolor{darktext}{HTML}{1a2332}
-\definecolor{lighttext}{HTML}{5a6578}
-
-% ═══ Hyperref ═══
-\hypersetup{
-  colorlinks=true,
-  linkcolor=accent,
-  urlcolor=accent,
-  pdfauthor={Jungseob Lee},
-  pdftitle={CV - Jungseob Lee},
-}
-
-% ═══ Formatting ═══
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\fancyfoot[C]{\footnotesize\color{lighttext} Jungseob Lee --- Curriculum Vitae --- \thepage}
-
-\titleformat{\section}{\large\bfseries\color{accent}}{}{0em}{}[\titlerule]
-\titlespacing*{\section}{0pt}{12pt}{6pt}
-
+\definecolor{darktext}{HTML}{1A2332}
+\definecolor{lighttext}{HTML}{5A6578}
+\definecolor{rulegray}{HTML}{C9CFD8}
+\hypersetup{colorlinks=true, linkcolor=accent, urlcolor=accent, pdfauthor={Jungseob Lee}, pdftitle={CV - Jungseob Lee}}
 \setlength{\parindent}{0pt}
-\setlist[itemize]{leftmargin=1.5em, itemsep=1pt, parsep=0pt, topsep=2pt, partopsep=0pt}
-
-% ═══ Commands ═══
-\newcommand{\cventry}[4]{%
-  \textbf{#1} \hfill \textit{#2} \\
-  \textit{#3} \hfill #4 \vspace{4pt}\\
-}
+\setlength{\emergencystretch}{3em}
+\clubpenalty=10000
+\widowpenalty=10000
 \newcommand{\me}[1]{\textbf{\underline{#1}}}
-\newcommand{\papertitle}[1]{\textit{``#1''}}
-\newcommand{\paperlink}[1]{\href{#1}{[\textcolor{accent}{PDF}]}}
-\newcommand{\doilink}[1]{\href{#1}{[\textcolor{accent}{DOI}]}}
+\newcommand{\lnk}[2]{\href{#2}{[\textcolor{accent}{#1}]}}
+
+\pagestyle{fancy}\fancyhf{}\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize\color{lighttext}Jungseob Lee \enspace\textperiodcentered\enspace page \thepage\ of \pageref{LastPage}}
+\titleformat{\section}{\Large\bfseries\color{accent}}{}{0em}{}[\vspace{-6pt}{\color{accent!30}\rule{\linewidth}{0.8pt}}]
+\titlespacing*{\section}{0pt}{12pt}{7pt}
+\setlength{\fboxsep}{2.4pt}
+% the venue tag, the venue and year in bold and the track under it, the strongest track filled
+% the colour comes after the paragraph starts, set in vertical mode it drops the tag a line below its title
+\newcommand{\vtag}[2]{\colorbox{accent!9}{\parbox[t]{2.15cm}{\centering\leavevmode\color{accent}\footnotesize\bfseries #1\\[-1.5pt]{\scriptsize\mdseries #2}}}}
+\newcommand{\vtaghi}[2]{\colorbox{accent}{\parbox[t]{2.15cm}{\centering\leavevmode\color{white}\footnotesize\bfseries #1\\[-1.5pt]{\scriptsize\mdseries #2}}}}
+% the paper text one size down, so that most titles fit on a single line
+\newcommand{\paperrow}[2]{\noindent\begin{tabularx}{\linewidth}{@{}p{2.35cm}@{\hspace{0.25cm}}>{\raggedright\arraybackslash\small}X@{}}#1 & #2\end{tabularx}\par\vspace{5pt}}
+\newcommand{\entry}[5]{\needspace{3\baselineskip}\textbf{#1} \hfill {\color{accent}#2}\\*{\color{lighttext}#3} \hfill {\small\color{lighttext}#4}\ifblank{#5}{}{\\*{\small #5}}\par\vspace{7pt}}
+\newcommand{\sect}[1]{\needspace{6\baselineskip}\section{#1}}
+
 
 \begin{document}
-
-% ═══════════════════════════════════════════
-%  Header
-% ═══════════════════════════════════════════
-\begin{minipage}[c]{0.22\textwidth}
-  \centering
-  \includegraphics[height=4.1cm,trim={0 80 0 0},clip]{photo-2026.png}
-\end{minipage}%
-\hfill
-\begin{minipage}[c]{0.75\textwidth}
-  \begin{center}
-    {\LARGE\bfseries Jungseob Lee} \\[6pt]
-    {\color{lighttext} NLP Researcher $\cdot$ Ph.D. Student, Korea University} \\[10pt]
-    \begin{tabular}{ccc}
-      \faIcon{birthday-cake}~1995.10.11 &
-      \faIcon{envelope}~\href{mailto:omanma1928@korea.ac.kr}{omanma1928@korea.ac.kr} &
-      \faIcon{globe}~\href{https://js-lee-ai.github.io}{js-lee-ai.github.io} \\[3pt]
-      \faIcon{github}~\href{https://github.com/js-lee-AI}{js-lee-AI} &
-      \faIcon{linkedin}~\href{https://www.linkedin.com/in/jslee-nlp/}{LinkedIn} &
-      \faIcon{graduation-cap}~\href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{Google Scholar}
-    \end{tabular}
-  \end{center}
+\begin{minipage}[c]{0.17\textwidth}\includegraphics[height=3.4cm,trim={0 80 0 0},clip]{photo-2026.png}\end{minipage}%
+\hspace{0.03\textwidth}%
+\begin{minipage}[c]{0.8\textwidth}
+{\fontsize{26}{30}\selectfont\bfseries Jungseob Lee}\\[3pt]
+{\large\color{accent}NLP Researcher $\cdot$ Ph.D. Student, Korea University}\\[9pt]
+\begin{tabular}{@{}l@{\hspace{1.4em}}l@{\hspace{1.4em}}l@{}}
+\faIcon{birthday-cake}~1995.10.11 & \faIcon{envelope}~\href{mailto:omanma1928@korea.ac.kr}{omanma1928@korea.ac.kr} & \faIcon{globe}~\href{https://js-lee-ai.github.io}{js-lee-ai.github.io} \\[3pt]
+\faIcon{github}~\href{https://github.com/js-lee-AI}{js-lee-AI} & \faIcon{linkedin}~\href{https://www.linkedin.com/in/jslee-nlp/}{LinkedIn} & \faIcon{graduation-cap}~\href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{Google Scholar}
+\end{tabular}
 \end{minipage}
+\par\vspace{2pt}
 
-\vspace{4pt}
-
-% ═══════════════════════════════════════════
-%  Summary
-% ═══════════════════════════════════════════
-\section{Summary}
-Integrated M.S./Ph.D. researcher at Korea University NLP Lab (Advisor: Prof.~Heuiseok Lim), working on large language models and natural language processing --- agentic LLMs, LLM efficiency, and efficient reasoning. First-author work at \textbf{EMNLP 2026} (Main), \textbf{ACL 2025} (Oral), and \textbf{Findings of ACL 2024}; four papers accepted at \textbf{EMNLP 2026} (2 Main, 2 Findings). Served as post-training Project Manager (Korea University representative) for \textbf{VAETKI}, Korea's sovereign foundation model.
-\vspace{3pt}\\
+\sect{Summary}
+Integrated M.S./Ph.D. researcher at Korea University NLP Lab (Advisor: Prof.~Heuiseok Lim), working on large language models and natural language processing, with a focus on agentic LLMs, LLM efficiency, and efficient reasoning. First-author work at \textbf{EMNLP 2026} (Main), \textbf{ACL 2025} (Oral), and \textbf{Findings of ACL 2024}, with four papers accepted at \textbf{EMNLP 2026} (2 Main, 2 Findings). Served as post-training Project Manager (Korea University representative) for \textbf{VAETKI}, Korea's sovereign foundation model.\\[4pt]
 \textbf{Research Interests:} Large Language Models, Agentic LLM, LLM Efficiency, Efficient Reasoning
 
-% ═══════════════════════════════════════════
-%  Education
-% ═══════════════════════════════════════════
-\section{Education}
-\cventry{Integrated M.S./Ph.D. in Computer Science}{2021 -- Present}{Korea University, Seoul, Korea}{\textbf{Expected: Feb. 2027}}
-\begin{itemize}
-  \item NLP Lab, Advisor: Prof.~Heuiseok Lim --- large language models, agentic LLM, LLM efficiency, and efficient reasoning
-\end{itemize}
+\sect{Education}
+\entry{Integrated M.S./Ph.D. in Computer Science}{2021 -- Present}{Korea University, Seoul, Korea}{\textbf{Expected: Feb. 2027}}{NLP Lab, Advisor: Prof.~Heuiseok Lim}
+\sect{Experience}
+\entry{VAETKI, Korean Sovereign AI Foundation Model}{Jun 2025 -- Jan 2026}{Post-training Project Manager, Korea University Representative}{}{Led post-training (SFT, RL, dataset curation) for Korea University in the NC AI (NCSOFT)-led 14-institution consortium of the Ministry of Science and ICT's national program. Open-sourced in Dec 2025, state of the art on CLIcK, KoBALT, KMMLU-Pro, and IFEval. \enspace \lnk{Model}{https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI}\enspace\lnk{Technical Report}{https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf}}
+\entry{Polyglot, Open-Source Multilingual Language Models}{2022}{Open-Source Contributor, EleutherAI}{}{Worked on efficient language transfer of pretrained language models with cross-lingual post-training (XPT) and MAD-X adapters, and also took part in pretraining. \enspace \lnk{GitHub}{https://github.com/EleutherAI/polyglot}}
+\sect{Awards \& Honors}
+\entry{Outstanding Reviewer Award}{2026}{The 64th Annual Meeting of the Association for Computational Linguistics (ACL 2026), San Diego}{}{}
+\entry{Best Paper Award (Top 1)}{2025}{Annual Conference on Human and Cognitive Language Technology (HCLT 2025)}{}{For \textit{KULLM-RAG: A RAG-Specialized Large Language Model with Intelligent Self-Verification} (first author)}
+\entry{Minister of Science and ICT Award}{2023}{ICT Challenge 2023, Ministry of Science and ICT (organized by IITP)}{}{For \textit{KoCheckGPT}, Korean-specialized detection of LLM-generated documents, built with M.~Kang and S.~Lee and selected from 79 teams across 28 universities}
+\sect{Selected Publications}
+{\small\color{lighttext} \underline{Underlined} = me, $^{*}$ equal contribution. Full list (43 papers) on \href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{\textcolor{accent}{Google Scholar}}.}\par\vspace{6pt}
 
-% ═══════════════════════════════════════════
-%  Research Experience
-% ═══════════════════════════════════════════
-\section{Research Experience}
-
-\textbf{VAETKI --- Korean Sovereign AI Foundation Model} \hfill \textit{Jun 2025 -- Jan 2026} \\
-\textit{Post-training Project Manager --- Korea University Representative} \hfill {\footnotesize\color{lighttext} NC AI (NCSOFT)-led consortium} \\[2pt]
-\begin{itemize}
-  \item Led the post-training pipeline (SFT, RL, dataset curation) as PM for Korea University; selected by the Ministry of Science and ICT for Korea's national Sovereign AI Foundation Model program (NC AI-led 14-institution consortium; open-sourced Dec 2025).
-  \item State-of-the-art on Korean language/culture (CLIcK), reasoning (KoBALT), professional knowledge (KMMLU-Pro), and instruction following (IFEval).
-  \item \href{https://huggingface.co/NC-AI-consortium-VAETKI/VAETKI}{[\textcolor{accent}{Model}]} \enspace \href{https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf}{[\textcolor{accent}{Technical Report}]}
-\end{itemize}
-\vspace{5pt}
-
-\textbf{Cross-lingual Language Transfer for Large Language Models} \hfill \textit{2024 -- 2025} \\
-\textit{Lead Researcher (first author)} \hfill {\footnotesize\color{lighttext} Published at ACL 2025 (Oral)} \\[2pt]
-\begin{itemize}
-  \item Cross-lingual optimization that transfers English-centric LLMs to new languages while preserving source-language ability; \textbf{Oral} at ACL 2025.
-  \item \href{https://aclanthology.org/2025.acl-long.734.pdf}{[\textcolor{accent}{PDF}]}
-\end{itemize}
-\vspace{5pt}
-
-\textbf{Length-aware Byte Pair Encoding for Korean Machine Translation} \hfill \textit{2024} \\
-\textit{Lead Researcher (first author)} \hfill {\footnotesize\color{lighttext} Published at Findings of ACL 2024} \\[2pt]
-\begin{itemize}
-  \item Length-aware BPE tokenization that mitigates over-segmentation in Korean machine translation and improves translation quality; \textbf{Findings of ACL 2024}.
-  \item \href{https://aclanthology.org/2024.findings-acl.135.pdf}{[\textcolor{accent}{PDF}]}
-\end{itemize}
-
-% ═══════════════════════════════════════════
-%  Awards
-% ═══════════════════════════════════════════
-\section{Awards \& Honors}
-\textbf{Outstanding Reviewer Award} \hfill \textit{2026} \\
-The 64th Annual Meeting of the Association for Computational Linguistics (ACL 2026), San Diego
-\vspace{5pt}
-
-\textbf{Best Paper Award (Top 1)} \hfill \textit{2025} \\
-Annual Conference on Human and Cognitive Language Technology (HCLT 2025) \\[2pt]
-{\small For \papertitle{KULLM-RAG: A RAG-Specialized Large Language Model with Intelligent Self-Verification}; \me{J.~Lee} (first author), M.~Kim, J.~Yoon, \textit{et al.} --- Korea University, Soongsil University, Human-Inspired AI Research.}
-\vspace{5pt}
-
-\textbf{Minister of Science and ICT Award} \hfill \textit{2023} \\
-ICT Challenge 2023, Ministry of Science and ICT (organized by IITP) \\[2pt]
-{\small For \papertitle{KoCheckGPT}, Korean-specialized detection of LLM-generated documents; team M.~Kang, \me{J.~Lee}, S.~Lee --- selected from 79 teams across 28 universities.}
-
-% ═══════════════════════════════════════════
-%  Publications
-% ═══════════════════════════════════════════
-\section{Publications}
-{\small\color{lighttext} \underline{Underlined} = me; $^{*}$ equal contribution. Full list (31 papers) on \href{https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ}{\textcolor{accent}{Google Scholar}}.}
-\vspace{4pt}
-
-{\color{accent}\textbf{2026}}
-\begin{itemize}
-  \item \papertitle{The Hallucination Signal Is a Mean Shift: Why Simple Probes Suffice} ---
-    \me{J.~Lee}, J.~Seo, H.~Lim ~\textbf{EMNLP 2026} (Main) ~\href{https://arxiv.org/abs/2608.28930}{[\textcolor{accent}{arXiv}]}
-  \item \papertitle{Language Chain in Alignment: Cross-Lingual Ranking Preference Optimization} ---
-    S.~Lee, M.~Kim, \me{J.~Lee}, H.~Lim ~\textbf{EMNLP 2026} (Main)
-  \item \papertitle{DART: Draft-Agreement Routing for Training-Free Adaptive Thinking Budgets in Hybrid Reasoning Models} ---
-    \me{J.~Lee}, S.~Hong, S.~Lee, \textit{et al.} ~\textbf{Findings of EMNLP 2026} ~\href{https://arxiv.org/abs/2606.23181}{[\textcolor{accent}{arXiv}]}
-  \item \papertitle{ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning Models} ---
-    M.~Kang$^{*}$, \me{J.~Lee}$^{*}$, J.~Seo, H.~Lim ~\textbf{Findings of EMNLP 2026}
-  \item \papertitle{Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment} ---
-    S.~Hong, Y.~Jang, \me{J.~Lee}, H.~Moon, H.~Lim ~\textbf{ICLR 2026} (Poster) ~\paperlink{https://openreview.net/pdf?id=NvKvW5k6Kk}
-  \item \papertitle{Towards Enhancing Natural Language Inference for Identifying Erroneous Outputs in Data-to-Text Generation} ---
-    C.~Ok, E.K.~Lee, H.~Ju, \me{J.~Lee}, D.~Oh ~\textbf{Knowledge-Based Systems} ~\doilink{https://www.sciencedirect.com/science/article/pii/S0950705126006878}
-  \item \papertitle{Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only Rewards} ---
-    \me{J.~Lee}, S.~Lee, S.~Hong, M.~Kim, C.~Park, H.~Lim ~Preprint ~\href{https://arxiv.org/abs/2606.22716}{[\textcolor{accent}{arXiv}]}
-  \item \papertitle{To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent RAG} ---
-    \me{J.~Lee}, C.~Park, H.~Lim ~Preprint ~\href{https://arxiv.org/abs/2606.25191}{[\textcolor{accent}{arXiv}]}
-  \item \papertitle{Skin-Deep: A Geometric Diagnostic for Alignment Fragility in LLM Representations} ---
-    D.J.~Lee$^{*}$, \me{J.~Lee}$^{*}$, S.~Lee, \textit{et al.} ~\textbf{Findings of AACL-IJCNLP 2026} ($^{*}$equal contribution) ~\href{https://arxiv.org/abs/2606.22676}{[\textcolor{accent}{arXiv}]}
-\end{itemize}
-
-{\color{accent}\textbf{2025}}
-\begin{itemize}
-  \item \papertitle{Cross-lingual Optimization for Language Transfer in Large Language Models} ---
-    \me{J.~Lee}, S.~Hong, H.~Moon, H.S.~Lim ~\textbf{ACL 2025} (Oral) ~\paperlink{https://aclanthology.org/2025.acl-long.734.pdf}
-  \item \papertitle{An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual Post-training} ---
-    S.~Son$^{*}$, C.~Park$^{*}$, \me{J.~Lee}$^{*}$, \textit{et al.} ~\textbf{Expert Systems with Applications} ~\doilink{https://doi.org/10.1016/j.eswa.2024.125841}
-\end{itemize}
-
-{\color{accent}\textbf{2024}}
-\begin{itemize}
-  \item \papertitle{Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine Translation} ---
-    \me{J.~Lee}, H.~Moon, S.~Lee, C.~Park, S.~Eo, \textit{et al.} ~\textbf{Findings of ACL 2024} ~\paperlink{https://aclanthology.org/2024.findings-acl.135.pdf}
-  \item \papertitle{Analysis of Model-, Data-, and User-Centric Approaches for Chat Applications: A Case Study of BlenderBot 2.0} ---
-    C.~Park$^{*}$, \me{J.~Lee}$^{*}$, S.~Son, \textit{et al.} ~\textbf{Applied Sciences} ~\doilink{https://doi.org/10.3390/app14114821}
-\end{itemize}
-
-{\color{accent}\textbf{2023}}
-\begin{itemize}
-  \item \papertitle{A Survey on Evaluation Metrics for Machine Translation} ---
-    S.~Lee$^{*}$, \me{J.~Lee}$^{*}$, H.~Moon, \textit{et al.} ~\textbf{Mathematics} (142 citations) ~\paperlink{https://www.mdpi.com/2227-7390/11/4/1006}
-  \item \papertitle{PEEP-Talk: A Situational Dialogue-based Chatbot for English Education} ---
-    S.~Lee, Y.~Jang, C.~Park, \me{J.~Lee}, \textit{et al.} ~\textbf{ACL 2023} (Demo) ~\paperlink{https://aclanthology.org/2023.acl-demo.18.pdf}
-\end{itemize}
-
-\vspace{10pt}
-\begin{center}
-  \color{lighttext}\footnotesize Last updated: \today
-\end{center}
-
+\paperrow{\vtag{EMNLP 2026}{Main}}{\textbf{The Hallucination Signal Is a Mean Shift: Why Simple Probes~Suffice}\newline \me{J.~Lee}, J.~Seo, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2608.28930}}
+\paperrow{\vtag{EMNLP 2026}{Main}}{\textbf{Language Chain in Alignment: Cross-Lingual Ranking Preference~Optimization}\newline S.~Lee, M.~Kim, \me{J.~Lee}, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2608.23149}\enspace\lnk{Code}{https://github.com/dltmddbs100/CRPO}}
+\paperrow{\vtag{EMNLP 2026}{Findings}}{\textbf{DART: Draft-Agreement Routing for Training-Free Adaptive Thinking Budgets in Hybrid Reasoning~Models}\newline \me{J.~Lee}, S.~Hong, S.~Lee, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2606.23181}\enspace\lnk{Code}{https://github.com/js-lee-AI/DART}}
+\paperrow{\vtag{EMNLP 2026}{Findings}}{\textbf{ThinkFuse: Trajectory-Aware Test-Time Fusion for Small Reasoning~Models}\newline M.~Kang$^{*}$, \me{J.~Lee}$^{*}$, J.~Seo, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2610.07803}\enspace\lnk{Code}{https://github.com/js-lee-AI/ThinkFuse}}
+\paperrow{\vtag{ICLR 2026}{Poster}}{\textbf{Improving Semantic Proximity in Information Retrieval through Cross-Lingual~Alignment}\newline S.~Hong, Y.~Jang, \me{J.~Lee}, H.~Moon, H.~Lim\enspace \lnk{PDF}{https://openreview.net/pdf?id=NvKvW5k6Kk}}
+\paperrow{\vtag{KBS 2026}{Journal}}{\textbf{Towards Enhancing Natural Language Inference for Identifying Erroneous Outputs in Data-to-Text~Generation}\newline C.~Ok, E.K.~Lee, H.~Ju, \me{J.~Lee}, D.~Oh\enspace\textit{Knowledge-Based Systems}\enspace \lnk{DOI}{https://www.sciencedirect.com/science/article/pii/S0950705126006878}}
+\paperrow{\vtag{AACL 2026}{Findings}}{\textbf{Skin-Deep: A Geometric Diagnostic for Alignment Fragility in Large Language Model~Representations}\newline D.J.~Lee$^{*}$, \me{J.~Lee}$^{*}$, S.~Lee, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2606.22676}\enspace\lnk{Code}{https://github.com/js-lee-AI/skin-deep}}
+\paperrow{\vtaghi{ACL 2025}{Oral}}{\textbf{Cross-lingual Optimization for Language Transfer in Large Language~Models}\newline \me{J.~Lee}, S.~Hong, H.~Moon, H.S.~Lim\enspace \lnk{PDF}{https://aclanthology.org/2025.acl-long.734.pdf}}
+\paperrow{\vtag{ESWA 2025}{Journal}}{\textbf{An Analysis on Language Transfer of Pre-trained Language Model with Cross-lingual~Post-training}\newline S.~Son$^{*}$, C.~Park$^{*}$, \me{J.~Lee}$^{*}$, \textit{et al.}\enspace\textit{Expert Systems with Applications}\enspace \lnk{DOI}{https://doi.org/10.1016/j.eswa.2024.125841}}
+\paperrow{\vtag{ACL 2024}{Findings}}{\textbf{Length-aware Byte Pair Encoding for Mitigating Over-segmentation in Korean Machine~Translation}\newline \me{J.~Lee}, H.~Moon, S.~Lee, \textit{et al.}\enspace \lnk{PDF}{https://aclanthology.org/2024.findings-acl.135.pdf}}
+\paperrow{\vtag{Appl. Sci. 2024}{Journal}}{\textbf{Analysis of the Effectiveness of Model, Data, and User-Centric Approaches for Chat Application: A Case Study of BlenderBot~2.0}\newline C.~Park$^{*}$, \me{J.~Lee}$^{*}$, S.~Son, \textit{et al.}\enspace\textit{Applied Sciences}\enspace \lnk{DOI}{https://doi.org/10.3390/app14114821}}
+\paperrow{\vtag{Math. 2023}{Journal}}{\textbf{A Survey on Evaluation Metrics for Machine~Translation}\newline S.~Lee$^{*}$, \me{J.~Lee}$^{*}$, H.~Moon, \textit{et al.}\enspace\textit{Mathematics} (142 citations)\enspace \lnk{PDF}{https://www.mdpi.com/2227-7390/11/4/1006}}
+\paperrow{\vtag{ACL 2023}{Demo}}{\textbf{PEEP-Talk: A Situational Dialogue-based Chatbot for English~Education}\newline S.~Lee, Y.~Jang, C.~Park, \me{J.~Lee}, \textit{et al.}\enspace \lnk{PDF}{https://aclanthology.org/2023.acl-demo.18.pdf}}
+\sect{Under Review}
+\paperrow{\vtag{arXiv}{Oct 2026}}{\textbf{Predicting and Repairing Merge Collapse in Large Language~Models}\newline \me{J.~Lee}, S.~Lee, S.~Eo, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2610.03199}\enspace\lnk{Code}{https://github.com/js-lee-AI/PRISM}}
+\paperrow{\vtag{arXiv}{Oct 2026}}{\textbf{Distilling Directional~Verification}\newline \me{J.~Lee}, S.~Eo, S.~Hong, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2610.00997}\enspace\lnk{Code}{https://github.com/js-lee-AI/directional-verification}}
+\paperrow{\vtag{arXiv}{Oct 2026}}{\textbf{CAST: Cost-Aware Speculative Trees from One-Pass Block~Drafters}\newline \me{J.~Lee}, S.~Eo\enspace \lnk{arXiv}{https://arxiv.org/abs/2610.00321}\enspace\lnk{Code}{https://github.com/js-lee-AI/CAST}}
+\paperrow{\vtag{arXiv}{Oct 2026}}{\textbf{Refusal Localizes, the Damage Relocates: Safety Layers Under Few-Sample~Fine-Tuning}\newline \me{J.~Lee}$^{*}$, D.J.~Lee$^{*}$, S.~Eo, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2610.00320}\enspace\lnk{Code}{https://github.com/js-lee-AI/refusal-relocates}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{Recovering Off-Policy Supervision for Speculative~Decoding}\newline \me{J.~Lee}, C.~Park, S.~Eo, H.~Moon\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.38795}\enspace\lnk{Code}{https://github.com/js-lee-AI/ALR-IRA}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{Risk-Controlled Selective LLM Answering by Pricing Label-Free~Checks}\newline D.J.~Lee$^{*}$, \me{J.~Lee}$^{*}$, C.~Park, H.~Moon, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.37493}\enspace\lnk{Code}{https://github.com/js-lee-AI/PriceCheck}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{Where Activation Sparsity and KV-Cache Sparsity Cross in LLM~Decoding}\newline \me{J.~Lee}, S.~Lee, S.~Hong, S.~Eo, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.33889}\enspace\lnk{Code}{https://github.com/js-lee-AI/ByteCross}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{Faster Block-Diffusion Serving with Distribution-Free Risk~Guarantees}\newline \me{J.~Lee}, D.J.~Lee, C.~Park, S.~Eo, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.33887}\enspace\lnk{Code}{https://github.com/js-lee-AI/Redline}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{Vision Is Not Overhead: One-Pass Block Drafting for Lossless Speculative Decoding in Vision-Language~Models}\newline \me{J.~Lee}, S.~Hong, D.J.~Lee, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.00355}\enspace\lnk{Code}{https://github.com/js-lee-AI/GLANCE}}
+\paperrow{\vtag{arXiv}{Jul 2026}}{\textbf{Answer-Conditioned Chains of Thought Degrade Verifiable-Reasoning Distillation in Large Language~Models}\newline \me{J.~Lee}, S.~Lee, S.~Son, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2607.14552}\enspace\lnk{Code}{https://github.com/js-lee-AI/answer-leakage}}
+\paperrow{\vtag{arXiv}{Jun 2026}}{\textbf{To Isolate or to Score? Model-Adaptive Assessment for Cost-Efficient Multi-Agent~RAG}\newline \me{J.~Lee}, C.~Park, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2606.25191}\enspace\lnk{Code}{https://github.com/js-lee-AI/MADARA}}
+\paperrow{\vtag{arXiv}{Jun 2026}}{\textbf{Beyond Penalizing Mistakes: Stabilizing Efficiency Training in Large Reasoning Models via Adaptive Correct-Only~Rewards}\newline \me{J.~Lee}$^{*}$, S.~Lee$^{*}$, S.~Hong, \textit{et al.}\enspace \lnk{arXiv}{https://arxiv.org/abs/2606.22716}\enspace\lnk{Code}{https://github.com/js-lee-AI/ACOER}}
+\paperrow{\vtag{arXiv}{Sep 2026}}{\textbf{RenderRank: Learning to Rerank Text with Compressed Visual~Tokens}\newline S.~Hong, Y.~Jang, \me{J.~Lee}, H.~Moon, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2609.35069}}
+\paperrow{\vtag{arXiv}{Jul 2026}}{\textbf{LAMAR: An Open Language-Aware Multilingual Alignment~Reranker}\newline S.~Hong, Y.~Jang, \me{J.~Lee}, S.~Lee, H.~Lim\enspace \lnk{arXiv}{https://arxiv.org/abs/2607.22042}}
+\vspace{8pt}
+{\centering\color{lighttext}\footnotesize Last updated: \today\par}
 \end{document}
