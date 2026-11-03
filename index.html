@@ -124,6 +124,7 @@
     .hero-name{font-family:var(--font-display);font-size:clamp(42px,5.5vw,64px);font-weight:700;line-height:1.05;color:var(--text-primary);margin-bottom:14px;letter-spacing:-.02em}
     .hero-title{font-family:var(--font-display);font-size:24px;font-weight:300;font-style:italic;color:var(--text-secondary);margin-bottom:32px}
     .hero-bio{font-size:15px;color:var(--text-secondary);line-height:1.85;max-width:520px;margin-bottom:6px}.hero-bio strong{color:var(--text-primary);font-weight:500}
+    .hero-story{font-size:15px;color:var(--text-secondary);line-height:1.85;max-width:520px;margin-bottom:32px}
     /* The line under the bio ends its sentence. With the script it shows one interest at a time, written at a prompt. */
     .hero-typed{display:flex;gap:.7em;margin-bottom:36px;font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:16px;font-weight:500;line-height:1.85;color:var(--accent)}
     .hero-prompt{color:var(--text-muted)}
@@ -432,7 +433,7 @@
       .hero{padding:100px 24px 60px}.hero-inner{grid-template-columns:1fr;gap:40px;text-align:center}
       .hero-photo{width:220px;height:280px;border-radius:16px}.hero-photo-placeholder{font-size:52px}
       .hero-photo-decor{display:none}
-      .hero-bio{margin:0 auto 6px}.hero-typed{justify-content:center;margin-bottom:32px}.hero-links{justify-content:center}
+      .hero-bio{margin:0 auto 6px}.hero-story{margin:0 auto 28px}.hero-typed{justify-content:center;margin-bottom:32px}.hero-links{justify-content:center}
       section{padding:0 24px}.news-item{grid-template-columns:80px 1fr;gap:20px}.edu-item{grid-template-columns:1fr;gap:8px}
       .pub-card{padding:20px 24px}.pub-card-header{flex-direction:column-reverse;gap:8px}.pub-links{margin-left:0}
     }
@@ -488,6 +489,7 @@
         <p class="hero-title">Ph.D. Student, Korea University</p>
         <p class="hero-bio">I am a Ph.D. student at <strong>Korea University</strong>, advised by Prof. Heuiseok Lim. My research focuses on <strong>Natural Language Processing</strong>, with particular interests in</p>
         <p class="hero-typed"><span class="hero-prompt" aria-hidden="true">&gt;</span><span data-typed="large language models|agentic LLM|LLM efficiency">large language models, agentic LLM, and LLM efficiency.</span></p>
+        <p class="hero-story">I do my research in a university lab, with far fewer GPUs than the companies that build the largest models. Working this way, I have seen how much a good answer from AI still depends on computing cost. I think a grandmother in a small town in Korea who asks about a symptom late at night should get the same good answer as an engineer in Silicon Valley, and get it just as fast. So I work on LLM efficiency, making models cheaper to train and faster to run, without making them worse.</p>
         <div class="hero-links">
           <a href="https://scholar.google.com/citations?hl=ko&user=dTBGyFIAAAAJ" class="hero-link" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/></svg>Scholar</a>
